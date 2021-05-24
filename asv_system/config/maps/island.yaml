@@ -1,0 +1,6 @@
+image: island.png
+resolution: 1.0
+origin: [0.0, 0.0, 0.0]
+occupied_thresh: 0.95
+free_thresh: 0.95
+negate: 1

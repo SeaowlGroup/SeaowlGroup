@@ -1,0 +1,6 @@
+image: mozambique.png
+resolution: 213.958809677
+origin: [0.0, 0.0, 0.0]
+occupied_thresh: 0.5
+free_thresh: 0.5
+negate: 0

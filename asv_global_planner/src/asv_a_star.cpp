@@ -48,7 +48,7 @@ bool AStarPlanner::isValid(int x, int y) { //If our Node is an obstacle it is no
     }
     else {
       return false;
-    } 
+    }
   }
 }
 
@@ -97,7 +97,6 @@ visualization_msgs::MarkerArray AStarPlanner::aStar(Node player, Node dest) {
       closedList[x][y] = false;
     }
   }
-
   //Initialize our starting list
   int x = player.x;
   int y = player.y;
@@ -107,7 +106,7 @@ visualization_msgs::MarkerArray AStarPlanner::aStar(Node player, Node dest) {
   allMap_[x + y * (X_MAX_ / X_STEP_)].parentX = x;
   allMap_[x + y * (X_MAX_ / X_STEP_)].parentY = y;
 
-  std::vector<Node> openList;  
+  std::vector<Node> openList;
   openList.emplace_back(allMap_[x + y * (X_MAX_ / X_STEP_)]);
   bool destinationFound = false;
   while (!openList.empty()&&openList.size()<(X_MAX_ / X_STEP_)*(Y_MAX_ / Y_STEP_)) {
@@ -134,7 +133,6 @@ visualization_msgs::MarkerArray AStarPlanner::aStar(Node player, Node dest) {
     x = node.x;
     y = node.y;
     closedList[x][y] = true;
-
     //For each neighbour starting from North-West to South-East
     for (int newX = -1; newX <= 1; newX++) {
       for (int newY = -1; newY <= 1; newY++) {
@@ -142,7 +140,7 @@ visualization_msgs::MarkerArray AStarPlanner::aStar(Node player, Node dest) {
 	int id = x + newX + (y + newY)*(X_MAX_ / X_STEP_);
         if (isValid(x + newX, y + newY)) {
           if (isDestination(x + newX, y + newY, dest)) {
-            //Destination found - make path 
+            //Destination found - make path
             allMap_[id].parentX = x;
             allMap_[id].parentY = y;
             destinationFound = true;
@@ -186,7 +184,7 @@ visualization_msgs::MarkerArray AStarPlanner::makePath(Node dest) {
     std::stack<Node> path;
     visualization_msgs::MarkerArray usablePath;
 
-    while (!(allMap_[id].parentX == x && allMap_[id].parentY == y) && allMap_[id].x != -1 && allMap_[id].y != -1) 
+    while (!(allMap_[id].parentX == x && allMap_[id].parentY == y) && allMap_[id].x != -1 && allMap_[id].y != -1)
     {
       path.push(allMap_[id]);
       int tempX = allMap_[id].parentX;
@@ -202,8 +200,8 @@ visualization_msgs::MarkerArray AStarPlanner::makePath(Node dest) {
       visualization_msgs::Marker coord;
       coord.pose.position.x = X_STEP_*(top.x + 0.5);
       coord.pose.position.y = Y_STEP_*(top.y + 0.5);
-      path.pop();    
-     
+      path.pop();
+
       usablePath.markers.emplace_back(coord);
     }
     return usablePath;
@@ -229,11 +227,10 @@ visualization_msgs::MarkerArray AStarPlanner::calculate_waypoints(const double s
 
   //wp = [[arrival_x, arrival_y]];
   //wp.emplace_back(aStar(player, dest));
-  
   wp = aStar(player, dest);
 
   //std::vector<double> test = {0.5, 0.9};
-  
+
   //ros::param::set("/asv/LOSNode/waypoints", test);
 
   return wp;

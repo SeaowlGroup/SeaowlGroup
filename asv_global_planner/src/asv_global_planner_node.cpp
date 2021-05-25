@@ -2,6 +2,8 @@
 #include <ros/console.h>
 #include <cmath>
 
+#include "asv_global_planner/asv_global_planner_node.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -20,7 +22,7 @@ int main(int argc, char *argv[])
   ros::Publisher wp_pub = n.advertise<visualization_msgs::MarkerArray>("asv_waypoints", 1);
 
 
-  ros::Subscriber og_sub = n.subscribe("/map",
+  ros::Subscriber og_sub = n.subscribe("/processed_map",
                                        1,
                                        &GlobalPlannerNode::mapCallback,
                                        &gp_node);
@@ -41,8 +43,7 @@ int main(int argc, char *argv[])
 GlobalPlannerNode::GlobalPlannerNode() : gp_(NULL),
                                          wp_pub_(NULL),
                                          og_sub_(NULL),
-                                         asv_sub_(NULL),
-					 map_init(0) {};
+                                         asv_sub_(NULL) {};
 
 GlobalPlannerNode::~GlobalPlannerNode() {}
 
@@ -70,15 +71,15 @@ void GlobalPlannerNode::start()
       if (map_init == 1) {
           gp_->initialize(&map_);
           ROS_INFO("Global planner initialized");
-	  waypt = gp_->calculate_waypoints(start_x, start_y, 250.0, 400.0);
-	  map_init = 2;
+	        waypt = gp_->calculate_waypoints(start_x, start_y, 770.0, 580.0);
+	        map_init = 2;
       }
 
       // For timing of algorithm: uncomment!
       //tick = clock();
 
       //gp_->update();
-      
+
       //waypt.markers[n].pose.position;
       //visualization_msgs::MarkerArray waypt = gp_->calculate_waypoints(start_x, start_y, 0.0, 0.0);
 

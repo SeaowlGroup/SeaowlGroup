@@ -10,6 +10,9 @@
 
 #include <vector>
 
+#include "asv_global_planner/asv_global_planner.h"
+#include "asv_global_planner/asv_a_star.h"
+
 class GlobalPlannerNode
 {
  public:
@@ -44,8 +47,8 @@ class GlobalPlannerNode
   GlobalPlanner *gp_;
 
   nav_msgs::OccupancyGrid map_;
-  int map_init; //0 means the map isn't initialized, 1 means the node has initialized its map but not the planner, 2 means the node and the planner had it initialized
-  
+  int map_init = 0; //0 means the map isn't initialized, 1 means the node has initialized its map but not the planner, 2 means the node and the planner had it initialized
+
 
   // ROS API
   ros::Publisher *wp_pub_;

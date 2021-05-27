@@ -52,12 +52,12 @@ class LOSGuidanceROS(object):
 
         self._first_draw = False
 
-    #def set_waypoints(self, wps):
-    #    self.wp = wps
-    #    self.controller.wp = np.copy(wps)
-    #    self.controller.nWP = len(wps)
-    #    self.controller.wp_initialized = True
-    #    self.nwp = len(wps)
+    def set_waypoints(self, wps):
+        self.wp = wps
+        self.controller.wp = np.copy(wps)
+        self.controller.nWP = len(wps)
+        self.controller.wp_initialized = True
+        self.nwp = len(wps)
 
     def _visualize_waypoints(self, switched):
         if not switched and not self._first_draw:
@@ -306,7 +306,6 @@ class LOSGuidance(Controller):
 if __name__ == "__main__":
     rospy.init_node("LOS_Guidance_controller")
 
-    #waypoints = rospy.get_param("~waypoints")
     u_d = rospy.get_param("~u_d", 2.0)
     R2 = rospy.get_param("~acceptance_radius", 20)**2
     dt = rospy.get_param("~update_rate", .2)
@@ -322,8 +321,9 @@ if __name__ == "__main__":
                            max_integral_correction,
                            switch_criterion='circle')
 
-    #wps = np.array(waypoints)
-    #wps = np.array([[0.0, 0.0], [300.0, 550.0]])
-    #guide.set_waypoints(wps)
+    if (rospy.get_param("~global_planner", "None") == "None") :
+        waypoints = rospy.get_param("~waypoints")
+        wps = np.array(waypoints)
+        guide.set_waypoints(wps)
 
     guide.run_controller()

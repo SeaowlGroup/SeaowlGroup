@@ -21,8 +21,16 @@ void AStarPlanner::initialize(nav_msgs::OccupancyGrid *map) {
   map_ = map;
   X_MAX_ = map->info.width;
   Y_MAX_ = map->info.height;
-  allMap_.resize(X_MAX_*Y_MAX_/(X_STEP_*Y_STEP_));
 
+  obstMap_.resize(X_MAX_*Y_MAX_/(X_STEP_*Y_STEP_));
+  for (int x = 0; x < (X_MAX_ / X_STEP_); x++) {
+    for (int y = 0; y < (Y_MAX_ / Y_STEP_); y++) {
+      int id = x + y * (X_MAX_ / X_STEP_);
+      obstMap_[id] = isObstacle(x,y);
+    }
+  }
+
+  allMap_.resize(X_MAX_*Y_MAX_/(X_STEP_*Y_STEP_));
   reinit();
 }
 
@@ -46,7 +54,7 @@ bool AStarPlanner::isValid(int x, int y) { //If our Node is an obstacle it is no
     return false;
   }
   else {
-    if (!isObstacle(x, y)) {
+    if (!obstMap_[x + y * (X_MAX_ / X_STEP_)]) {
       return true;
     }
     else {
@@ -199,14 +207,25 @@ asv_msgs::Path AStarPlanner::makePath(Node dest) {
     }
     path.push(allMap_[id]);
 
-    while (!path.empty()) {
-      Node top = path.top();
-      asv_msgs::Waypoint2D coord;
-      coord.x = X_STEP_*(top.x + 0.5);
-      coord.y = Y_STEP_*(top.y + 0.5);
-      path.pop();
+    Node inf;
+    inf.x = -1;
 
-      usablePath.waypoints.emplace_back(coord);
+    while (!path.empty()) {
+      Node n = path.top();
+      path.pop();
+      Node sup;
+      if (!path.empty()) {
+        sup = path.top();
+      }
+      else { return usablePath; }
+
+      if(inf.x == -1 || path.empty() || !thereIsAWay(inf, sup)) {
+        asv_msgs::Waypoint2D coord;
+        coord.x = X_STEP_*(n.x + 0.5);
+        coord.y = Y_STEP_*(n.y + 0.5);
+        usablePath.waypoints.emplace_back(coord);
+        inf = n;
+      }
     }
     return usablePath;
   //}
@@ -215,6 +234,26 @@ asv_msgs::Path AStarPlanner::makePath(Node dest) {
   //}
 }
 
+bool AStarPlanner::thereIsAWay(Node n_inf, Node n_sup)
+{
+  int x_inf = n_inf.x;
+  int y_inf = n_inf.y;
+  int x_sup = n_sup.x;
+  int y_sup = n_sup.y;
+
+  for (int x=fmin(x_inf, x_sup); x < fmax(x_inf, x_sup); x++) {
+    for (int y=fmin(y_inf, y_sup); y < fmax(y_inf, y_sup); y++) {
+      int id = x + y * (X_MAX_ / X_STEP_);
+      if (obstMap_[id]) {
+        double bound = (x-x_inf)*(y_sup-y_inf)/(x_sup-x_inf) + y_inf -y;
+        if (bound < 2 && bound > -2) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
 
 asv_msgs::Path AStarPlanner::calculate_waypoints(const double start_x, const double start_y, const double arrival_x, const double arrival_y)
 {

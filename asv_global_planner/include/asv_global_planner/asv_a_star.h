@@ -39,6 +39,7 @@ class AStarPlanner : public GlobalPlanner
     double calculateH(int x, int y, Node dest);
     asv_msgs::Path aStar(Node player, Node dest);
     asv_msgs::Path makePath(Node dest);
+    bool thereIsAWay(Node n_inf, Node n_sup);
 
   private :
     int X_STEP_;
@@ -46,6 +47,7 @@ class AStarPlanner : public GlobalPlanner
     int X_MAX_;
     int Y_MAX_;
     std::vector<Node> allMap_;
+    std::vector<bool> obstMap_;
 };
 
 #endif

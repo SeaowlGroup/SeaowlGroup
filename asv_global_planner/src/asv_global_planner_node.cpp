@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
   AStarPlanner *gp = new AStarPlanner(10, 10);
 
 
-  ros::Publisher wp_pub = n.advertise<visualization_msgs::MarkerArray>("asv_waypoints", 1);
+  ros::Publisher wp_pub = n.advertise<asv_msgs::Path>("asv_waypoints", 1, true);
 
 
   ros::Subscriber og_sub = n.subscribe("/processed_map",
@@ -32,7 +32,12 @@ int main(int argc, char *argv[])
                                         &GlobalPlannerNode::asvCallback,
                                         &gp_node);
 
-  gp_node.initialize(&wp_pub, &og_sub, &asv_sub, gp);
+  ros::Subscriber goal_sub = n.subscribe("/clicked_pose",
+                                         1,
+                                         &GlobalPlannerNode::goalCallback,
+                                         &gp_node);
+
+  gp_node.initialize(&wp_pub, &og_sub, &asv_sub, &goal_sub, gp);
   gp_node.start();
 
   ros::shutdown();
@@ -50,11 +55,13 @@ GlobalPlannerNode::~GlobalPlannerNode() {}
 void GlobalPlannerNode::initialize(ros::Publisher *wp_pub,
                                       ros::Subscriber *og_sub,
                                       ros::Subscriber *asv_sub,
+                                      ros::Subscriber *goal_sub,
                                       GlobalPlanner *gp)
 {
   wp_pub_ = wp_pub;
   og_sub_ = og_sub;
   asv_sub_ = asv_sub;
+  goal_sub_ = goal_sub;
 
   gp_ = gp;
 }
@@ -64,7 +71,7 @@ void GlobalPlannerNode::start()
   ros::Rate loop_rate(10.0);
   clock_t tick, tock;
 
-  visualization_msgs::MarkerArray waypt;
+  asv_msgs::Path waypt;
 
   while (ros::ok())
     {
@@ -73,20 +80,16 @@ void GlobalPlannerNode::start()
           ROS_INFO("Global planner initialized");
 	        waypt = gp_->calculate_waypoints(start_x, start_y, 770.0, 580.0);
 	        map_init = 2;
+          wp_pub_->publish(waypt);
       }
 
       // For timing of algorithm: uncomment!
       //tick = clock();
 
-      //gp_->update();
-
-      //waypt.markers[n].pose.position;
-      //visualization_msgs::MarkerArray waypt = gp_->calculate_waypoints(start_x, start_y, 0.0, 0.0);
-
       //marker_.header.stamp = ros::Time();
-      if (waypt.markers.size() > 0) {
-        wp_pub_->publish(waypt);
-      }
+      //if (waypt.waypoints.size() > 0) {
+      //  wp_pub_->publish(waypt);
+      //}
 
       //tock = clock();
       //ROS_INFO("Loop speed: %.2f ms", ((float) (tock-tick)/CLOCKS_PER_SEC * 1e3 ));
@@ -98,7 +101,6 @@ void GlobalPlannerNode::start()
 
 void GlobalPlannerNode::asvCallback(const nav_msgs::Odometry::ConstPtr &msg)
 {
-  //gp_->updateAsvState(msg, u_d_, psi_d_);
   start_x = msg->pose.pose.position.x;
   start_y = msg->pose.pose.position.y;
 }
@@ -123,4 +125,14 @@ void GlobalPlannerNode::mapCallback(const nav_msgs::OccupancyGrid::ConstPtr &msg
 
   map_.data = msg->data;
   map_init = 1;
+}
+
+void GlobalPlannerNode::goalCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
+{
+  //goal_x_ = msg->pose.position.x;
+  //goal_y_ = msg->pose.position.y;
+  asv_msgs::Path waypt;
+  gp_->reinit();
+  waypt = gp_->calculate_waypoints(start_x, start_y, msg->pose.position.x, msg->pose.position.y);
+  wp_pub_->publish(waypt);
 }

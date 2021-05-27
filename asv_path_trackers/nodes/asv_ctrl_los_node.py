@@ -15,7 +15,7 @@ import rospy
 import geometry_msgs.msg
 import nav_msgs.msg
 from visualization_msgs.msg import Marker
-from visualization_msgs.msg import MarkerArray
+from asv_msgs.msg import Path
 from utils import Controller
 
 class LOSGuidanceROS(object):
@@ -43,22 +43,21 @@ class LOSGuidanceROS(object):
 
         self._cmd_publisher   = rospy.Publisher("cmd_vel", geometry_msgs.msg.Twist, queue_size=1)
         self._odom_subscriber = rospy.Subscriber("state", nav_msgs.msg.Odometry, self._odom_callback, queue_size=1)
-        self._wps_publisher   = rospy.Publisher("waypoints", Marker, queue_size=10)###
-        self._wps_suscriber   = rospy.Subscriber("asv_waypoints", MarkerArray, self._wps_callback, queue_size=1)
+        self._wps_publisher   = rospy.Publisher("waypoints", Marker, queue_size=10)
+        self._wps_suscriber   = rospy.Subscriber("asv_waypoints", Path, self._wps_callback, queue_size=1)
 
         self.odom = nav_msgs.msg.Odometry()
         self.cmd  = geometry_msgs.msg.Twist()
-        #self.waypoints = visualization_msgs.msg.MarkerArray()
         self.cmd.linear.x = u_d
 
-        self._first_draw = True
+        self._first_draw = False
 
-    def set_waypoints(self, wps):
-        self.wp = wps
-        self.controller.wp = np.copy(wps)
-        self.controller.nWP = len(wps)
-        self.controller.wp_initialized = True
-        self.nwp = len(wps)
+    #def set_waypoints(self, wps):
+    #    self.wp = wps
+    #    self.controller.wp = np.copy(wps)
+    #    self.controller.nWP = len(wps)
+    #    self.controller.wp_initialized = True
+    #    self.nwp = len(wps)
 
     def _visualize_waypoints(self, switched):
         if not switched and not self._first_draw:
@@ -75,8 +74,8 @@ class LOSGuidanceROS(object):
                 mk.id = wp
                 mk.type = Marker.CYLINDER
                 D = np.sqrt(self.controller.R2) * 2
-                mk.scale.x = D/5
-                mk.scale.y = D/5
+                mk.scale.x = D/3
+                mk.scale.y = D/3
                 mk.scale.z = 2. # height [m]
                 mk.action = Marker.ADD
 
@@ -85,7 +84,7 @@ class LOSGuidanceROS(object):
                 mk.pose.position.y = self.wp[wp,1]
                 mk.pose.orientation.w = 1
 
-                mk.lifetime = rospy.Duration()
+                mk.lifetime = rospy.Duration(0.7)
                 mk.color.a = .3
                 mk.color.r = 0.
                 mk.color.g = 0.
@@ -118,7 +117,7 @@ class LOSGuidanceROS(object):
                 mk.pose.position.y = self.wp[wp,1]
                 mk.pose.orientation.w = 1
 
-                mk.lifetime = rospy.Duration()
+                mk.lifetime = rospy.Duration(0.7)
                 mk.color.a = .3
                 mk.color.r = 0.
                 mk.color.g = 0.
@@ -138,17 +137,46 @@ class LOSGuidanceROS(object):
     def _odom_callback(self, data):
         self.odom = data
     def _wps_callback(self, data):
-        #self.waypoints = data
-        l = []
-        for mk in data.markers :
-	    l.append([mk.pose.position.x, mk.pose.position.y])
-	wps = np.array(l)
 
-        self.wp = wps
-        self.controller.wp = np.copy(wps)
-        self.controller.nWP = len(wps)
-        self.controller.wp_initialized = True
-        self.nwp = len(wps)
+        #Reinitialization
+        #self.R2 = R2 # Radii of acceptance (squared)
+        #self.R  = np.sqrt(R2)
+        #self.de = de # Lookahead distance
+
+        #self.dt = dt
+        #self.max_integral_correction = np.abs(np.tan(max_integral_correction) * de)
+        #self.Ki = Ki
+
+        #self.e_integral = 0.0
+
+        self.controller.cWP = 0 # Current waypoint
+        self.controller.wp = None
+        self.controller.nWP = 0
+        self.controller.wp_initialized = False
+        #
+
+        self.wp   = self.controller.wp
+        self.nwp  = 0 #number of waypoints
+        self.cwp  = 0 #current waypoint
+
+        self.odom = nav_msgs.msg.Odometry()
+        self.cmd  = geometry_msgs.msg.Twist()
+        self.cmd.linear.x = 0
+
+        self._first_draw = False
+        ##
+
+        l = []
+        for it in data.waypoints :
+            l.append([it.x, it.y])
+
+        if (len(l)>0) :
+            wps = np.array(l)
+            self.wp = wps
+            self.controller.wp = np.copy(wps)
+            self.controller.nWP = len(wps)
+            self.controller.wp_initialized = True
+            self.nwp = len(wps)
 
     def _update(self):
 
@@ -222,7 +250,7 @@ class LOSGuidance(Controller):
 
     def update(self, x, y):
         if not self.wp_initialized:
-            print "Error. No waypoints!"
+            #print "Error. No waypoints!"
             return 0,0,False
 
         if self.R2 > 999999:
@@ -295,7 +323,7 @@ if __name__ == "__main__":
                            switch_criterion='circle')
 
     #wps = np.array(waypoints)
-    wps = np.array([[0.0, 0.0], [300.0, 550.0]])
-    guide.set_waypoints(wps)
+    #wps = np.array([[0.0, 0.0], [300.0, 550.0]])
+    #guide.set_waypoints(wps)
 
     guide.run_controller()

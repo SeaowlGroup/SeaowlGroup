@@ -21,9 +21,12 @@ void AStarPlanner::initialize(nav_msgs::OccupancyGrid *map) {
   map_ = map;
   X_MAX_ = map->info.width;
   Y_MAX_ = map->info.height;
-
   allMap_.resize(X_MAX_*Y_MAX_/(X_STEP_*Y_STEP_));
 
+  reinit();
+}
+
+void AStarPlanner::reinit() {
   for (int x = 0; x < (X_MAX_ / X_STEP_); x++) {
     for (int y = 0; y < (Y_MAX_ / Y_STEP_); y++) {
       int id = x + y * (X_MAX_ / X_STEP_);
@@ -78,8 +81,8 @@ double AStarPlanner::calculateH(int x, int y, Node dest) {
   return H;
 }
 
-visualization_msgs::MarkerArray AStarPlanner::aStar(Node player, Node dest) {
-  visualization_msgs::MarkerArray empty;
+asv_msgs::Path AStarPlanner::aStar(Node player, Node dest) {
+  asv_msgs::Path empty;
   if (isValid(dest.x, dest.y) == false) {
       ROS_ERROR("GLOBAL PLANNER FAIL : Destination is invalid (x = %d, y = %d)", dest.x, dest.y);
       return empty;
@@ -144,6 +147,7 @@ visualization_msgs::MarkerArray AStarPlanner::aStar(Node player, Node dest) {
             allMap_[id].parentX = x;
             allMap_[id].parentY = y;
             destinationFound = true;
+            //ROS_INFO("Normalement c'est bon la");
             return makePath(dest);
           }
           else if (closedList[x + newX][y + newY] == false) {
@@ -170,19 +174,19 @@ visualization_msgs::MarkerArray AStarPlanner::aStar(Node player, Node dest) {
     }
   }
   if (destinationFound == false) {
-    ROS_ERROR("GLOBAL PLANNER FAIL : Destination not found");
+    ROS_ERROR("GLOBAL PLANNER FAIL : Path not found");
     return empty;
   }
 }
 
-visualization_msgs::MarkerArray AStarPlanner::makePath(Node dest) {
+asv_msgs::Path AStarPlanner::makePath(Node dest) {
   //try {
     ROS_INFO("GLOBAL PLANNER SUCCESS : Found a path");
     int x = dest.x;
     int y = dest.y;
     int id = x + y*(X_MAX_ / X_STEP_);
     std::stack<Node> path;
-    visualization_msgs::MarkerArray usablePath;
+    asv_msgs::Path usablePath;
 
     while (!(allMap_[id].parentX == x && allMap_[id].parentY == y) && allMap_[id].x != -1 && allMap_[id].y != -1)
     {
@@ -197,12 +201,12 @@ visualization_msgs::MarkerArray AStarPlanner::makePath(Node dest) {
 
     while (!path.empty()) {
       Node top = path.top();
-      visualization_msgs::Marker coord;
-      coord.pose.position.x = X_STEP_*(top.x + 0.5);
-      coord.pose.position.y = Y_STEP_*(top.y + 0.5);
+      asv_msgs::Waypoint2D coord;
+      coord.x = X_STEP_*(top.x + 0.5);
+      coord.y = Y_STEP_*(top.y + 0.5);
       path.pop();
 
-      usablePath.markers.emplace_back(coord);
+      usablePath.waypoints.emplace_back(coord);
     }
     return usablePath;
   //}
@@ -212,13 +216,13 @@ visualization_msgs::MarkerArray AStarPlanner::makePath(Node dest) {
 }
 
 
-visualization_msgs::MarkerArray AStarPlanner::calculate_waypoints(const double start_x, const double start_y, const double arrival_x, const double arrival_y)
+asv_msgs::Path AStarPlanner::calculate_waypoints(const double start_x, const double start_y, const double arrival_x, const double arrival_y)
 {
   // map_->data[px_i + py_i*map_->info.width]
 
   Node player;
   Node dest;
-  visualization_msgs::MarkerArray wp;
+  asv_msgs::Path wp;
 
   player.x = (int) start_x / X_STEP_;
   player.y = (int) start_y / Y_STEP_;
@@ -227,7 +231,16 @@ visualization_msgs::MarkerArray AStarPlanner::calculate_waypoints(const double s
 
   //wp = [[arrival_x, arrival_y]];
   //wp.emplace_back(aStar(player, dest));
+  asv_msgs::Waypoint2D start;
+  asv_msgs::Waypoint2D arrival;
+  start.x = start_x;
+  start.y = start_y;
+  arrival.x = arrival_x;
+  arrival.y = arrival_y;
+
   wp = aStar(player, dest);
+  wp.waypoints.push_back(arrival);
+  wp.waypoints.insert(wp.waypoints.begin(), 1, start);
 
   //std::vector<double> test = {0.5, 0.9};
 

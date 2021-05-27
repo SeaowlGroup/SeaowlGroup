@@ -1,0 +1,24 @@
+<launch>
+
+  <include file="$(find asv_simulator)/launch/test.launch">
+    <arg name="u_d" value="5.0" />
+    <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/test.yaml" />
+    <arg name="initial_state" value="[600.0, 0.0, 1.56, 1.,0.,0.]" />
+  </include>
+
+  <include file="$(find asv_system)/launch/mapserver.launch">
+    <arg name="mapfile" value="$(find asv_system)/config/maps/mozambique.yaml" />
+  </include>
+
+  <node pkg="asv_map_processing"
+        name="map_processing_node"
+        type="asv_map_processing_node"
+        respawn="false"
+        output="screen" />
+
+  <node pkg="rviz"
+        type="rviz"
+        name="rviz"
+        args="-d $(find asv_simulator)/config/rviz/two_vessels.rviz" />
+
+</launch>

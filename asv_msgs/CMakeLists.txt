@@ -50,6 +50,8 @@ add_message_files(
   ShipMetaData.msg
   State.msg
   StateArray.msg
+  Waypoint2D.msg
+  Path.msg
 )
 
 ## Generate services in the 'srv' folder

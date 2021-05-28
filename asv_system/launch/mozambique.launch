@@ -1,5 +1,11 @@
 <launch>
 
+  <node pkg="asv_referee"
+        name="referee_node"
+        type="asv_referee_node.py"
+        respawn="false"
+        output="screen" />
+
   <include file="$(find asv_simulator)/launch/test.launch">
     <arg name="u_d" value="5.0" />
     <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/test.yaml" />

@@ -220,11 +220,15 @@ asv_msgs::Path AStarPlanner::makePath(Node dest) {
       else { return usablePath; }
 
       if(inf.x == -1 || path.empty() || !thereIsAWay(inf, sup)) {
-        asv_msgs::Waypoint2D coord;
-        coord.x = X_STEP_*(n.x + 0.5);
-        coord.y = Y_STEP_*(n.y + 0.5);
-        usablePath.waypoints.emplace_back(coord);
-        inf = n;
+        //aux1 = np.array([n.x-inf.x, n.y-inf.y])
+        //aux2 = np.array([sup.x-n.x, sup.y-n.y])
+        if (!(abs(sup.x-n.x) == 1 and abs(sup.y-n.y) == 1 and (n.x-inf.x)*(sup.x-n.x) == (n.y-inf.y)*(sup.y-n.y))) {
+          asv_msgs::Waypoint2D coord;
+          coord.x = X_STEP_*(n.x + 0.5);
+          coord.y = Y_STEP_*(n.y + 0.5);
+          usablePath.waypoints.emplace_back(coord);
+          inf = n;
+        }
       }
     }
     return usablePath;

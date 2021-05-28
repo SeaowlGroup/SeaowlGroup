@@ -16,6 +16,7 @@ import geometry_msgs.msg
 import nav_msgs.msg
 from visualization_msgs.msg import Marker
 from asv_msgs.msg import Path
+from std_msgs.msg import Empty
 from utils import Controller
 
 class LOSGuidanceROS(object):
@@ -235,6 +236,8 @@ class LOSGuidance(Controller):
         self.Xp = 0.0
         self.u_d = u_d
 
+        self._finished_publisher  = rospy.Publisher("/end_simulation", Empty, queue_size=1)
+
     def __str__(self):
         return """Radii: %f\nLookahead distance: %f\nCurrent Waypoint: %d"""%(self.R, self.de, self.cWP)
 
@@ -285,6 +288,8 @@ class LOSGuidance(Controller):
                                                                       self.wp[self.cWP][1])
                         print "Last Waypoint reached!"
                         self.R2 = np.Inf
+                        msg = Empty()
+                        self._finished_publisher.publish(msg)
                     return 0, self.Xp, False
 
         xk = self.wp[self.cWP][0]
@@ -312,6 +317,7 @@ if __name__ == "__main__":
     de = rospy.get_param("~lookahead_distance", 40.0)
     Ki = rospy.get_param("~integral_gain", 0.0)
     max_integral_correction = rospy.get_param("~max_integral_correction", np.pi*20/180)
+
 
     guide = LOSGuidanceROS(R2,
                            u_d,

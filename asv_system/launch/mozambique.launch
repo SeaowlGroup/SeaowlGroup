@@ -4,7 +4,11 @@
         name="referee_node"
         type="asv_referee_node.py"
         respawn="false"
-        output="screen" />
+        output="screen"
+        required="true">
+    <param name="shutdown" value="1" />
+  </node>
+
 
   <include file="$(find asv_simulator)/launch/test.launch">
     <arg name="u_d" value="5.0" />
@@ -25,7 +29,7 @@
   <include file="$(find asv_obstacle_tracker)/launch/default.launch"/>
 
   <!-- Obstacle ship -->
-  <include file="$(find asv_simulator)/launch/test.launch">
+  <include file="$(find asv_simulator)/launch/test_obst.launch">
         <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/test.yaml" />
         <arg name="global_planner" value="None" />
         <arg name="use_vo" value="False" />
@@ -36,19 +40,25 @@
       </include>
 
   <!-- Obstacle ship -->
-  <include file="$(find asv_simulator)/launch/test.launch">
+  <include file="$(find asv_simulator)/launch/test_obst.launch">
         <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/test2.yaml" />
         <arg name="global_planner" value="None" />
         <arg name="use_vo" value="False" />
         <arg name="vessel_model_file" value="$(find asv_simulator)/config/models/ship1.urdf" />
         <arg name="namespace" value="obstacles/ship2" />
         <arg name="shipname" value="ship2" />
-        <arg name="initial_state" value="[570.0, 110.0, 0, 1.,0.,0.]" />
+        <arg name="initial_state" value="[580.0, 110.0, 0, 1.,0.,0.]" />
       </include>
 
   <node pkg="rviz"
         type="rviz"
         name="rviz"
         args="-d $(find asv_simulator)/config/rviz/map_and_proc_map.rviz" />
+
+  <!-- <node pkg="rosbag"
+        type="record"
+        name="rosbag_record"
+        args="-O /home/soubi/Documents/SEAOWL//home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/bagfiles/mozambique.bag /asv/state /obstacles/ship1/state /obstacles/ship2/state /obstacle_states"
+        /> -->
 
 </launch>

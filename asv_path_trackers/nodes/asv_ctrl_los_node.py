@@ -184,7 +184,7 @@ class LOSGuidanceROS(object):
         u_d, psi_d, switched = self.controller.update(self.odom.pose.pose.position.x,
                                                       self.odom.pose.pose.position.y)
         if switched:
-            print "Switched!"
+            #print "Switched!"
             self.cwp += 1
 
         # Publish cmd_vel
@@ -325,7 +325,7 @@ if __name__ == "__main__":
                            Ki,
                            dt,
                            max_integral_correction,
-                           switch_criterion='circle')
+                           switch_criterion='progress')
 
     if (rospy.get_param("~global_planner", "None") == "None") :
         waypoints = rospy.get_param("~waypoints")

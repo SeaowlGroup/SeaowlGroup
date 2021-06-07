@@ -24,12 +24,12 @@ class Vessel
   void initialize(ros::NodeHandle nh);
 
   /** Performs the numerical integration to update the system.
-   * 
+   *
    * NOTE: The system implements two different controllers:
    * speed and heading control or speed yaw rate control. If the heading set
    * point is specified as inf (psi_d == inf), yaw rate is controlled, else the
    * heading controller is used.
-   *  
+   *
    * @param u_d The desired speed (control input)
    * @param psi_d The desired heading (control input)
    * @param r_d The desired yaw rate (control input)
@@ -50,7 +50,7 @@ class Vessel
 
   /** Copies the state data [eta, nu] into the given vectors. Note the
    * call-by-reference.
-   * 
+   *
    * @param eta Position and orientation (x, y, psi)
    * @param nu Velocity (u, v, r)
    */
@@ -61,6 +61,8 @@ class Vessel
   /** Get the update interval (used to determine ROS loop rate)
    */
   double getDT();
+
+  void rk4();
 
  private:
   /** Determines the generalized force vector based on the control input.
@@ -78,9 +80,12 @@ class Vessel
    * @param r_d The desired yaw rate (control input)
    */
   void updateControlInput(double u_d, double psi_d, double r_d);
-  
+
+  Eigen::Vector3d f(Eigen::Vector3d eta_bis, Eigen::Vector3d nu_bis) const;
+  Eigen::Vector3d g(Eigen::Vector3d nu_bis, Eigen::Vector3d tau_global_bis) const;
+
   Eigen::Vector3d eta;
-  Eigen::Vector3d nu; 
+  Eigen::Vector3d nu;
   Eigen::Vector3d tau, tau_waves;
 
   Eigen::Matrix3d Minv;
@@ -96,10 +101,10 @@ class Vessel
   // Mass and inertia
   double M;
   double I_z;
-  
+
   // Added mass parameters
   double X_udot, Y_vdot, Y_rdot, N_vdot, N_rdot;
-  
+
   // Damping parameters
   double X_u, Y_v, Y_r, N_v, N_r;
   double X_uu, Y_vv, N_rr, X_uuu, Y_vvv, N_rrr;

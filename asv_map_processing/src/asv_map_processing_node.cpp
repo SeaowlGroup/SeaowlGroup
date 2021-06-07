@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
 
   MapProcessingNode mp_node;
 
+
   ros::Publisher inflated_map_pub = n.advertise<nav_msgs::OccupancyGrid>("/processed_map", 1, true);
 
 
@@ -73,6 +74,8 @@ void MapProcessingNode::initialize(ros::Publisher *inflated_map_pub, ros::Subscr
 {
   inflated_map_pub_ = inflated_map_pub;
   map_sub_ = map_sub;
+  ros::param::get("~coast_margin", margin_);
+  margin_++;
 }
 
 void MapProcessingNode::inflate() {

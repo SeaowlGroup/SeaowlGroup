@@ -80,7 +80,12 @@ class LOSGuidanceROS(object):
 
         while not rospy.is_shutdown():
             self._update()
-            r.sleep()
+            try:
+                r.sleep()
+            except rospy.exceptions.ROSInterruptException as e:
+                if rospy.is_shutdown():
+                    break
+                raise
 
 class LOSGuidance(Controller):
     """This class implements the classic LOS guidance scheme."""
@@ -166,8 +171,6 @@ class LOSGuidance(Controller):
                         #                                              self.wp[self.cWP][1])
                         #print "Last Waypoint reached!"
                         self.R2 = np.Inf
-                        msg = Empty()
-                        self._finished_publisher.publish(msg)
                     return 0, self.Xp, False
 
         xk = self.wp[self.cWP][0]

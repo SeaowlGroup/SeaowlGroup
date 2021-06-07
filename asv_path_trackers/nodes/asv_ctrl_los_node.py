@@ -46,6 +46,7 @@ class LOSGuidanceROS(object):
         self._odom_subscriber = rospy.Subscriber("state", nav_msgs.msg.Odometry, self._odom_callback, queue_size=1)
         self._wps_publisher   = rospy.Publisher("waypoints", Marker, queue_size=10)
         self._wps_suscriber   = rospy.Subscriber("asv_waypoints", Path, self._wps_callback, queue_size=1)
+        self._recalc_suscriber   = rospy.Subscriber("/clicked_pose", geometry_msgs.msg.PoseStamped, self._recalc_callback, queue_size=1)
 
         self.odom = nav_msgs.msg.Odometry()
         self.cmd  = geometry_msgs.msg.Twist()
@@ -153,7 +154,7 @@ class LOSGuidanceROS(object):
         self.controller.cWP = 0 # Current waypoint
         self.controller.wp = None
         self.controller.nWP = 0
-        self.controller.wp_initialized = False
+        #self.controller.wp_initialized = False
         #
 
         self.wp   = self.controller.wp
@@ -179,6 +180,9 @@ class LOSGuidanceROS(object):
             self.controller.wp_initialized = True
             self.nwp = len(wps)
 
+    def _recalc_callback(self, data) :
+        self.controller.wp_initialized = False
+
     def _update(self):
 
         u_d, psi_d, switched = self.controller.update(self.odom.pose.pose.position.x,
@@ -201,7 +205,12 @@ class LOSGuidanceROS(object):
 
         while not rospy.is_shutdown():
             self._update()
-            r.sleep()
+            try:
+                r.sleep()
+            except rospy.exceptions.ROSInterruptException as e:
+                if rospy.is_shutdown():
+                    break
+                raise
 
 class LOSGuidance(Controller):
     """This class implements the classic LOS guidance scheme."""
@@ -317,6 +326,7 @@ if __name__ == "__main__":
     de = rospy.get_param("~lookahead_distance", 40.0)
     Ki = rospy.get_param("~integral_gain", 0.0)
     max_integral_correction = rospy.get_param("~max_integral_correction", np.pi*20/180)
+    gp = rospy.get_param("~global_planner", "None")
 
 
     guide = LOSGuidanceROS(R2,
@@ -327,7 +337,7 @@ if __name__ == "__main__":
                            max_integral_correction,
                            switch_criterion='progress')
 
-    if (rospy.get_param("~global_planner", "None") == "None") :
+    if (gp == "None") :
         waypoints = rospy.get_param("~waypoints")
         wps = np.array(waypoints)
         guide.set_waypoints(wps)

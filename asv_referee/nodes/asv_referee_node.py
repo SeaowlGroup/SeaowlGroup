@@ -98,7 +98,12 @@ class Referee(object) :
 
         while (not rospy.is_shutdown()) and self.finished < 2 :
             self._update()
-            r.sleep()
+            try:
+                r.sleep()
+            except rospy.exceptions.ROSInterruptException as e:
+                if rospy.is_shutdown():
+                    break
+                raise
 
         #def h() :
         #    print "Shutting down..."

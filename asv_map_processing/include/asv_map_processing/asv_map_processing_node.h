@@ -24,7 +24,7 @@ class MapProcessingNode
   void publish();
 
  private:
-  const double margin_ = 10.0; //à paramétrer
+  double margin_ ;
   nav_msgs::OccupancyGrid map_;
   bool processed_ = false;
   bool sent = false;

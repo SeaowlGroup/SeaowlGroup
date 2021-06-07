@@ -189,9 +189,10 @@ void Vessel::getWaveNoise(Eigen::Vector3d &wave_noise)
 void Vessel::updateSystem(double u_d, double psi_d, double r_d)
 {
   // Ensure psi_d is "compatible" with psi
+  double old_angle = eta[2];
   psi_d = normalize_angle_diff(psi_d, eta[2]);
 
-  Eigen::AngleAxisd rot_z = Eigen::AngleAxisd(eta[2], Eigen::Vector3d::UnitZ());
+  //Eigen::AngleAxisd rot_z = Eigen::AngleAxisd(eta[2], Eigen::Vector3d::UnitZ());
 
   // Calculate coriolis and dampening matrices according to Fossen, 2011 or Stenersen, 2014.
   Cvv[0] = (-M*nu[1] + Y_vdot*nu[1] + Y_rdot*nu[2]) * nu[2];
@@ -207,19 +208,26 @@ void Vessel::updateSystem(double u_d, double psi_d, double r_d)
 
   this->updateControlInput(u_d, psi_d, r_d);
 
-  Eigen::Vector3d tau_const_disturbance(Fx_current, Fy_current, 0.0);
-  tau_const_disturbance = rot_z.inverse()*tau_const_disturbance;
+  //Eigen::Vector3d tau_const_disturbance(Fx_current, Fy_current, 0.0);
+  //tau_const_disturbance = rot_z.inverse()*tau_const_disturbance;
 
   tau_waves[0] = wave_filter_x.updateFilter();
   tau_waves[1] = wave_filter_y.updateFilter();
   tau_waves[2] = wave_filter_psi.updateFilter();
 
   // Integrate system
-  eta += DT * (rot_z * nu);
-  nu  += DT * (Minv * (tau + tau_const_disturbance + tau_waves - Cvv - Dvv));
+  //eta += DT * (rot_z * nu);
+  //nu  += DT * (Minv * (tau + tau_const_disturbance + tau_waves - Cvv - Dvv));
+  this->rk4();
 
   // Keep yaw within [-PI,PI)
   eta[2] = normalize_angle(eta[2]);
+  // The next section is to keep the ASV from turning around itself when it stops
+  /*
+  if (nu[0]*nu[0] + nu[1]*nu[1] + nu[2]*nu[2] < 0.000000000000001) {
+    eta[2] = old_angle;
+  }
+  */
 }
 
 
@@ -254,6 +262,60 @@ void Vessel::updateControlInput(double u_d, double psi_d, double r_d)
   tau[0] = Fx;
   tau[1] = Fy;
   tau[2] = rudder_length * Fy;
+}
+
+
+void Vessel::rk4()
+{
+  //eta += DT * (rot_z * nu);
+  //nu  += DT * (Minv * (tau + tau_const_disturbance + tau_waves - Cvv - Dvv));
+  //Eigen::AngleAxisd rot_z = Eigen::AngleAxisd(eta[2], Eigen::Vector3d::UnitZ());
+  double h = DT;
+  Eigen::Vector3d vh = Eigen::Vector3d::Constant(DT);
+  Eigen::AngleAxisd rot_z = Eigen::AngleAxisd(eta[2], Eigen::Vector3d::UnitZ());
+
+  Eigen::Vector3d k1 = h * (f(eta, nu));
+  Eigen::Vector3d k2 = h * (f((eta+vh/2), (nu+k1/2)));
+  Eigen::Vector3d k3 = h * (f((eta+vh/2), (nu+k2/2)));
+  Eigen::Vector3d k4 = h * (f((eta+vh), (nu+k3)));
+  Eigen::Vector3d k = (k1+2*k2+2*k3+k4)/6;
+  eta += k;
+
+  Eigen::Vector3d tau_const_disturbance(Fx_current, Fy_current, 0.0);
+  tau_const_disturbance = rot_z.inverse()*tau_const_disturbance;
+  Eigen::Vector3d tau_global = tau + tau_const_disturbance + tau_waves;
+
+  Eigen::Vector3d l1 = h * (g(nu, tau));
+  Eigen::Vector3d l2 = h * (g((nu+vh/2), (tau_global+l1/2)));
+  Eigen::Vector3d l3 = h * (g((nu+vh/2), (tau_global+l2/2)));
+  Eigen::Vector3d l4 = h * (g((nu+vh), (tau_global+l3)));
+  Eigen::Vector3d l = (l1+2*l2+2*l3+l4)/6;
+  nu += l;
+}
+
+Eigen::Vector3d Vessel::f(Eigen::Vector3d eta_bis, Eigen::Vector3d nu_bis) const
+{
+  Eigen::AngleAxisd rot_z = Eigen::AngleAxisd(eta_bis[2], Eigen::Vector3d::UnitZ());
+  return (rot_z * nu_bis);
+}
+
+Eigen::Vector3d Vessel::g(Eigen::Vector3d nu_bis, Eigen::Vector3d tau_global_bis) const
+{
+  Eigen::Vector3d Cvv_bis;
+  Eigen::Vector3d Dvv_bis;
+  // Calculate coriolis and dampening matrices according to Fossen, 2011 or Stenersen, 2014.
+  Cvv_bis[0] = (-M*nu_bis[1] + Y_vdot*nu_bis[1] + Y_rdot*nu_bis[2]) * nu_bis[2];
+  Cvv_bis[1] = ( M*nu_bis[0] - X_udot*nu_bis[0]) * nu_bis[2];
+  Cvv_bis[2] = (( M*nu_bis[1] - Y_vdot*nu_bis[1] - Y_rdot*nu_bis[2] ) * nu_bis[0] +
+            ( -M*nu_bis[0] + X_udot*nu_bis[0] ) * nu_bis[1]);
+
+  Dvv_bis[0] = - (X_u + X_uu*fabs(nu_bis[0]) + X_uuu*nu_bis[0]*nu_bis[0]) * nu_bis[0];
+  Dvv_bis[1] = - ((Y_v*nu_bis[1] + Y_r*nu_bis[2]) +
+              (Y_vv*fabs(nu_bis[1])*nu_bis[1] + Y_vvv*nu_bis[1]*nu_bis[1]*nu_bis[1]));
+  Dvv_bis[2] = - ((N_v*nu_bis[1] + N_r*nu_bis[2]) +
+              (N_rr*fabs(nu_bis[2])*nu_bis[2] + N_rrr*nu_bis[2]*nu_bis[2]*nu_bis[2]));
+
+  return (Minv * (tau_global_bis - Cvv_bis - Dvv_bis));
 }
 
 double normalize_angle(double val)

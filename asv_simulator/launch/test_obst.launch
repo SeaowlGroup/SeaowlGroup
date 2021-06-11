@@ -18,6 +18,7 @@
           output="screen">
       <rosparam param="initial_state" subst_value="True">$(arg initial_state)</rosparam>
       <rosparam command="load" file="$(arg vessel_param_file)" />
+      <rosparam param="global_planner" subst_value="True">$(arg global_planner)</rosparam>
     </node>
 
     <group if="$(eval global_planner == 'AStar')">

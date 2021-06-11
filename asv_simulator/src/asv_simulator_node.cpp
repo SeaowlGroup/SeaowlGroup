@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 
 #include <Eigen/Dense>
+#include <vector>
 
 // Message types
 #include "tf/transform_broadcaster.h"
@@ -26,7 +27,6 @@ int main(int argc, char* argv[])
   if (name.empty())
     name = "asv";
 
-
   Vessel my_vessel;
 
   my_vessel.initialize(priv_nh);
@@ -40,9 +40,14 @@ int main(int argc, char* argv[])
   ros::Publisher noise_pub = nh.advertise<geometry_msgs::Vector3>("wave_noise", 10);
 
   ros::Subscriber cmd_sub = nh.subscribe("cmd_vel", 1, &VesselNode::cmdCallback, &my_vessel_node);
+  ros::Subscriber wp_sub = nh.subscribe("waypoints", 1, &VesselNode::wpCallback, &my_vessel_node);
 
+  std::string planner;
+  if (!priv_nh.getParam("global_planner", planner))
+    planner = "None";
+  std::cout << planner << std::endl;
 
-  my_vessel_node.initialize(&tf, &pose_pub, &odom_pub,  &noise_pub, &cmd_sub, &my_vessel);
+  my_vessel_node.initialize(&tf, &pose_pub, &odom_pub,  &noise_pub, &cmd_sub, &wp_sub, planner, &my_vessel);
   my_vessel_node.start();
 
   ros::shutdown();
@@ -58,7 +63,8 @@ VesselNode::VesselNode(): theVessel_(NULL),
                           cmd_sub_(NULL),
                           u_d_(0.0),
                           psi_d_(0.0),
-                          r_d_(0.0) {}
+                          r_d_(0.0),
+                          inNav_(false) {}
 
 VesselNode::~VesselNode(){
 }
@@ -68,15 +74,22 @@ void VesselNode::initialize(tf::TransformBroadcaster* tf,
                             ros::Publisher *odom_pub,
                             ros::Publisher *noise_pub,
                             ros::Subscriber *cmd_sub,
+                            ros::Subscriber *wp_sub,
+                            std::string planner,
                             Vessel *vessel)
 {
   if (!initialized_)
     {
       tf_ = tf;
+
       pose_pub_ = pose_pub;
       odom_pub_ = odom_pub;
       noise_pub_ = noise_pub;
       cmd_sub_ = cmd_sub;
+      wp_sub_ = wp_sub;
+
+      if (planner == "None")
+        inNav_ = true;
 
       theVessel_ = vessel;
       initialized_ = true;
@@ -94,7 +107,7 @@ void VesselNode::start()
 
   while (ros::ok())
     {
-      theVessel_->updateSystem(u_d_, psi_d_, r_d_);
+      theVessel_->updateSystem(u_d_, psi_d_, r_d_, inNav_);
 
       this->publishData();
 
@@ -171,4 +184,10 @@ void VesselNode::cmdCallback(const geometry_msgs::Twist::ConstPtr& msg)
   u_d_ = msg->linear.x;
   psi_d_ = msg->angular.y;
   r_d_ = msg->angular.z;
+}
+
+void VesselNode::wpCallback(const visualization_msgs::Marker::ConstPtr& msg)
+{
+  ROS_INFO_ONCE("Engine Started");
+  inNav_ = true;
 }

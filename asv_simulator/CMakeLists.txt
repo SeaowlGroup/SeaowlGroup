@@ -15,7 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 find_package(cmake_modules REQUIRED)
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -69,12 +69,12 @@ find_package(Eigen REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs  # Or other packages containing msgs
-  geometry_msgs
-  nav_msgs
-)
+#generate_messages(
+#  DEPENDENCIES
+#  std_msgs  # Or other packages containing msgs
+#  geometry_msgs
+#  nav_msgs
+#)
 
 ###################################
 ## catkin specific configuration ##
@@ -116,7 +116,8 @@ add_executable(asv_simulator_node src/asv_simulator_node.cpp src/asv_simulator.c
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(asv_simulator_node asv_simulator_node asv_simulator_generate_messages_cpp)
+#add_dependencies(asv_simulator_node asv_simulator_node asv_simulator_generate_messages_cpp)
+add_dependencies(asv_simulator_node asv_simulator_node)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(asv_simulator_node

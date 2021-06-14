@@ -9,14 +9,14 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
 )
 
-generate_messages(
-  DEPENDENCIES
-  nav_msgs
-)
+#generate_messages(
+#  DEPENDENCIES
+#  nav_msgs
+#)
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS nav_msgs roscpp 
+  CATKIN_DEPENDS nav_msgs roscpp
 )
 
 ###########

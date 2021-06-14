@@ -16,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 find_package(cmake_modules REQUIRED)
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 ## Generate messages in the 'msg' folder
 # add_message_files(
@@ -40,13 +40,13 @@ find_package(Eigen REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  geometry_msgs
-  asv_msgs
-  nav_msgs
-  std_msgs
-)
+#generate_messages(
+#  DEPENDENCIES
+#  geometry_msgs
+#  asv_msgs
+#  nav_msgs
+#  std_msgs
+#)
 
 ###################################
 ## catkin specific configuration ##
@@ -87,7 +87,8 @@ add_executable(asv_ctrl_vo_node src/asv_ctrl_vo_node.cpp src/asv_ctrl_vo.cpp)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(asv_ctrl_vo_node asv_ctrl_vo_node asv_ctrl_vo_generate_messages_cpp)
+#add_dependencies(asv_ctrl_vo_node asv_ctrl_vo_node asv_ctrl_vo_generate_messages_cpp)
+add_dependencies(asv_ctrl_vo_node asv_ctrl_vo_node)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(asv_ctrl_vo_node

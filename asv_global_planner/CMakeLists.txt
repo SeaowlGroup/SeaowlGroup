@@ -19,13 +19,13 @@ find_package(cmake_modules REQUIRED)
 #find_package(Eigen REQUIRED)
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  geometry_msgs
-  asv_msgs
-  nav_msgs
-  std_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   geometry_msgs
+#   asv_msgs
+#   nav_msgs
+#   std_msgs
+# )
 
 ###################################
 ## catkin specific configuration ##
@@ -62,7 +62,8 @@ add_executable(asv_global_planner_node src/asv_global_planner_node.cpp src/asv_g
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(asv_global_planner_node asv_global_planner_node asv_global_planner_generate_messages_cpp)
+#add_dependencies(asv_global_planner_node asv_global_planner_node asv_global_planner_generate_messages_cpp)
+add_dependencies(asv_global_planner_node asv_global_planner_node)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(asv_global_planner_node

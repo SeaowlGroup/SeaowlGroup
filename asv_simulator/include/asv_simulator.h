@@ -1,7 +1,7 @@
 #ifndef ASV_SIMULATOR_H
 #define ASV_SIMULATOR_H
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 #include "wave_filter.h"
 
 /**

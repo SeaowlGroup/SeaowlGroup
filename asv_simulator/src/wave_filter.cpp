@@ -7,7 +7,7 @@
 #include <ctime>
 
 // Linear algebra math
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 unsigned long long rdtsc(){
   unsigned int lo,hi;
@@ -61,4 +61,3 @@ double get_white_noise(struct drand48_data *buf)
   drand48_r(buf, &result);
   return 2*(result - 0.5);
 }
-

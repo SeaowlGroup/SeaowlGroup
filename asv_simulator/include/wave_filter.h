@@ -1,7 +1,7 @@
 #ifndef ASV_WAVE_FILTER_H
 #define ASV_WAVE_FILTER_H
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 class WaveFilter
 {

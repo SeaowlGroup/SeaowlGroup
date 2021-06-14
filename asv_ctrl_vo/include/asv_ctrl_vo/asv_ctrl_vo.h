@@ -1,7 +1,7 @@
 #ifndef ASV_CTRL_VO
 #define ASV_CTRL_VO
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 #include "asv_msgs/State.h"
 #include "nav_msgs/OccupancyGrid.h"
@@ -32,7 +32,7 @@ class VelocityObstacle
   /**
    * @brief Initializes the controller.
    *
-   * @param obstacles A pointer to a vector of obstacles provided by the ROS 
+   * @param obstacles A pointer to a vector of obstacles provided by the ROS
    * wrapper (by subscribing to an obstacle tracker node).
    * @param map A pointer to the occupancy grid published by the map_server.
    */
@@ -48,8 +48,8 @@ class VelocityObstacle
    * @param u_d The desired surge speed set point provided by, e.g., a LOS algorithm.
    * @param psi_d The desired heading set point provided by, e.g., a LOS algorithm.
    */
-  void updateAsvState(const nav_msgs::Odometry::ConstPtr &msg, 
-                      const double &u_d, 
+  void updateAsvState(const nav_msgs::Odometry::ConstPtr &msg,
+                      const double &u_d,
                       const double &psi_d);
   /**
    * Initializes the visualization markers used to display the velocity field.
@@ -66,13 +66,13 @@ class VelocityObstacle
    * @param psi_best The reference parameter to store the "best" heading.
    */
   void getBestControlInput(double &u_best, double &psi_best);
-  
+
  private:
   void setVelocity(const int &ui, const int &ti, const double &val);
   void updateVelocityGrid();
   void clearVelocityGrid();
   void checkStaticObstacles();
-  
+
   bool inVelocityObstacle(const double &u,
                           const double &theta,
                           const Eigen::Vector2d &lb,
@@ -82,7 +82,7 @@ class VelocityObstacle
                        const double &theta,
                        const Eigen::Vector3d &obstacle_pose,
                        const Eigen::Vector2d &vb);
-  
+
   bool inObstacle(double px, double py);
 
   bool inCollisionSituation(const Eigen::Vector3d &pose_a,
@@ -113,7 +113,7 @@ class VelocityObstacle
   double u_d_;
   double psi_d_;
 
-  
+
 
   // ROS API
   // void obstacleSubCallback(const nav_msgs::Odometry::ConstPtr &msg);

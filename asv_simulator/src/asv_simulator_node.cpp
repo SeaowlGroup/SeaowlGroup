@@ -1,6 +1,6 @@
 #include "ros/ros.h"
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 #include <vector>
 
 // Message types

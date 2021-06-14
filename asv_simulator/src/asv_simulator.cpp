@@ -8,7 +8,7 @@
 #include <iostream>
 
 // Linear algebra math
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 
 /// Make sure angle is between [-PI, PI)

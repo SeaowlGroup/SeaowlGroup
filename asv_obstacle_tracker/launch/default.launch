@@ -6,3 +6,5 @@
         output="screen">
   </node>
 </launch>
+
+<!-- params : host, port, rates of ais messages -->

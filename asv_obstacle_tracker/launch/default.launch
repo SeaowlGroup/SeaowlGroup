@@ -7,4 +7,4 @@
   </node>
 </launch>
 
-<!-- params : host, port, rates of ais messages -->
+<!-- params : host, port, rates of ais messages, latitude and longitude of the origin of the map, resolution -->

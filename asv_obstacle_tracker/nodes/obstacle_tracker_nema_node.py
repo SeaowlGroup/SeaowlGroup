@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+phiphiphi#!/usr/bin/env python3
 import rospy
 
 from nav_msgs.msg import Odometry
@@ -15,11 +15,18 @@ if __name__ == "__main__":
 
     # host = rospy.get_param("host", "")
     # port = rospy.get_param("port", -1)
+    # resolution =
+    # origin_x =
+    # origin_y =
     #
     # if port < 0 :
     #     rospy.signal_shutdown("No host address")
     host = "239.192.0.1"
     port = 60001
+
+    resolution = 1.0
+    origin_lat = 0.0
+    origin_lon = 0.0
 
     statearray = StateArray()
     id = dict()
@@ -41,12 +48,15 @@ if __name__ == "__main__":
             statearray.states[num].header.name = "Ship " + str(mmsi)
             statearray.states[num].header.radius = 8.0 # temporary
 
-        statearray.states[num].x = decoded_msg.content['lon']
-        statearray.states[num].y = decoded_msg.content['lat']
-        statearray.states[num].psi = decoded_msg.content['heading']*360/6.28318530718
+        dLat = decoded_msg.content['lat'] - origin_lat
+        dLon = decoded_msg.content['lon'] - origin_lon
+        phi = np.pi*origin_lat/180
+        statearray.states[num].x = dLon*(111132.954*np.cos(phi) - 93.5*np.cos(3*phi) + 0.118*np.cos(5*phi))
+        statearray.states[num].y = dLat*(111132.954 - 559.822*np.cos(2*phi) + 1.175*np.cos(4*phi) - 0.0023*np.cos(4*phi))
+        statearray.states[num].psi = decoded_msg.content['heading']*np.pi/180
         statearray.states[num].u = decoded_msg.content['speed']
-        #statearray.states[num].v = data.twist.twist.linear.y  --> ???
-        statearray.states[num].r = decoded_msg.content['turn']
+        statearray.states[num].v = 0.0
+        statearray.states[num].r = decoded_msg.content['turn']/6
 
         pub.publish(statearray)
 

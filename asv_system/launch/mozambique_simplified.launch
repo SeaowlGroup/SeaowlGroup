@@ -1,0 +1,69 @@
+<launch>
+
+  <arg name="use_sim_time" default="false" />
+  <arg name="trigger_shutdown" default="0" />
+  <arg name="coast_margin" default="10" />
+  <arg name="mapfile" default="None" />
+
+  <rosparam param="/use_sim_time" subst_value="True">$(arg use_sim_time)</rosparam>
+
+  <group if="$(arg use_sim_time)">
+    <node pkg="asv_referee"
+          name="chronos_node"
+          type="asv_clock_node.py"
+          respawn="false"
+          output="screen" />
+  </group>
+
+  <node pkg="asv_referee"
+        name="referee_node"
+        type="asv_referee_node.py"
+        respawn="false"
+        output="screen"
+        required="true">
+    <rosparam param="shutdown" subst_value="True">$(arg trigger_shutdown)</rosparam>
+  </node>
+
+  <group if="$(eval mapfile == 'None')">
+    <include file="$(find asv_simulator)/launch/test.launch">
+      <arg name="u_d" value="5.0" />
+      <arg name="global_planner" value="None" />
+      <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/mozambique.yaml" />
+      <arg name="initial_state" value="[600.0, 0.0, 1.56, 0.,0.,0.]" />
+    </include>
+  </group>
+
+  <group unless="$(eval mapfile == 'None')">
+    <include file="$(find asv_simulator)/launch/test.launch">
+      <arg name="u_d" value="5.0" />
+      <arg name="initial_state" value="[600.0, 0.0, 1.56, 0.,0.,0.]" />
+    </include>
+
+    <include file="$(find asv_system)/launch/mapserver.launch">
+      <arg name="mapfile" value="$(find asv_system)/config/maps/$(arg mapfile)" />
+    </include>
+  </group>
+
+  <node pkg="asv_map_processing"
+        name="map_processing_node"
+        type="asv_map_processing_node"
+        respawn="false"
+        output="screen" >
+    <rosparam param="coast_margin" subst_value="True">$(arg coast_margin)</rosparam>
+  </node>
+
+  <!-- <include file="$(find asv_obstacle_tracker)/launch/default.launch"/> -->
+
+
+  <node pkg="rviz"
+        type="rviz"
+        name="rviz"
+        args="-d $(find asv_simulator)/config/rviz/map_and_proc_map.rviz" />
+
+  <!-- <node pkg="rosbag"
+        type="record"
+        name="rosbag_record"
+        args="-O /home/soubi/Documents/SEAOWL//home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/bagfiles/mozambique.bag /asv/state /obstacles/ship1/state /obstacles/ship2/state /obstacle_states"
+        /> -->
+
+</launch>

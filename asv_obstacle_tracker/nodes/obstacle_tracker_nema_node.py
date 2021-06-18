@@ -1,4 +1,5 @@
-phiphiphi#!/usr/bin/env python3
+#!/usr/bin/env python3
+
 import rospy
 
 from nav_msgs.msg import Odometry
@@ -7,6 +8,7 @@ from asv_msgs.msg import State, StateArray
 import numpy as np
 import matplotlib.pyplot as plt
 from pyais.stream import UDPStream
+import tf
 
 if __name__ == "__main__":
 
@@ -41,23 +43,38 @@ if __name__ == "__main__":
             num = id[mmsi]
 
         else :
-            count +=1
             num = count
+            count +=1
+            statearray.states.append(State())
 
             statearray.states[num].header.id = num
             statearray.states[num].header.name = "Ship " + str(mmsi)
             statearray.states[num].header.radius = 8.0 # temporary
 
+            id.update({mmsi : num})
+            print("New ship : ", mmsi)
+
         dLat = decoded_msg.content['lat'] - origin_lat
         dLon = decoded_msg.content['lon'] - origin_lon
         phi = np.pi*origin_lat/180
-        statearray.states[num].x = dLon*(111132.954*np.cos(phi) - 93.5*np.cos(3*phi) + 0.118*np.cos(5*phi))
-        statearray.states[num].y = dLat*(111132.954 - 559.822*np.cos(2*phi) + 1.175*np.cos(4*phi) - 0.0023*np.cos(4*phi))
-        statearray.states[num].psi = decoded_msg.content['heading']*np.pi/180
+        x = dLon*(111132.954*np.cos(phi) - 93.5*np.cos(3*phi) + 0.118*np.cos(5*phi))
+        y = dLat*(111132.954 - 559.822*np.cos(2*phi) + 1.175*np.cos(4*phi) - 0.0023*np.cos(4*phi))
+        psi = decoded_msg.content['heading']*np.pi/180
+
+        statearray.states[num].x = x
+        statearray.states[num].y = y
+        statearray.states[num].psi = psi
         statearray.states[num].u = decoded_msg.content['speed']
         statearray.states[num].v = 0.0
         statearray.states[num].r = decoded_msg.content['turn']/6
 
         pub.publish(statearray)
+
+        br = tf.TransformBroadcaster()
+        br.sendTransform((x,y,0),
+                          tf.transformations.quaternion_from_euler(0,0,psi),
+                          rospy.Time.now(),
+                          statearray.states[num].header.name,
+                          "map")
 
     rospy.spin()

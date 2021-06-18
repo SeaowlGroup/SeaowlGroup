@@ -1,6 +1,7 @@
 <launch>
   <arg name="u_d" default="3.0" />
   <arg name="waypoint_file" default="$(find asv_simulator)/config/waypoints/asv_waypoint_list.yaml" />
+  <arg name="waypoints" default="[[0.,0.], [0.,0.]]" />
   <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes2.yaml" />
   <arg name="vessel_model_file" default="$(find asv_simulator)/config/models/viknes.urdf" />
   <arg name="initial_state" default="[0.0, 0.0, 1.57, 1.,0.,0.]" />
@@ -35,7 +36,8 @@
           respawn="false"
           output="screen">
       <rosparam param="u_d" subst_value="True">$(arg u_d)</rosparam>
-      <rosparam command="load" file="$(arg waypoint_file)" />
+      <rosparam param="waypoints" subst_value="True">$(arg waypoints)</rosparam>
+      <!-- <rosparam command="load" file="$(arg waypoint_file)" /> -->
       <!-- <rosparam command="load" file="$(arg waypoint_file)" unless="$(eval global_planner == 'None')"/> -->
 
 

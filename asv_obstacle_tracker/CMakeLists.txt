@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   asv_simulator
   roscpp
   rospy
+  tf
 )
 
 ## System dependencies are found with CMake's conventions

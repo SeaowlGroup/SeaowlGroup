@@ -45,7 +45,6 @@ int main(int argc, char* argv[])
   std::string planner;
   if (!priv_nh.getParam("global_planner", planner))
     planner = "None";
-  std::cout << planner << std::endl;
 
   my_vessel_node.initialize(&tf, &pose_pub, &odom_pub,  &noise_pub, &cmd_sub, &wp_sub, planner, &my_vessel);
   my_vessel_node.start();

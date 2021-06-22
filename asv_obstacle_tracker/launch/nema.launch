@@ -1,0 +1,10 @@
+<launch>
+  <node pkg="asv_obstacle_tracker"
+        name="obstacle_tracker_node"
+        type="obstacle_tracker_nema_node.py"
+        respawn="false"
+        output="screen">
+  </node>
+</launch>
+
+<!-- params : host, port, rates of ais messages, latitude and longitude of the origin of the map, resolution -->

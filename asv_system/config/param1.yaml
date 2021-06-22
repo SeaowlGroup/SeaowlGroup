@@ -16,12 +16,11 @@
   # lambda_psi: 0.10
   # gain_psi:   1.0
 
-  mapfile: mozambique.yaml #facultatif
+  # mapfile: mozambique.yaml #facultatif
 
-  trajectories: [[[580.0, 110.0, 0., 0., 0., 0.], [1200.0, 110.0]],
+  obstacles: [[[580.0, 110.0, 0., 0., 0., 0.], [1200.0, 110.0]],
                  [[760.0, 850.0, -1.56, 0., 0., 0.], [760.0, 0.0]]]
 
-  # u_d:
 
   use_sim_time: false
   trigger_shutdown: 0

@@ -3,6 +3,8 @@
   <arg name="initial_state" default="[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]" />
   <arg name="waypoints" default="[[0.0, 0.0], [0.0, 0.0]]" />
   <arg name="shipname" default="ship0" />
+  <arg name="u_d" default="3.0" />
+  <arg name="size" default="8.0" />
   <!-- Current and wind -->
   <!-- Waves -->
 
@@ -16,5 +18,7 @@
         <arg name="shipname" value="$(arg shipname)" />
         <arg name="initial_state" value="$(arg initial_state)" />
         <arg name="waypoints" value="$(arg waypoints)" />
+        <arg name="u_d" value="$(arg u_d)" />
+        <arg name="size" value="$(arg size)" />
       </include>
 </launch>

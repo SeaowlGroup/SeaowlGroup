@@ -3,10 +3,10 @@
 import roslaunch
 import yaml
 
-yaml_file = open("config/param.yaml", 'r')
+yaml_file = open("config/param1.yaml", 'r')
 yaml_content = yaml.safe_load(yaml_file)
 
-traj = yaml_content['trajectories']
+traj = yaml_content['obstacles']
 if 'mapfile' in yaml_content :
     map = yaml_content['mapfile']
 else :

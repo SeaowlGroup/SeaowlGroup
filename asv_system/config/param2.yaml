@@ -1,0 +1,39 @@
+
+# mapfile: mozambique.yaml #facultatif
+
+# Simulation parameters
+use_sim_time: false
+trigger_shutdown: 0
+coast_margin: 10
+
+# Environment parameters
+F_current: 0.0
+direction_current: 0.0 #in deg
+F_wind: 0.0
+direction_wind: 0.0 #in deg
+there_are_waves: true
+
+asv:
+  heading: 0.0
+  u_d: 5.0 #m.s-1
+  t_sim: 60
+
+obstacles:
+  ship1:
+    type: vessel
+    size: 18.0 #radius in meters
+    heading: 270
+    u_d: 3.0 #m.s-1
+    t_collision: 15
+  ship2:
+    type: vessel
+    size: 8.0 #radius in meters
+    heading: 180
+    u_d: 3.0 #m.s-1
+    t_collision: 30
+  ship3:
+    type: vessel
+    size: 8.0 #radius in meters
+    heading: 150
+    u_d: 3.0 #m.s-1
+    t_collision: 50

@@ -1,16 +1,15 @@
 <launch>
   <arg name="u_d" default="3.0" />
   <arg name="waypoint_file" default="$(find asv_simulator)/config/waypoints/asv_waypoint_list.yaml" />
-  <arg name="waypoints" default="[[0.,0.], [0.,0.]]" />
   <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes2.yaml" />
   <arg name="vessel_model_file" default="$(find asv_simulator)/config/models/viknes.urdf" />
-  <arg name="initial_state" default="[0.0, 0.0, 1.57, 1.,0.,0.]" />
+  <arg name="initial_state" default="[0.0, 0.0, 0., 0.,0.,0.]" />
   <!-- global_planner = AStar or global_planner = None -->
-  <arg name="global_planner" default="None" />
-  <arg name="use_vo" default="False" />
+  <arg name="global_planner" default="AStar" />
+  <arg name="use_vo" default="True" />
   <arg name="namespace" default="asv" />
   <arg name="shipname" default="asv" />
-  <arg name="size" default="8.0" />
+  <arg name="waypoints" default="[[0., 0.], [0.,0.]]" />
 
   <group ns="$(arg namespace)">
     <node pkg="asv_simulator"
@@ -20,7 +19,6 @@
           output="screen">
       <rosparam param="initial_state" subst_value="True">$(arg initial_state)</rosparam>
       <rosparam command="load" file="$(arg vessel_param_file)" />
-      <rosparam param="radius" subst_value="True">$(arg size)</rosparam>
       <rosparam param="global_planner" subst_value="True">$(arg global_planner)</rosparam>
     </node>
 
@@ -34,12 +32,13 @@
 
     <node pkg="asv_path_trackers"
           name="LOSNode"
-          type="asv_ctrl_los_node_obstacles.py"
+          type="asv_ctrl_los_node.py"
           respawn="false"
           output="screen">
       <rosparam param="u_d" subst_value="True">$(arg u_d)</rosparam>
-      <rosparam param="waypoints" subst_value="True">$(arg waypoints)</rosparam>
       <!-- <rosparam command="load" file="$(arg waypoint_file)" /> -->
+      <rosparam param="waypoints" subst_value="True">$(arg waypoints)</rosparam>
+      <rosparam param="global_planner" subst_value="True">$(arg global_planner)</rosparam>
       <!-- <rosparam command="load" file="$(arg waypoint_file)" unless="$(eval global_planner == 'None')"/> -->
 
 
@@ -59,6 +58,5 @@
           respawn="false"
           output="screen" />
   </group>
-
 
 </launch>

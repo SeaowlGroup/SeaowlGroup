@@ -90,7 +90,7 @@ class Referee(object) :
     def ob_dist(self) :
         dist = np.zeros(self.n_obst)
         for i in range(self.n_obst) :
-            dist[i] = np.linalg.norm(self.obst_states[i]-self.odom)
+            dist[i] = np.linalg.norm(self.obst_states[i]-self.odom) # beware of the map resolution
         return dist
 
     def run_controller(self):

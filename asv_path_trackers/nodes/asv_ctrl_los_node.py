@@ -41,12 +41,16 @@ class LOSGuidanceROS(object):
         self.wp   = self.controller.wp
         self.nwp  = 0 #number of waypoints
         self.cwp  = 0 #current waypoint
+        self.start = True # ISSUES HERE WHEN FALSE
 
         self._cmd_publisher   = rospy.Publisher("cmd_vel", geometry_msgs.msg.Twist, queue_size=1)
         self._odom_subscriber = rospy.Subscriber("state", nav_msgs.msg.Odometry, self._odom_callback, queue_size=1)
         self._wps_publisher   = rospy.Publisher("waypoints", Marker, queue_size=10)
         self._wps_suscriber   = rospy.Subscriber("asv_waypoints", Path, self._wps_callback, queue_size=1)
         self._recalc_suscriber   = rospy.Subscriber("/clicked_pose", geometry_msgs.msg.PoseStamped, self._recalc_callback, queue_size=1)
+        self._start_subscriber = rospy.Subscriber("/start_simulation", Empty,
+                                                    self._start_callback,
+                                                    queue_size=1)
 
         self.odom = nav_msgs.msg.Odometry()
         self.cmd  = geometry_msgs.msg.Twist()
@@ -183,6 +187,9 @@ class LOSGuidanceROS(object):
     def _recalc_callback(self, data) :
         self.controller.wp_initialized = False
 
+    def _start_callback(self, data):
+        self.start = True
+
     def _update(self):
 
         u_d, psi_d, switched = self.controller.update(self.odom.pose.pose.position.x,
@@ -196,7 +203,8 @@ class LOSGuidanceROS(object):
         self.cmd.angular.y = psi_d
         self.cmd.angular.z = 0.0
 
-        self._cmd_publisher.publish(self.cmd)
+        if self.start :
+            self._cmd_publisher.publish(self.cmd)
 
         self._visualize_waypoints(switched)
 

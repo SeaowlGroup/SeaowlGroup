@@ -30,6 +30,7 @@ class GlobalPlannerNode
    * @param gp
    */
   void initialize(ros::Publisher *wp_pub,
+                  ros::Publisher *start_pub,
                   ros::Subscriber *og_sub,
                   ros::Subscriber *asv_sub,
                   ros::Subscriber *goal_sub,
@@ -55,6 +56,7 @@ class GlobalPlannerNode
 
   // ROS API
   ros::Publisher *wp_pub_;
+  ros::Publisher *start_pub_;
 
   ros::Subscriber *og_sub_;
   ros::Subscriber *asv_sub_;

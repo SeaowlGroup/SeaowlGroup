@@ -1,0 +1,25 @@
+<launch>
+  <arg name="prior" default="[]" />
+  <arg name="size" default="[]" />
+  <arg name="heading" default="[]" />
+  <arg name="u_d" default="[]" />
+  <arg name="t_collision" default="[]" />
+  <arg name="d_detection" default="[]" />
+  <arg name="dcpa" default="[]" />
+  <arg name="initial_state_asv" default="[0.,0.,0., 0.,0.,0.]" />
+
+  <node pkg="asv_obstacle_tracker"
+        name="obstacles_node"
+        type="obstacles_simplified_node.py"
+        respawn="false"
+        output="screen">
+    <rosparam param="prior" subst_value="True">$(arg prior)</rosparam>
+    <rosparam param="size" subst_value="True">$(arg size)</rosparam>
+    <rosparam param="heading" subst_value="True">$(arg heading)</rosparam>
+    <rosparam param="u_d" subst_value="True">$(arg u_d)</rosparam>
+    <rosparam param="t_collision" subst_value="True">$(arg t_collision)</rosparam>
+    <rosparam param="d_detection" subst_value="True">$(arg d_detection)</rosparam>
+    <rosparam param="dcpa" subst_value="True">$(arg dcpa)</rosparam>
+    <rosparam param="initial_state_asv" subst_value="True">$(arg initial_state_asv)</rosparam>
+  </node>
+</launch>

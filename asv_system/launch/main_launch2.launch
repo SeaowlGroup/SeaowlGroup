@@ -17,6 +17,10 @@
   <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes2.yaml" unless="$(arg there_are_waves)"/>
   <arg name="vessel_model_file" default="$(find asv_simulator)/config/models/viknes.urdf" />
   <arg name="use_vo" default="True" />
+  <!-- Output -->
+  <arg name="opus" default="0" />
+  <arg name="output_file" default="$(find asv_system)/output/test.txt" />
+
 
   <rosparam param="/use_sim_time" subst_value="True">$(arg use_sim_time)</rosparam>
 
@@ -35,6 +39,8 @@
         output="screen"
         required="true">
     <rosparam param="shutdown" subst_value="True">$(arg trigger_shutdown)</rosparam>
+    <rosparam param="output_file" subst_value="True">$(arg output_file)</rosparam>
+    <rosparam param="opus" subst_value="True">$(arg opus)</rosparam>
   </node>
 
 

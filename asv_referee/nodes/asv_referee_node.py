@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import numpy as np
 import rospy
@@ -10,7 +10,9 @@ import sys
 
 class Referee(object) :
 
-    def __init__(self, dt=0.2, finished=0) :
+    def __init__(self, dt=0.2, finished=0,
+                 output='/home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/output/test',
+                 op='0') :
 
         self.begin = rospy.get_time()
         self.sim_time = 0
@@ -34,6 +36,9 @@ class Referee(object) :
         self.indic1 = []
         self.indic2 = []
 
+        self.output = output
+        self.opus = op
+
         self.finished = finished #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
 
     def _odom_callback(self, data):
@@ -55,17 +60,21 @@ class Referee(object) :
 
 
     def _finish_callback(self, data) :
-        print "---------------------END OF THE SIMULATION---------------------"
-        print 'Duration of the simulation (real time) : %.2f s' % (rospy.get_time() -self.begin)
-        print 'Duration of the simulation (simulation time): %.2f s' % (self.sim_time)
-        print 'Number of ships : %d' % (self.n_obst)
+        f = open(f'{self.output}','a')
+        print("---------------------END OF THE SIMULATION---------------------")
+        print(f'Duration of the simulation (real time) : {rospy.get_time() -self.begin} s')
+        print(f'Duration of the simulation (simulation time): {self.sim_time} s')
+        print(f'Number of ships : {self.n_obst}')
         for i in range(self.n_obst) :
-            print 'Ship %d ' % (i+1)
-            print '     --> dCPA = %.2f m' % (self.dcpa[i])
-            print '     --> t = %.2f ' % (self.time_occur[i])
-            print '     --> indic1 = %.2f m/s' % (self.indic1[i])
-            print '     --> indic2 = %.2f m/s' % (self.indic2[i])
-        print "---------------------------------------------------------------"
+            print(f'Ship {i+1}')
+            print(f'     --> dCPA = {self.dcpa[i]} m')
+            print(f'     --> t = {self.time_occur[i]} s')
+            print(f'     --> indic1 = {self.indic1[i]} m/s')
+            print(f'     --> indic2 = {self.indic2[i]} m/s')
+            f.write(f'OPUS {self.opus} : {np.min(self.dcpa)}\n')
+        f.close()
+        print(f'Output logged in {self.output}')
+        print("---------------------------------------------------------------")
         #Other indic : linear speed of the obstacle/asv scalar the vector between the two poses
         #write in an extern file
         if self.finished == 1 :
@@ -117,7 +126,11 @@ if __name__ == "__main__" :
 
     dt = rospy.get_param("~update_rate", .2)
     finished = rospy.get_param("~shutdown", 0)
+    output = rospy.get_param("~output_file", '/home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/output/test.txt')
+    op = rospy.get_param("~opus", '0')
 
-    ref = Referee(dt, finished)
+    print(output)
+
+    ref = Referee(dt, finished, output, op)
 
     ref.run_controller()

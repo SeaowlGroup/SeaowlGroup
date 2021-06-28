@@ -4,6 +4,7 @@
   <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes.yaml" if="$(arg there_are_waves)"/>
   <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes2.yaml" unless="$(arg there_are_waves)"/>
   <arg name="size" default="8.0" />
+  <arg name="prior" default="none" />
   <arg name="vessel_model_file" value="$(find asv_simulator)/config/models/ship1.urdf" />
   <!-- Environment parameters -->
   <arg name="Fx_current" default="0.0" />
@@ -13,16 +14,20 @@
   <arg name="initial_state" default="[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]" />
   <arg name="waypoints" default="[[0.0, 0.0], [0.0, 0.0]]" />
   <arg name="u_d" default="3.0" />
+  <!-- Delayed launch -->
+  <arg name="node_start_delay" default="0.0" />
 
   <group ns="obstacles/$(arg shipname)">
     <node pkg="asv_simulator"
           name="$(arg shipname)"
           type="asv_simulator_node"
           respawn="false"
-          output="screen">
+          output="screen"
+          launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' " >
       <rosparam param="initial_state" subst_value="True">$(arg initial_state)</rosparam>
       <rosparam command="load" file="$(arg vessel_param_file)" />
       <rosparam param="radius" subst_value="True">$(arg size)</rosparam>
+      <rosparam param="prior" subst_value="True">$(arg prior)</rosparam>
       <rosparam param="Fx_current" subst_value="True">$(arg Fx_current)</rosparam>
       <rosparam param="Fy_current" subst_value="True">$(arg Fy_current)</rosparam>
     </node>

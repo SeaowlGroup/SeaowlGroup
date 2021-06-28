@@ -3,6 +3,7 @@
 import roslaunch
 import yaml
 import numpy as np
+#import time
 
 yaml_file = open("config/param2.yaml", 'r')
 yaml_content = yaml.safe_load(yaml_file)
@@ -57,6 +58,9 @@ else :
     roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
     launch_files = [(roslaunch_file0, roslaunch_args0), roslaunch_file1]
 
+# Preparation f the different scripts
+#headings = ship['heading']
+#for h in headings :
 # Obstacles
 for i in range(N) :
     ship = obstacles[f'ship{i+1}']
@@ -99,4 +103,6 @@ for i in range(N) :
 launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
 launch.start()
 
-launch.spin()
+#time.sleep(10)
+launch.stop()
+#launch.spin()

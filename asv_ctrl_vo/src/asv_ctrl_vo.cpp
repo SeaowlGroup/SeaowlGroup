@@ -161,9 +161,15 @@ void VelocityObstacle::updateVelocityGrid()
     bool collision_situation    = inCollisionSituation(asv_pose_, obstacle_pose, va, vb);
     colregs_t colregs_situation = inColregsSituation(bearing, angle_diff);
 
-    bool apply_colregs = (colregs_situation == HEAD_ON ||
-                          colregs_situation == CROSSING_RIGHT ||
-                          colregs_situation == OVERTAKING) && collision_situation;
+    bool apply_colregs;
+    if (it->header.prior == "give_way")
+      apply_colregs = false;
+    else if (it->header.prior == "stand_on")
+      apply_colregs = collision_situation;
+    else
+      apply_colregs = (colregs_situation == HEAD_ON ||
+                       colregs_situation == CROSSING_RIGHT ||
+                       colregs_situation == OVERTAKING) && collision_situation;
 
 
 

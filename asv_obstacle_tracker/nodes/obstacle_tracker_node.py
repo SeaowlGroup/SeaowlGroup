@@ -82,6 +82,10 @@ if __name__ == "__main__":
         statearray.states[num].header.id = num
         statearray.states[num].header.name = str(ship)
         statearray.states[num].header.radius = ships[str(ship)][str(ship)]['radius']
+        if 'type' in ships[str(ship)][str(ship)] :
+            statearray.states[num].header.prior = ships[str(ship)][str(ship)]['prior']
+        else :
+            statearray.states[num].header.prior = 'none'
         wf.append(WaveFilter(wf_gain))
         num += 1
 

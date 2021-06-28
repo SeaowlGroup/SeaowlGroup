@@ -49,42 +49,20 @@ for size in ship['size'] :
         for u_d in ship['u_d'] :
             for dcpa in ship['dcpa'] :
                 for type in ship['prior'] :
-                    for d_detec in ship['d_detection'] :
+                    for d_detec in ship['d_detection'] : 
+                        print('=====================================')
+                        print('size : ', size)
+                        print('heading : ', h)
+                        print('u_d : ', u_d)
+                        print('dcpa : ', dcpa)
+                        print('prior : ', type)
+                        print('d_detec : ', d_detec)
+                        print('=====================================')
                         # Obstacles
                         #for i in range(N) :
                         #ship = obstacles[f'ship{i+1}']
                         opus += 1
                         t_collision = ship['t_collision']
-
-                        calc_heading = (90-h)*np.pi/180
-
-                        # Time of apparition
-                        theta = calc_heading_asv - calc_heading
-                        if (u_d_asv*t_collision*u_d_asv*t_collision +
-                            u_d*t_collision*u_d*t_collision -
-                            2*u_d*u_d_asv*t_collision*t_collision*np.cos(theta) >= d_detec) :
-                            delay_time = 0
-                        else :
-                            delay_time = (t_collision -
-                                          d_detec/np.sqrt(u_d*u_d +
-                                                          u_d_asv*u_d_asv -
-                                                          2*u_d_asv*u_d*np.cos(theta)))
-                        # Trajectory
-                        or_x = 0.0
-                        or_y = 0.0
-                        first_point_x = (t_collision*u_d_asv*np.cos(calc_heading_asv) -
-                                        (t_collision-delay_time)*u_d*np.cos(calc_heading) +
-                                        or_x + dcpa*np.cos(calc_heading_asv))
-                        first_point_y = (t_collision*u_d_asv*np.sin(calc_heading_asv) -
-                                        (t_collision-delay_time)*u_d*np.sin(calc_heading) +
-                                        or_y + dcpa*np.sin(calc_heading_asv))
-                        last_point_x = first_point_x + 3*t_collision*u_d*np.cos(calc_heading)
-                        last_point_y = first_point_y + 3*t_collision*u_d*np.sin(calc_heading)
-
-                        initial_state = [first_point_x, first_point_y, calc_heading, u_d, 0., 0.]
-                        waypoints = [[first_point_x, first_point_y], [last_point_x, last_point_y]]
-                        #shipname = type+f'{i+1}'
-                        shipname = 'ship1'
                         # Creation of the launch files
                         cli_args0 = ['asv_system', 'main_launch2.launch',
                                      f'use_sim_time:={use_sim_time}',
@@ -105,32 +83,41 @@ for size in ship['size'] :
                         if N == 0 :
                             launch_files = [(roslaunch_file0, roslaunch_args0)]
                         else :
-                            cli_args1 = ['asv_obstacle_tracker', 'default.launch']
+                            cli_args1 = ['asv_obstacle_tracker', 'obst_simplified.launch',
+                                        f'prior:=[{type}]',
+                                        f'size:=[{size}]',
+                                        f'heading:=[{h}]',
+                                        f'u_d:=[{u_d}]',
+                                        f't_collision:=[{t_collision}]',
+                                        f'd_detection:=[{d_detec}]',
+                                        f'dcpa:=[{dcpa}]',
+                                        f'initial_state_asv:={initial_state_asv}']
                             roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
-                            launch_files = [(roslaunch_file0, roslaunch_args0), roslaunch_file1]
+                            roslaunch_args1 = cli_args1[2:]
+                            launch_files = [(roslaunch_file0, roslaunch_args0), (roslaunch_file1, roslaunch_args1)]
 
+                        # launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
+                        # launch.start()
+                        # time.sleep(10)
+                        # cli_args = ['asv_system', 'obstacles2.launch',
+                        #             f'initial_state:={initial_state}',
+                        #             f'waypoints:={waypoints}',
+                        #             f'shipname:={shipname}',
+                        #             f'u_d:={u_d}',
+                        #             f'size:={size}',
+                        #             f'prior:={type}',
+                        #             f'Fx_current:={Fx_current}',
+                        #             f'Fy_current:={Fy_current}',
+                        #             f'there_are_waves:={there_are_waves}',
+                        #             f'node_start_delay:={0.0}'] #max(0., delay_time-3.0)
+                        #
+                        # roslaunch_file = roslaunch.rlutil.resolve_launch_arguments(cli_args)[0]
+                        # roslaunch_args = cli_args[2:]
+                        #
+                        # launch_files = [(roslaunch_file, roslaunch_args)]
                         launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
                         launch.start()
-                        time.sleep(10)
-                        cli_args = ['asv_system', 'obstacles2.launch',
-                                    f'initial_state:={initial_state}',
-                                    f'waypoints:={waypoints}',
-                                    f'shipname:={shipname}',
-                                    f'u_d:={u_d}',
-                                    f'size:={size}',
-                                    f'prior:={type}',
-                                    f'Fx_current:={Fx_current}',
-                                    f'Fy_current:={Fy_current}',
-                                    f'there_are_waves:={there_are_waves}',
-                                    f'node_start_delay:={0.0}'] #max(0., delay_time-3.0)
-
-                        roslaunch_file = roslaunch.rlutil.resolve_launch_arguments(cli_args)[0]
-                        roslaunch_args = cli_args[2:]
-
-                        launch_files = [(roslaunch_file, roslaunch_args)]
-                        launch2 = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
-                        launch2.start()
-                        launch2.spin()
+                        launch.spin()
 
 #time.sleep(10)
 #launch.stop()

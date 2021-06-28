@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
 
   ros::Publisher wp_pub = n.advertise<asv_msgs::Path>("asv_waypoints", 1, true);
 
+  ros::Publisher start_pub = n.advertise<std_msgs::Empty>("/start_simulation", 1, true);
 
   ros::Subscriber og_sub = n.subscribe("/processed_map",
                                        1,
@@ -53,12 +54,14 @@ GlobalPlannerNode::GlobalPlannerNode() : gp_(NULL),
 GlobalPlannerNode::~GlobalPlannerNode() {}
 
 void GlobalPlannerNode::initialize(ros::Publisher *wp_pub,
-                                      ros::Subscriber *og_sub,
-                                      ros::Subscriber *asv_sub,
-                                      ros::Subscriber *goal_sub,
-                                      GlobalPlanner *gp)
+                                   ros::Publisher *start_pub,
+                                   ros::Subscriber *og_sub,
+                                   ros::Subscriber *asv_sub,
+                                   ros::Subscriber *goal_sub,
+                                   GlobalPlanner *gp)
 {
   wp_pub_ = wp_pub;
+  start_pub_ = start_pub;
   og_sub_ = og_sub;
   asv_sub_ = asv_sub;
   goal_sub_ = goal_sub;
@@ -73,6 +76,8 @@ void GlobalPlannerNode::start()
 
   asv_msgs::Path waypt;
 
+  std_msgs::Empty startMsg;
+
   while (ros::ok())
     {
       if (map_init == 1) {
@@ -81,6 +86,7 @@ void GlobalPlannerNode::start()
 	        waypt = gp_->calculate_waypoints(start_x, start_y, 770.0, 580.0);
 	        map_init = 2;
           wp_pub_->publish(waypt);
+          start_pub_->publish(startMsg);
       }
 
       // For timing of algorithm: uncomment!

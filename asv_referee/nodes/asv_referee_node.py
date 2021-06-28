@@ -6,6 +6,8 @@ from nav_msgs.msg import Odometry
 from std_msgs.msg import Empty
 from asv_msgs.msg import StateArray
 
+import time
+
 import sys
 
 class Referee(object) :
@@ -14,8 +16,9 @@ class Referee(object) :
                  output='/home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/output/test',
                  op='0') :
 
-        self.begin = rospy.get_time()
-        self.sim_time = 0
+        self.begin_wall = 0.
+        self.begin_sim = 0.
+        self.start = False
         self.rate = dt
 
         self._odom_subscriber = rospy.Subscriber("/asv/state", Odometry,
@@ -27,6 +30,10 @@ class Referee(object) :
         self._finish_subscriber = rospy.Subscriber("/end_simulation",
                                                     Empty, self._finish_callback,
                                                     queue_size=1)
+        self._start_subscriber = rospy.Subscriber("/start_simulation", Empty,
+                                                    self._start_callback,
+                                                    queue_size=1)
+        self.start_publisher   = rospy.Publisher("/start_simultaion", Empty, queue_size=1)
 
         self.odom = np.zeros(4)
         self.n_obst = -1
@@ -58,12 +65,17 @@ class Referee(object) :
             self.obst_states[i, 2] = data.states[i].u
             self.obst_states[i, 3] = data.states[i].psi
 
+    def _start_callback(self, data):
+        if (not self.start):
+            self.begin_sim = rospy.Time.to_sec(rospy.Time.now())
+            self.begin_wall = time.time()
+            print("---------------------BEGINNING OF THE SIMULATION---------------------")
 
     def _finish_callback(self, data) :
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
-        print(f'Duration of the simulation (real time) : {rospy.get_time() -self.begin} s')
-        print(f'Duration of the simulation (simulation time): {self.sim_time} s')
+        print(f'Duration of the simulation (real time) : {rospy.get_time() -self.begin_wall} s')
+        print(f'Duration of the simulation (simulation time): {rospy.Time.to_sec(rospy.Time.now())-self.begin_sim} s')
         print(f'Number of ships : {self.n_obst}')
         for i in range(self.n_obst) :
             print(f'Ship {i+1}')
@@ -93,8 +105,8 @@ class Referee(object) :
                     aux2 = np.array([self.odom[2], self.odom[3]])
                     self.indic1[i] = - np.dot(aux, norm_ot)
                     self.indic2[i] = np.dot(norm_ot, aux2)
-                    self.time_occur[i] = rospy.get_time() - self.begin
-        self.sim_time += self.rate
+                    self.time_occur[i] = rospy.get_time() - self.begin_sim
+        #self.sim_time += self.rate
 
     def ob_dist(self) :
         dist = np.zeros(self.n_obst)
@@ -129,8 +141,11 @@ if __name__ == "__main__" :
     output = rospy.get_param("~output_file", '/home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/output/test.txt')
     op = rospy.get_param("~opus", '0')
 
-    print(output)
+    print('Output : ', output)
 
     ref = Referee(dt, finished, output, op)
+
+    #top départ (temporary)
+    ref.start_publisher.publish(Empty)
 
     ref.run_controller()

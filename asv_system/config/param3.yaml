@@ -25,5 +25,5 @@ obstacles:
     heading: [270, 90]
     u_d: [3.0, 10.0] #m.s-1
     t_collision: 15
-    d_detection: [80.0, 500.0]
+    d_detection: [50.0, 500.0]
     dcpa: [0.0, 10.0]

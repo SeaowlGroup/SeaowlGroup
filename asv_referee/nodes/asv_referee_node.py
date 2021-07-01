@@ -74,7 +74,7 @@ class Referee(object) :
     def _finish_callback(self, data) :
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
-        print(f'Duration of the simulation (real time) : {rospy.get_time() -self.begin_wall} s')
+        print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
         print(f'Duration of the simulation (simulation time): {rospy.Time.to_sec(rospy.Time.now())-self.begin_sim} s')
         print(f'Number of ships : {self.n_obst}')
         for i in range(self.n_obst) :
@@ -146,6 +146,6 @@ if __name__ == "__main__" :
     ref = Referee(dt, finished, output, op)
 
     #top départ (temporary)
-    ref.start_publisher.publish(Empty)
+    #ref.start_publisher.publish(Empty)
 
     ref.run_controller()

@@ -186,9 +186,8 @@ void Vessel::getWaveNoise(Eigen::Vector3d &wave_noise)
   wave_noise = tau_waves;
 }
 
-void Vessel::updateSystem(double u_d, double psi_d, double r_d, bool inNav)
+void Vessel::updateSystem(double u_d, double psi_d, double r_d)
 {
-  double old_angle = eta[2];
   // Ensure psi_d is "compatible" with psi
   psi_d = normalize_angle_diff(psi_d, eta[2]);
 
@@ -222,10 +221,6 @@ void Vessel::updateSystem(double u_d, double psi_d, double r_d, bool inNav)
   // Keep yaw within [-PI,PI)
   eta[2] = normalize_angle(eta[2]);
 
-  // The next section is to keep the ASV from turning around itself when it hasn't calculated its route yet
-  if (!inNav) {
-    eta[2] = old_angle;
-  }
 }
 
 

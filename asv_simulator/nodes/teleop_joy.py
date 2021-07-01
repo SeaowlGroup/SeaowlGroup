@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ## @package teleop_joy A node for controlling the P3DX with an XBox controller
 
 import rospy

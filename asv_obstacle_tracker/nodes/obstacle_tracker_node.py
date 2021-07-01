@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """An 'obstacle tracker' module.
 
 In reality this module just subscribes to all obstacle ships' odometry data and

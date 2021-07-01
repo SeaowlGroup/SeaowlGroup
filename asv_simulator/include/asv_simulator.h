@@ -34,7 +34,7 @@ class Vessel
    * @param psi_d The desired heading (control input)
    * @param r_d The desired yaw rate (control input)
    */
-  void updateSystem(double u_d, double psi_d, double r_d, bool inNav);
+  void updateSystem(double u_d, double psi_d, double r_d);
 
   /**
    * @todo Is this used? Remove.

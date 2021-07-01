@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 import rospy
 import numpy as np
 from visualization_msgs.msg import Marker
@@ -53,4 +53,3 @@ if __name__ == "__main__":
         mk.header.stamp = rospy.Time.now()
 
         r.sleep()
-

@@ -13,13 +13,13 @@ import sys
 class Referee(object) :
 
     def __init__(self, dt=0.2, finished=0,
-                 output='/home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/output/test',
+                 output='/home/catkin3/src/seaowl/asv_system/output',
                  op='0') :
 
         self.begin_wall = 0.
         self.begin_sim = 0.
         self.start = False
-        self.rate = dt
+        self.rate = 1/dt
 
         self._odom_subscriber = rospy.Subscriber("/asv/state", Odometry,
                                                     self._odom_callback,
@@ -32,16 +32,20 @@ class Referee(object) :
                                                     queue_size=1)
         self._start_subscriber = rospy.Subscriber("/start_simulation", Empty,
                                                     self._start_callback,
-                                                    queue_size=1)
-        self.start_publisher   = rospy.Publisher("/start_simultaion", Empty, queue_size=1)
+                                                    queue_size=10)
+        self.start_publisher   = rospy.Publisher("/start_simulation", Empty, queue_size=1, latch=True)
 
         self.odom = np.zeros(4)
         self.n_obst = -1
-        self.obst_states = [];
+        self.obst_states = []
         self.dcpa = []
         self.time_occur = []
         self.indic1 = []
         self.indic2 = []
+        self.security = [] #indicateur de sécurité
+        self.t0 = 900 #temps de sécurité 15: minutes
+        self.r_offset = 0. #offset pour COLREG
+        self.psi_offset = 0. #offset pour COLREG
 
         self.output = output
         self.opus = op
@@ -59,6 +63,8 @@ class Referee(object) :
             self.indic1 = np.zeros(self.n_obst)
             self.indic2 = np.zeros(self.n_obst)
             self.obst_states = np.zeros((self.n_obst, 4))
+            self.security = np.zeros(self.n_obst)
+
         for i in range(self.n_obst) :
             self.obst_states[i, 0] = data.states[i].x
             self.obst_states[i, 1] = data.states[i].y
@@ -67,6 +73,7 @@ class Referee(object) :
 
     def _start_callback(self, data):
         if (not self.start):
+            self.start = True
             self.begin_sim = rospy.Time.to_sec(rospy.Time.now())
             self.begin_wall = time.time()
             print("---------------------BEGINNING OF THE SIMULATION---------------------")
@@ -83,7 +90,9 @@ class Referee(object) :
             print(f'     --> t = {self.time_occur[i]} s')
             print(f'     --> indic1 = {self.indic1[i]} m/s')
             print(f'     --> indic2 = {self.indic2[i]} m/s')
-            f.write(f'OPUS {self.opus} : {np.min(self.dcpa)}\n')
+            print(f'     --> indic2 = {self.security[i]}')
+
+            f.write(f'OPUS {self.opus} {np.max(self.security)}\n')
         f.close()
         print(f'Output logged in {self.output}')
         print("---------------------------------------------------------------")
@@ -94,10 +103,12 @@ class Referee(object) :
 
     def _update(self):
         if (self.n_obst > -1) :
-            d = self.ob_dist()
+            d = self.ob(False)
+            secu = self.ob(True)
             for i in range(self.n_obst) :
-                if (d[i] < self.dcpa[i]) :
+                if (secu[i] > self.security[i]) :
                     self.dcpa[i] = d[i]
+                    self.security[i] = secu[i]
                     #norm_ot = np.array([self.odom[0] - self.obst_states[i, 0], self.odom[1] - self.obst_states[i, 1]])
                     norm_ot = self.obst_states[i,:2] - self.odom[:2]
                     norm_ot /= np.linalg.norm(norm_ot)
@@ -108,15 +119,26 @@ class Referee(object) :
                     self.time_occur[i] = rospy.get_time() - self.begin_sim
         #self.sim_time += self.rate
 
-    def ob_dist(self) :
+    def ob(self, sec) :
         dist = np.zeros(self.n_obst)
+        rvel = np.zeros(self.n_obst) #relative velocity
         for i in range(self.n_obst) :
-            dist[i] = np.linalg.norm(self.obst_states[i]-self.odom) # beware of the map resolution
-        return dist
+            asv_psi = np.arctan2(self.odom[3],self.odom[2])
+            asv_off = self.odom[:2]+np.array([self.r_offset*np.cos(asv_psi-self.psi_offset),
+                                              self.r_offset*np.sin(asv_psi-self.psi_offset)])
+            obst_off = self.obst_states[i,:2]+np.array([self.r_offset*np.cos(self.obst_states[i,3]+self.psi_offset),
+                                                        self.r_offset*np.sin(self.obst_states[i,3]+self.psi_offset)])
+            dist[i] = np.linalg.norm(asv_off-obst_off) # beware of the map resolution
+            obst_vel = np.array([self.obst_states[i, 2]*np.cos(self.obst_states[i, 3]),
+                                 self.obst_states[i, 2]*np.sin(self.obst_states[i, 3])])
+            rvel[i] = np.linalg.norm(obst_vel-self.odom[2:])
+        if sec :
+            return np.log(self.t0*rvel/dist)
+        else :
+            return dist
 
     def run_controller(self):
-        r = rospy.Rate(1/self.rate)
-
+        r = rospy.Rate(self.rate)
         while (not rospy.is_shutdown()) and self.finished < 2 :
             self._update()
             try:
@@ -136,16 +158,16 @@ if __name__ == "__main__" :
 
     rospy.init_node("Referee")
 
-    dt = rospy.get_param("~update_rate", .2)
+    dt = 1/rospy.get_param("~update_rate", 5.)
     finished = rospy.get_param("~shutdown", 0)
-    output = rospy.get_param("~output_file", '/home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/output/test.txt')
+    output = rospy.get_param("~output_file", '/home/adrien/catkin3/src/seaowl/asv_system/output/test.txt')
     op = rospy.get_param("~opus", '0')
 
-    print('Output : ', output)
+    print(f'Output : {output}')
 
-    ref = Referee(dt, finished, output, op)
+    refer = Referee(dt, finished, output, op)
 
-    #top départ (temporary)
-    #ref.start_publisher.publish(Empty)
+    msg  = Empty()
+    refer.start_publisher.publish(msg) #top départ (temporary)
 
-    ref.run_controller()
+    refer.run_controller()

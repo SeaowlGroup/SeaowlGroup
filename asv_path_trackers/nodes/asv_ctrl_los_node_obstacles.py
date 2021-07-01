@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """(Integral) Line of Sight implementation for ROS
 
 This implementation is based on [1].

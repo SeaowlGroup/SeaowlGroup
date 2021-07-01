@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import numpy as np
 import rosbag
 from tf.transformations import quaternion_from_euler as euler2quat

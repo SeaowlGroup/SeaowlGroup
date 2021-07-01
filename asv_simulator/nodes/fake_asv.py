@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import rospy
 import numpy as np
 
@@ -45,7 +45,7 @@ class FakeASV(object):
         # Columns to fetch
         cols = (0, 5, 41, 42, 46, 47, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67)
         data = np.loadtxt(filepath, delimiter=",", usecols=cols, skiprows=0)
-        
+
         self.time_data = data[:, 0] * 1.0e-3
         self.time_data -= self.time_data[0]
         self.gps_fix_data = data[:, 1:4]
@@ -69,7 +69,7 @@ class FakeASV(object):
         #                 self.imu_acc_data,
         #                 self.imu_mag_data,
         #                 self.imu_rpy_data])
-        
+
         # np.save("/home/thomas/Dropbox/NTNU/master/code/python/data.npy", arr)
 
     def publish_fix(self, it):
@@ -85,9 +85,9 @@ class FakeASV(object):
             self.fix_msg.status.status = -1
         else:
             self.fix_msg.status.status = 0
-        
+
         self.fix_msg.latitude  = self.gps_fix_data[it, 1]
-        self.fix_msg.longitude = self.gps_fix_data[it, 2]        
+        self.fix_msg.longitude = self.gps_fix_data[it, 2]
 
         self.fix_pub.publish(self.fix_msg)
 
@@ -95,13 +95,13 @@ class FakeASV(object):
         if it == 0:
             # Initialize message
             self.vel_msg.header.frame_id = "asv"
-            
+
         self.vel_msg.header.seq = it
         self.vel_msg.header.stamp = rospy.Time.now()
 
         self.vel_msg.twist.linear.x = self.gps_vel_data[it,0]*np.cos(self.gps_vel_data[it,1])
         self.vel_msg.twist.linear.y = self.gps_vel_data[it,0]*np.sin(self.gps_vel_data[it,1])
-        
+
         self.vel_pub.publish(self.vel_msg)
 
     def publish_imu(self, it):
@@ -154,4 +154,3 @@ if __name__ == "__main__":
     fake_asv = FakeASV(filepath)
 
     fake_asv.start()
-    

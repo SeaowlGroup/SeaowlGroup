@@ -40,13 +40,13 @@ int main(int argc, char* argv[])
   ros::Publisher noise_pub = nh.advertise<geometry_msgs::Vector3>("wave_noise", 10);
 
   ros::Subscriber cmd_sub = nh.subscribe("cmd_vel", 1, &VesselNode::cmdCallback, &my_vessel_node);
-  ros::Subscriber wp_sub = nh.subscribe("waypoints", 1, &VesselNode::wpCallback, &my_vessel_node);
+  ros::Subscriber start_sub = nh.subscribe("/start_simulation", 1, &VesselNode::startCallback, &my_vessel_node);
 
   std::string planner;
   if (!priv_nh.getParam("global_planner", planner))
     planner = "None";
 
-  my_vessel_node.initialize(&tf, &pose_pub, &odom_pub,  &noise_pub, &cmd_sub, &wp_sub, planner, &my_vessel);
+  my_vessel_node.initialize(&tf, &pose_pub, &odom_pub,  &noise_pub, &cmd_sub, &start_sub, planner, &my_vessel);
   my_vessel_node.start();
 
   ros::shutdown();
@@ -73,7 +73,7 @@ void VesselNode::initialize(tf::TransformBroadcaster* tf,
                             ros::Publisher *odom_pub,
                             ros::Publisher *noise_pub,
                             ros::Subscriber *cmd_sub,
-                            ros::Subscriber *wp_sub,
+                            ros::Subscriber *start_sub,
                             std::string planner,
                             Vessel *vessel)
 {
@@ -85,7 +85,7 @@ void VesselNode::initialize(tf::TransformBroadcaster* tf,
       odom_pub_ = odom_pub;
       noise_pub_ = noise_pub;
       cmd_sub_ = cmd_sub;
-      wp_sub_ = wp_sub;
+      start_sub_ = start_sub;
 
       if (planner == "None")
         inNav_ = true;
@@ -106,10 +106,9 @@ void VesselNode::start()
 
   while (ros::ok())
     {
-      theVessel_->updateSystem(u_d_, psi_d_, r_d_, inNav_);
-
+      if (inNav_)
+        theVessel_->updateSystem(u_d_, psi_d_, r_d_);
       this->publishData();
-
       ros::spinOnce();
       loop_rate.sleep();
     }
@@ -185,7 +184,7 @@ void VesselNode::cmdCallback(const geometry_msgs::Twist::ConstPtr& msg)
   r_d_ = msg->angular.z;
 }
 
-void VesselNode::wpCallback(const visualization_msgs::Marker::ConstPtr& msg)
+void VesselNode::startCallback(const std_msgs::Empty::ConstPtr& msg)
 {
   ROS_INFO_ONCE("Engine Started");
   inNav_ = true;

@@ -8,7 +8,7 @@
 #include "geometry_msgs/Twist.h"
 #include "nav_msgs/Odometry.h"
 #include "visualization_msgs/Marker.h"
-
+#include "std_msgs/Empty.h"
 #include "boost/thread.hpp"
 
 #include "asv_simulator.h"
@@ -22,11 +22,11 @@ class VesselNode
                   ros::Publisher *odom_pub,
                   ros::Publisher *noise_pub,
                   ros::Subscriber *cmd_sub,
-                  ros::Subscriber *wp_sub,
+                  ros::Subscriber *start_sub,
                   std::string planner,
                   Vessel *vessel);
   void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg);
-  void wpCallback(const visualization_msgs::Marker::ConstPtr& msg);
+  void startCallback(const std_msgs::Empty::ConstPtr& msg);
   void publishData();
   void start();
 
@@ -44,7 +44,7 @@ class VesselNode
   ros::Publisher *odom_pub_;
   ros::Publisher *noise_pub_;
   ros::Subscriber *cmd_sub_;
-  ros::Subscriber *wp_sub_;
+  ros::Subscriber *start_sub_;
 
   double u_d_;
   double psi_d_;

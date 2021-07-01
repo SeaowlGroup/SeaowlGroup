@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
                                          &GlobalPlannerNode::goalCallback,
                                          &gp_node);
 
-  gp_node.initialize(&wp_pub, &og_sub, &asv_sub, &goal_sub, gp);
+  gp_node.initialize(&wp_pub, &start_pub, &og_sub, &asv_sub, &goal_sub, gp);
   gp_node.start();
 
   ros::shutdown();
@@ -48,7 +48,9 @@ int main(int argc, char *argv[])
 
 GlobalPlannerNode::GlobalPlannerNode() : gp_(NULL),
                                          wp_pub_(NULL),
+                                         start_pub_(NULL),
                                          og_sub_(NULL),
+                                         goal_sub_(NULL),
                                          asv_sub_(NULL) {};
 
 GlobalPlannerNode::~GlobalPlannerNode() {}

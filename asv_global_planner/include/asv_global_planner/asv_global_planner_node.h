@@ -6,6 +6,7 @@
 #include "asv_msgs/StateArray.h"
 #include "nav_msgs/Odometry.h"
 #include "asv_msgs/Path.h"
+#include "std_msgs/Empty.h"
 #include "geometry_msgs/PoseStamped.h"
 
 #include <vector>

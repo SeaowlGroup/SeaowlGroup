@@ -15,7 +15,9 @@ for line in g :
     content = line.split()
     y2.append(float(content[2]))
 
-plt.plot(y, c='b')
-plt.plot(y2, c='g')
+#plt.plot(y, c='b')
+#plt.plot(y2, c='g')
+plt.plot(y2[:len(y)], y, 'o', c='b')
+
 plt.show()
 f.close()

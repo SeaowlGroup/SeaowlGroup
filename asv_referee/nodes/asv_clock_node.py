@@ -4,6 +4,7 @@ import rospy
 import time
 from rosgraph_msgs.msg import Clock
 
+
 if __name__ == '__main__':
     pub = rospy.Publisher('/clock',Clock, queue_size=1)
     rospy.init_node('simClock')

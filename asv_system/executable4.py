@@ -76,6 +76,7 @@ def run() :
                                          f'Fx_current:={Fx_current}',
                                          f'Fy_current:={Fy_current}',
                                          f'there_are_waves:={there_are_waves}',
+                                         f'use_vo:=True',
                                          f'opus:={opus}',
                                          f'output_file:=/home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/output/{serial}.txt']
                             roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]

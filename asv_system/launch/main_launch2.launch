@@ -2,7 +2,7 @@
 
   <!-- Global parameters -->
   <arg name="use_sim_time" default="false" />
-  <arg name="trigger_shutdown" default="0" />
+  <arg name="trigger_shutdown" default="1" />
   <arg name="coast_margin" default="10" />
   <arg name="mapfile" default="None" />
   <!-- Environment parameters -->
@@ -16,7 +16,7 @@
   <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes.yaml" if="$(arg there_are_waves)"/>
   <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes2.yaml" unless="$(arg there_are_waves)"/>
   <arg name="vessel_model_file" default="$(find asv_simulator)/config/models/viknes.urdf" />
-  <arg name="use_vo" default="False" />
+  <arg name="use_vo" default="True" />
   <!-- Output -->
   <arg name="opus" default="0" />
   <arg name="output_file" default="$(find asv_system)/output/test.txt" />
@@ -34,7 +34,7 @@
 
   <node pkg="asv_referee"
         name="referee_node"
-        type="asv_referee_node.py"
+        type="asv_referee_node2.py"
         respawn="false"
         output="screen"
         required="true">

@@ -23,7 +23,7 @@ obstacles:
     prior: [stand_on, give_way, none]
     size: [8.0, 30.0] #radius in meters
     heading: [270, 90]
-    u_d: [3.0, 10.0] #m.s-1
+    u_d: [5.0, 10.0] #m.s-1
     t_collision: 15
-    d_detection: [50.0, 500.0]
-    dcpa: [0.0, 10.0]
+    d_detection: [500.0, 500.0]
+    dcpa: [10.0, 10.0]

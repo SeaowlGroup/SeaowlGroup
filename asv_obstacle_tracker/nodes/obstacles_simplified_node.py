@@ -54,9 +54,9 @@ class Obstacles(object):
                 #delay_time[i] = 0
             # Trajectory
             x = (t_col*u_d_asv*np.cos(psi_asv) - (t_col-delay_time[i])*u*np.cos(psi) +
-                x_asv + self.dcpa[i]*np.cos(psi_asv))
+                x_asv + self.dcpa[i]*np.sin(psi))
             y = (t_col*u_d_asv*np.sin(psi_asv) - (t_col-delay_time[i])*u*np.sin(psi) +
-                y_asv + self.dcpa[i]*np.sin(psi_asv))
+                y_asv + self.dcpa[i]*np.cos(psi))
 
 
             statearray.states.append(State())
@@ -110,6 +110,7 @@ if __name__ == "__main__":
     rospy.init_node("obstacles_controller")
 
     obst = Obstacles()
-
+    r = rospy.Rate(5.)
     while not obst.start :
-       obst.run()
+        r.sleep()
+    obst.run()

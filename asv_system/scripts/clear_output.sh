@@ -6,7 +6,7 @@ if [ "$file" = "all" ]; then
   rm ../output/*
 elif [ "$file" = "last" ]; then
   cd ../output
-  rm 'ls | head -1 |'
+  rm "$(ls | tail -1)"
   cd ../scripts
 else
   rm ../output/"$file"*

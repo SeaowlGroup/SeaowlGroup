@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/adrien/catkin_ws/devel/include/**",
+        "/home/adrien/catkin/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/adrien/catkin_ws/src/seaowl/asv_ctrl_vo/include/**",
+        "/home/adrien/catkin_ws/src/seaowl/asv_global_planner/include/**",
+        "/home/adrien/catkin_ws/src/seaowl/asv_map_processing/include/**",
+        "/home/adrien/catkin_ws/src/seaowl/asv_simulator/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ],
+  "version": 4
+}

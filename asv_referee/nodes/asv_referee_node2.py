@@ -38,6 +38,7 @@ class Referee(object) :
         self.odom = np.zeros(7)
         self.n_obst = -1
         self.obst_states = []
+        self.obst_front = []
         self.dcpa = []
         self.time_occur = []
         self.indic1 = []
@@ -53,10 +54,9 @@ class Referee(object) :
         self.finished = finished #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
 
     def _odom_callback(self, data):
+        t = rospy.get_time()
         vx = self.odom[2]
         vy = self.odom[3]
-        print(f"odom: {vx,vy}")
-        t = rospy.get_time()
         self.odom[0] = data.pose.pose.position.x
         self.odom[1] = data.pose.pose.position.y
         self.odom[2] = data.twist.twist.linear.x
@@ -72,21 +72,22 @@ class Referee(object) :
             self.time_occur = np.zeros(self.n_obst)
             self.indic1 = np.zeros(self.n_obst)
             self.indic2 = np.zeros(self.n_obst)
-            self.obst_states = np.zeros((self.n_obst, 7))
+            self.obst_states = np.zeros((self.n_obst, 4))
             self.security = np.zeros((self.n_obst,4))
+            self.obst_front = np.array(self.n_obst*[True])
 
         for i in range(self.n_obst) :
-            t = rospy.get_time()
-            vx = self.obst_states[i,2]
-            vy = self.obst_states[i,3]
-            print(f"obst: {vx,vy}")
+            #t = rospy.get_time()
+            #vx = self.obst_states[i,2]
+            #vy = self.obst_states[i,3]
             self.obst_states[i, 0] = data.states[i].x
             self.obst_states[i, 1] = data.states[i].y
             self.obst_states[i, 2] = data.states[i].u*np.cos(data.states[i].psi)
             self.obst_states[i, 3] = data.states[i].u*np.sin(data.states[i].psi)
-            self.obst_states[i, 4] = (self.obst_states[i, 2]-vx)/(t-self.obst_states[i, 6])
-            self.obst_states[i, 5] = (self.obst_states[i, 3]-vy)/(t-self.obst_states[i, 6])
-            self.obst_states[i, 6] = t
+            self.obst_front[i] = (np.dot(self.obst_states[i,2:4],self.odom[0:2]-self.obst_states[i,0:2]) > 0) #asv devant obstacle?
+            #self.obst_states[i, 4] = (self.obst_states[i, 2]-vx)/(t-self.obst_states[i, 6])
+            #self.obst_states[i, 5] = (self.obst_states[i, 3]-vy)/(t-self.obst_states[i, 6])
+            #self.obst_states[i, 6] = t
 
 
 
@@ -130,8 +131,10 @@ class Referee(object) :
             d = self.ob_dist()
             secu = self.ob_secu()
             for i in range(self.n_obst) :
-                for j in range(len(self.security[i])):
+                for j in range(len(self.security[i])-1):
                     self.security[i, j] = np.maximum(self.security[i, j],secu[j,i])
+                if self.obst_front :
+                    self.security[i,3] = np.sqrt(self.security[i,3]**2+secu[3,i]**2)
                 if (d[i] < self.dcpa[i]) :
                     self.dcpa[i] = d[i]
                     #norm_ot = np.array([self.odom[0] - self.obst_states[i, 0], self.odom[1] - self.obst_states[i, 1]])

@@ -35,7 +35,7 @@ class Referee(object) :
                                                     queue_size=10)
         self.start_publisher   = rospy.Publisher("/start_simulation", Empty, queue_size=1, latch=True)
 
-        self.odom = np.zeros(6)
+        self.odom = np.zeros(7)
         self.n_obst = -1
         self.obst_states = []
         self.dcpa = []
@@ -55,12 +55,15 @@ class Referee(object) :
     def _odom_callback(self, data):
         vx = self.odom[2]
         vy = self.odom[3]
-        self.odom = np.array([data.pose.pose.position.x,
-                              data.pose.pose.position.y,
-                              data.twist.twist.linear.x,
-                              data.twist.twist.linear.y,
-                              (data.twist.twist.linear.x-vx)*self.rate,
-                              (data.twist.twist.linear.y-vy)*self.rate])
+        print(f"odom: {vx,vy}")
+        t = rospy.get_time()
+        self.odom[0] = data.pose.pose.position.x
+        self.odom[1] = data.pose.pose.position.y
+        self.odom[2] = data.twist.twist.linear.x
+        self.odom[3] = data.twist.twist.linear.y
+        self.odom[4] = (data.twist.twist.linear.x-vx)/(t-self.odom[6])
+        self.odom[5] = (data.twist.twist.linear.y-vy)/(t-self.odom[6])
+        self.odom[6] = t
 
     def _obst_callback(self, data):
         if (self.n_obst == -1) :
@@ -69,18 +72,22 @@ class Referee(object) :
             self.time_occur = np.zeros(self.n_obst)
             self.indic1 = np.zeros(self.n_obst)
             self.indic2 = np.zeros(self.n_obst)
-            self.obst_states = np.zeros((self.n_obst, 6))
+            self.obst_states = np.zeros((self.n_obst, 7))
             self.security = np.zeros((self.n_obst,4))
 
         for i in range(self.n_obst) :
-            vx = self.obst_states[i,4]
-            vy = self.obst_states[i,5]
+            t = rospy.get_time()
+            vx = self.obst_states[i,2]
+            vy = self.obst_states[i,3]
+            print(f"obst: {vx,vy}")
             self.obst_states[i, 0] = data.states[i].x
             self.obst_states[i, 1] = data.states[i].y
             self.obst_states[i, 2] = data.states[i].u*np.cos(data.states[i].psi)
             self.obst_states[i, 3] = data.states[i].u*np.sin(data.states[i].psi)
-            self.obst_states[i, 4] = (self.obst_states[i, 2]-vx)*self.rate
-            self.obst_states[i, 5] = (self.obst_states[i, 3]-vy)*self.rate
+            self.obst_states[i, 4] = (self.obst_states[i, 2]-vx)/(t-self.obst_states[i, 6])
+            self.obst_states[i, 5] = (self.obst_states[i, 3]-vy)/(t-self.obst_states[i, 6])
+            self.obst_states[i, 6] = t
+
 
 
     def _start_callback(self, data):
@@ -94,7 +101,7 @@ class Referee(object) :
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
-        print(f'Duration of the simulation (simulation time): {rospy.Time.to_sec(rospy.Time.now())-self.begin_sim} s')
+        print(f'Duration of the simulation (simulation time): {rospy.get_time()-self.begin_sim} s')
         print(f'Number of ships : {self.n_obst}')
         for i in range(self.n_obst) :
             print(f'Ship {i+1}')
@@ -146,13 +153,13 @@ class Referee(object) :
     def ob_secu(self) :
         dist = self.ob_dist()
         rvel = np.zeros(self.n_obst) #relative velocity
-        racc = np.zeros(self.n_obst) #relative acceleration
+        acc = np.zeros(self.n_obst) #relative acceleration
         offd = np.zeros(self.n_obst) #distance avec offset
         asv_psi = np.arctan2(self.odom[3],self.odom[2])
         obst_psi = np.arctan2(self.obst_states[:,3],self.odom[2])
         for i in range(self.n_obst) :
             rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])
-            racc[i] = np.linalg.norm(self.obst_states[i,4:6]-self.odom[4:6])
+            acc[i] = np.linalg.norm(self.odom[4:6])#-self.obst_states[i,4:6])
             asv_off = self.odom[:2]+np.array([self.r_offset*np.cos(asv_psi-self.psi_offset),
                                               self.r_offset*np.sin(asv_psi-self.psi_offset)])
             obst_off = self.obst_states[i,:2]+np.array([self.r_offset*np.cos(obst_psi[i]+self.psi_offset),
@@ -161,7 +168,7 @@ class Referee(object) :
         return np.array([np.log(self.t0*rvel/dist),  #indicateur logarithmique de collision
                          self.t0*rvel/dist,          #indicateur naturel de collision
                          np.log(self.t0*rvel/offd),  #indicateur logarithmique de collision avec offset
-                         np.log(racc/dist)])                 #indicateur d'anticipation
+                         acc/dist])                 #indicateur d'anticipation
 
 
     def run_controller(self):

@@ -5,6 +5,8 @@ import rospy
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Empty
 from asv_msgs.msg import StateArray
+from visualization_msgs.msg import Marker
+from geometry_msgs.msg import Point
 
 import time
 
@@ -34,6 +36,9 @@ class Referee(object) :
                                                     self._start_callback,
                                                     queue_size=10)
         self.start_publisher   = rospy.Publisher("/start_simulation", Empty, queue_size=1, latch=True)
+        self.asv_off_publisher = rospy.Publisher("/asv_off", Marker, queue_size=10, latch=True)
+        self.obst_off_publisher = rospy.Publisher("/obst_off", Marker, queue_size=10, latch=True)
+
 
         self.odom = np.zeros(7)
         self.n_obst = -1
@@ -45,8 +50,8 @@ class Referee(object) :
         self.indic2 = []
         self.security = [] #indicateurs de sécurité pour chaque obstacle
         self.t0 = 30 #temps de sécurité en s
-        self.r_offset = 0. #offset pour COLREG
-        self.psi_offset = 0. #offset pour COLREG
+        self.r_offset = 5. #offset pour COLREG
+        self.psi_offset = np.pi/6 #offset pour COLREG
 
         self.output = output
         self.opus = op
@@ -55,14 +60,17 @@ class Referee(object) :
 
     def _odom_callback(self, data):
         t = rospy.get_time()
+        x = self.odom[0]
+        y = self.odom[1]
         vx = self.odom[2]
         vy = self.odom[3]
+        #print(vx,vy,np.sqrt(vx**2+vy**2))
         self.odom[0] = data.pose.pose.position.x
         self.odom[1] = data.pose.pose.position.y
-        self.odom[2] = data.twist.twist.linear.x
-        self.odom[3] = data.twist.twist.linear.y
-        self.odom[4] = (data.twist.twist.linear.x-vx)/(t-self.odom[6])
-        self.odom[5] = (data.twist.twist.linear.y-vy)/(t-self.odom[6])
+        self.odom[2] = (self.odom[0]-x)/(t-self.odom[6])
+        self.odom[3] = (self.odom[1]-y)/(t-self.odom[6])
+        self.odom[4] = (self.odom[2]-vx)/(t-self.odom[6])
+        self.odom[5] = (self.odom[3]-vy)/(t-self.odom[6])
         self.odom[6] = t
 
     def _obst_callback(self, data):
@@ -72,19 +80,20 @@ class Referee(object) :
             self.time_occur = np.zeros(self.n_obst)
             self.indic1 = np.zeros(self.n_obst)
             self.indic2 = np.zeros(self.n_obst)
-            self.obst_states = np.zeros((self.n_obst, 4))
+            self.obst_states = np.zeros((self.n_obst, 5))
             self.security = np.zeros((self.n_obst,4))
             self.obst_front = np.array(self.n_obst*[True])
 
         for i in range(self.n_obst) :
-            #t = rospy.get_time()
             #vx = self.obst_states[i,2]
             #vy = self.obst_states[i,3]
             self.obst_states[i, 0] = data.states[i].x
             self.obst_states[i, 1] = data.states[i].y
             self.obst_states[i, 2] = data.states[i].u*np.cos(data.states[i].psi)
             self.obst_states[i, 3] = data.states[i].u*np.sin(data.states[i].psi)
-            self.obst_front[i] = (np.dot(self.obst_states[i,2:4],self.odom[0:2]-self.obst_states[i,0:2]) > 0) #asv devant obstacle?
+            front = (np.dot(self.obst_states[i,2:4],self.odom[0:2]-self.obst_states[i,0:2]) > 0) #asv devant obstacle?
+            if (front and self.obst_front[i]) :
+                self.obst_states[i, 4] += 1
             #self.obst_states[i, 4] = (self.obst_states[i, 2]-vx)/(t-self.obst_states[i, 6])
             #self.obst_states[i, 5] = (self.obst_states[i, 3]-vy)/(t-self.obst_states[i, 6])
             #self.obst_states[i, 6] = t
@@ -99,6 +108,7 @@ class Referee(object) :
             print("---------------------BEGINNING OF THE SIMULATION---------------------")
 
     def _finish_callback(self, data) :
+        self.security[:,3] = np.sqrt(self.security[:,3]/self.obst_states[:,4])
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
@@ -134,7 +144,7 @@ class Referee(object) :
                 for j in range(len(self.security[i])-1):
                     self.security[i, j] = np.maximum(self.security[i, j],secu[j,i])
                 if self.obst_front :
-                    self.security[i,3] = np.sqrt(self.security[i,3]**2+secu[3,i]**2)
+                    self.security[i,3] += secu[3,i]**2
                 if (d[i] < self.dcpa[i]) :
                     self.dcpa[i] = d[i]
                     #norm_ot = np.array([self.odom[0] - self.obst_states[i, 0], self.odom[1] - self.obst_states[i, 1]])
@@ -158,16 +168,76 @@ class Referee(object) :
         rvel = np.zeros(self.n_obst) #relative velocity
         acc = np.zeros(self.n_obst) #relative acceleration
         offd = np.zeros(self.n_obst) #distance avec offset
-        asv_psi = np.arctan2(self.odom[3],self.odom[2])
-        obst_psi = np.arctan2(self.obst_states[:,3],self.odom[2])
+
+        #asv_psi = np.arctan2(self.odom[3],self.odom[2])
+        #asv_off = self.odom[:2]+rot(self.r_offset*self.odom[2:4]/np.linalg.norm(self.odom[2:4]),self.psi_offset)
+        asv_off = self.odom[:2]+rot(self.r_offset*self.odom[2:4]/np.linalg.norm(self.odom[2:4]),self.psi_offset)
+
+
+        #print(self.odom[2:4])
+        #sim(asv_off,self.psi_offset,self.r_offset)
+        #self.odom[:2]+np.array([self.r_offset*np.cos(asv_psi-self.psi_offset),
+                                #self.r_offset*np.sin(asv_psi-self.psi_offset)])
+
+        asv_off_marker = Marker()
+        asv_off_marker.header.frame_id = "map"
+        asv_off_marker.header.stamp    = rospy.get_rostime()
+        asv_off_marker.ns = "asv_off_marker"
+        asv_off_marker.id = 0
+        asv_off_marker.type = 2 # sphere
+        asv_off_marker.action = 0
+        asv_off_marker.pose.position.x = asv_off[0]
+        asv_off_marker.pose.position.y = asv_off[1]
+        asv_off_marker.pose.position.z = 0
+        asv_off_marker.pose.orientation.x = 0
+        asv_off_marker.pose.orientation.y = 0
+        asv_off_marker.pose.orientation.z = 0
+        asv_off_marker.pose.orientation.w = 1.0
+        asv_off_marker.scale.x = 1.0
+        asv_off_marker.scale.y = 1.0
+        asv_off_marker.scale.z = 1.0
+        asv_off_marker.color.r = 0.0
+        asv_off_marker.color.g = 0.5
+        asv_off_marker.color.b = 0.5
+        asv_off_marker.color.a = 1.0
+        asv_off_marker.lifetime = rospy.Duration(0.)
+        self.asv_off_publisher.publish(asv_off_marker)
+
+        #obst_psi = np.arctan2(self.obst_states[:,3],self.obst_states[:,2])
+        obst_off_marker = Marker()
+
         for i in range(self.n_obst) :
             rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])
             acc[i] = np.linalg.norm(self.odom[4:6])#-self.obst_states[i,4:6])
-            asv_off = self.odom[:2]+np.array([self.r_offset*np.cos(asv_psi-self.psi_offset),
-                                              self.r_offset*np.sin(asv_psi-self.psi_offset)])
-            obst_off = self.obst_states[i,:2]+np.array([self.r_offset*np.cos(obst_psi[i]+self.psi_offset),
-                                                        self.r_offset*np.sin(obst_psi[i]+self.psi_offset)])
-            offd[i] = np.linalg.norm(asv_off-obst_off) # beware of the map resolution
+            
+            #obst_off = self.obst_states[i,:2]+np.array([self.r_offset*np.cos(obst_psi[i]+self.psi_offset),
+            #                                            self.r_offset*np.sin(obst_psi[i]+self.psi_offset)])
+            obst_off = self.obst_states[i,:2]+rot(self.r_offset*self.obst_states[i,2:4]/np.linalg.norm(self.obst_states[i,2:4]),self.psi_offset)
+
+            obst_off_marker.header.frame_id = "map"
+            obst_off_marker.header.stamp    = rospy.get_rostime()
+            obst_off_marker.ns = "obst_off_marker"
+            obst_off_marker.id = 0
+            obst_off_marker.type = 1 # sphere
+            obst_off_marker.action = 0
+            obst_off_marker.pose.position.x = obst_off[0]
+            obst_off_marker.pose.position.y = obst_off[1]
+            obst_off_marker.pose.position.z = 0
+            obst_off_marker.pose.orientation.x = 0
+            obst_off_marker.pose.orientation.y = 0
+            obst_off_marker.pose.orientation.z = 0
+            obst_off_marker.pose.orientation.w = 1.0
+            obst_off_marker.scale.x = 1.0
+            obst_off_marker.scale.y = 1.0
+            obst_off_marker.scale.z = 1.0
+            obst_off_marker.color.r = 0.5
+            obst_off_marker.color.g = 0.0
+            obst_off_marker.color.b = 0.5
+            obst_off_marker.color.a = 1.0
+            obst_off_marker.lifetime = rospy.Duration(0.)
+            self.obst_off_publisher.publish(obst_off_marker)
+            
+            offd[i] = np.linalg.norm(asv_off-obst_off) #beware of the map resolution
         return np.array([np.log(self.t0*rvel/dist),  #indicateur logarithmique de collision
                          self.t0*rvel/dist,          #indicateur naturel de collision
                          np.log(self.t0*rvel/offd),  #indicateur logarithmique de collision avec offset
@@ -190,6 +260,11 @@ class Referee(object) :
         #rospy.on_shutdown(h)
         rospy.signal_shutdown("End of the simulation")
 
+def rot(u,phi):
+    v = np.zeros(2)
+    v[0] = np.cos(phi)*u[0]-np.sin(phi)*u[1]
+    v[1] = np.sin(phi)*u[0]+np.cos(phi)*u[1]
+    return v
 
 if __name__ == "__main__" :
 

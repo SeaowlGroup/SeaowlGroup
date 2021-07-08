@@ -65,10 +65,12 @@ def plot_graph(i, j, serial) :
 
     n = min(len(x), len(y))
 
-    for p in range(n):
+    for p in range(40):
         #if p!=13 and markers[p]!='o':
         if p!=13:
             ax.plot(x[p], y[p], marker=markers[p], color=colors[p], label=labels[p])
+    ax.plot(range(n), [y[40]]*n, '--', color='lightgrey', label='witness 50')
+    ax.plot(range(n), [y[41]]*n, '--', color='black', label='witness 100')
 
     handles, labels = ax.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))

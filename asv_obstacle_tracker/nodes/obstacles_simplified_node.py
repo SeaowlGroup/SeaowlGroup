@@ -52,11 +52,24 @@ class Obstacles(object):
             if dist_init(u, u_d_asv, theta, t_col) < self.d_detection[i] :
                 delay_time[i] = delay(u, u_d_asv, theta, t_col, self.d_detection[i])
                 #delay_time[i] = 0
+            # # Angle of the relative speed
+            # c = np.sqrt(u**2 + u_d_asv**2 - 2*u*u_d_asv*np.cos(theta))
+            # aux_angle = np.arccos((u_d_asv**2 + c**2 - u**2)/(2*u_d_asv*c))
+            # alpha = 90+aux_angle
+            # # Trajectory
+            # print(self.dcpa[i]*np.sin(alpha), -self.dcpa[i]*np.cos(alpha))
+            # x = (t_col*u_d_asv*np.cos(psi_asv) - (t_col-delay_time[i])*u*np.cos(psi) +
+            #     x_asv + self.dcpa[i]*np.sin(alpha))
+            # y = (t_col*u_d_asv*np.sin(psi_asv) - (t_col-delay_time[i])*u*np.sin(psi) +
+            #     y_asv - self.dcpa[i]*np.cos(alpha))
             # Trajectory
+            #coef = 1/np.sqrt((1+4*np.sqrt(2))/(4+4*np.sqrt(2)))
+            coef = 1/np.sqrt((1+np.sin(psi))/2)
+            print("coef : ", coef)
             x = (t_col*u_d_asv*np.cos(psi_asv) - (t_col-delay_time[i])*u*np.cos(psi) +
-                x_asv + self.dcpa[i]*np.sin(psi))
+                x_asv)
             y = (t_col*u_d_asv*np.sin(psi_asv) - (t_col-delay_time[i])*u*np.sin(psi) +
-                y_asv + self.dcpa[i]*np.cos(psi))
+                y_asv + self.dcpa[i]*coef)
 
 
             statearray.states.append(State())

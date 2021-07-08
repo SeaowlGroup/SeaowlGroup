@@ -212,6 +212,22 @@ Visualization Manager:
       Unreliable: false
       Use Timestamp: false
       Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: asv_off
+      Name: ASV_OFF
+      Namespaces:
+        asv: true
+      Queue Size: 10
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: obst_off
+      Name: OBST_OFF
+      Namespaces:
+        asv: true
+      Queue Size: 10
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 230; 230; 255

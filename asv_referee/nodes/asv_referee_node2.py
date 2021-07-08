@@ -39,6 +39,8 @@ class Referee(object) :
         self.asv_off_publisher = rospy.Publisher("/asv_off", Marker, queue_size=10, latch=True)
         self.obst_off_publisher = rospy.Publisher("/obst_off", Marker, queue_size=10, latch=True)
         self.ant_publisher = rospy.Publisher("/ant", Marker, queue_size=10, latch=True)
+        self.ant_publisher2 = rospy.Publisher("/ant2", Marker, queue_size=10, latch=True)
+
 
 
 
@@ -82,6 +84,30 @@ class Referee(object) :
         self.ant_marker.color.b = 0.
         self.ant_marker.color.a = 1.0
         self.ant_marker.lifetime = rospy.Duration(0.)
+
+
+        self.ant_marker2 = Marker()
+        self.ant_marker2.header.frame_id = "map"
+        self.ant_marker2.header.stamp    = rospy.get_rostime()
+        self.ant_marker2.ns = "ant_marker"
+        self.ant_marker2.id = 0
+        self.ant_marker2.type = 1
+        self.ant_marker2.action = 0
+        self.ant_marker2.pose.position.x = self.odom[0]
+        self.ant_marker2.pose.position.y = self.odom[1]
+        self.ant_marker2.pose.position.z = 10
+        self.ant_marker2.pose.orientation.x = 0
+        self.ant_marker2.pose.orientation.y = 0
+        self.ant_marker2.pose.orientation.z = 0
+        self.ant_marker2.pose.orientation.w = 1.0
+        self.ant_marker2.scale.x = 1.0
+        self.ant_marker2.scale.y = 1.0
+        self.ant_marker2.scale.z = 1.0
+        self.ant_marker2.color.r = 1.0
+        self.ant_marker2.color.g = 0
+        self.ant_marker2.color.b = 0.
+        self.ant_marker2.color.a = 1.0
+        self.ant_marker2.lifetime = rospy.Duration(0.)
 
         self.asv_off_marker = Marker()
         self.asv_off_marker.header.frame_id = "map"
@@ -212,6 +238,10 @@ class Referee(object) :
                     self.ant_marker.pose.position.x = self.odom[0]
                     self.ant_marker.pose.position.y = self.odom[1]
                     self.ant_publisher.publish(self.ant_marker)
+
+                    self.ant_marker2.pose.position.x = self.obst_states[i,0]
+                    self.ant_marker2.pose.position.y = self.obst_states[i,1]
+                    self.ant_publisher2.publish(self.ant_marker2)
 
     def ob_dist(self) :
         dist = np.zeros(self.n_obst)

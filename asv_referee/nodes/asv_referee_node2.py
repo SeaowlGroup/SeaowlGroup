@@ -118,9 +118,9 @@ class Referee(object) :
             print(f'Ship {i+1}')
             print(f'     --> dCPA = {self.dcpa[i]} m')
             print(f'     --> t = {self.time_occur[i]} s')
-            print(f'     --> indic1 = {self.indic1[i]} m/s')
-            print(f'     --> indic2 = {self.indic2[i]} m/s')
-            print(f'     --> indic2 = {self.security[i]}')
+            #print(f'     --> indic1 = {self.indic1[i]} m/s')
+            #print(f'     --> indic2 = {self.indic2[i]} m/s')
+            print(f'     --> security = {self.security[i]}')
 
             if (self.opus <= 1) :
                 f.write('OPUS    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION\n')
@@ -141,7 +141,7 @@ class Referee(object) :
             d = self.ob_dist()
             secu = self.ob_secu()
             for i in range(self.n_obst) :
-                for j in range(len(self.security[i])-1):
+                for j in range(3):
                     self.security[i, j] = np.maximum(self.security[i, j],secu[j,i])
                 if self.obst_front :
                     self.security[i,3] += secu[3,i]**2
@@ -160,18 +160,18 @@ class Referee(object) :
     def ob_dist(self) :
         dist = np.zeros(self.n_obst)
         for i in range(self.n_obst) :
-            dist[i] = np.linalg.norm(self.obst_states[i,2]-self.odom[:2]) # beware of the map resolution
+            dist[i] = np.linalg.norm(self.obst_states[i,:2]-self.odom[:2]) # beware of the map resolution
         return dist
 
     def ob_secu(self) :
         dist = self.ob_dist()
         rvel = np.zeros(self.n_obst) #relative velocity
-        acc = np.zeros(self.n_obst) #relative acceleration
+        acc = np.linalg.norm(self.odom[4:6]) #asv acceleration
         offd = np.zeros(self.n_obst) #distance avec offset
 
         #asv_psi = np.arctan2(self.odom[3],self.odom[2])
         #asv_off = self.odom[:2]+rot(self.r_offset*self.odom[2:4]/np.linalg.norm(self.odom[2:4]),self.psi_offset)
-        asv_off = self.odom[:2]+rot(self.r_offset*self.odom[2:4]/np.linalg.norm(self.odom[2:4]),self.psi_offset)
+        asv_off = self.odom[:2]+rot(self.r_offset*self.odom[2:4]/np.linalg.norm(self.odom[2:4]),-self.psi_offset)
 
 
         #print(self.odom[2:4])
@@ -184,7 +184,7 @@ class Referee(object) :
         asv_off_marker.header.stamp    = rospy.get_rostime()
         asv_off_marker.ns = "asv_off_marker"
         asv_off_marker.id = 0
-        asv_off_marker.type = 2 # sphere
+        asv_off_marker.type = 2
         asv_off_marker.action = 0
         asv_off_marker.pose.position.x = asv_off[0]
         asv_off_marker.pose.position.y = asv_off[1]
@@ -196,8 +196,8 @@ class Referee(object) :
         asv_off_marker.scale.x = 1.0
         asv_off_marker.scale.y = 1.0
         asv_off_marker.scale.z = 1.0
-        asv_off_marker.color.r = 0.0
-        asv_off_marker.color.g = 0.5
+        asv_off_marker.color.r = 0.5
+        asv_off_marker.color.g = 0.0
         asv_off_marker.color.b = 0.5
         asv_off_marker.color.a = 1.0
         asv_off_marker.lifetime = rospy.Duration(0.)
@@ -207,9 +207,7 @@ class Referee(object) :
         obst_off_marker = Marker()
 
         for i in range(self.n_obst) :
-            rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])
-            acc[i] = np.linalg.norm(self.odom[4:6])#-self.obst_states[i,4:6])
-            
+            rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])            
             #obst_off = self.obst_states[i,:2]+np.array([self.r_offset*np.cos(obst_psi[i]+self.psi_offset),
             #                                            self.r_offset*np.sin(obst_psi[i]+self.psi_offset)])
             obst_off = self.obst_states[i,:2]+rot(self.r_offset*self.obst_states[i,2:4]/np.linalg.norm(self.obst_states[i,2:4]),self.psi_offset)
@@ -218,7 +216,7 @@ class Referee(object) :
             obst_off_marker.header.stamp    = rospy.get_rostime()
             obst_off_marker.ns = "obst_off_marker"
             obst_off_marker.id = 0
-            obst_off_marker.type = 1 # sphere
+            obst_off_marker.type = 2
             obst_off_marker.action = 0
             obst_off_marker.pose.position.x = obst_off[0]
             obst_off_marker.pose.position.y = obst_off[1]

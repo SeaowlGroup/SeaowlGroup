@@ -38,19 +38,21 @@ class Referee(object) :
         self.start_publisher   = rospy.Publisher("/start_simulation", Empty, queue_size=1, latch=True)
         self.asv_off_publisher = rospy.Publisher("/asv_off", Marker, queue_size=10, latch=True)
         self.obst_off_publisher = rospy.Publisher("/obst_off", Marker, queue_size=10, latch=True)
+        self.ant_publisher = rospy.Publisher("/ant", Marker, queue_size=10, latch=True)
+
 
 
         self.odom = np.zeros(7)
         self.n_obst = -1
         self.obst_states = []
-        self.obst_front = []
         self.dcpa = []
         self.time_occur = []
         self.indic1 = []
         self.indic2 = []
-        self.security = [] #indicateurs de sécurité pour chaque obstacle
-        self.t0 = 30 #temps de sécurité en s
-        self.r_offset = 5. #offset pour COLREG
+        self.security = []        #indicateurs de sécurité pour chaque obstacle
+        self.t0 = 30              #temps de sécurité en s
+        self.d0 = 200             #distance de manoeuvre
+        self.r_offset = 5.        #offset pour COLREG
         self.psi_offset = np.pi/6 #offset pour COLREG
 
         self.output = output
@@ -58,13 +60,81 @@ class Referee(object) :
 
         self.finished = finished #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
 
+        self.ant_marker = Marker()
+        self.ant_marker.header.frame_id = "map"
+        self.ant_marker.header.stamp    = rospy.get_rostime()
+        self.ant_marker.ns = "ant_marker"
+        self.ant_marker.id = 0
+        self.ant_marker.type = 1
+        self.ant_marker.action = 0
+        self.ant_marker.pose.position.x = self.odom[0]
+        self.ant_marker.pose.position.y = self.odom[1]
+        self.ant_marker.pose.position.z = 10
+        self.ant_marker.pose.orientation.x = 0
+        self.ant_marker.pose.orientation.y = 0
+        self.ant_marker.pose.orientation.z = 0
+        self.ant_marker.pose.orientation.w = 1.0
+        self.ant_marker.scale.x = 1.0
+        self.ant_marker.scale.y = 1.0
+        self.ant_marker.scale.z = 1.0
+        self.ant_marker.color.r = 1.0
+        self.ant_marker.color.g = 0
+        self.ant_marker.color.b = 0.
+        self.ant_marker.color.a = 1.0
+        self.ant_marker.lifetime = rospy.Duration(0.)
+
+        self.asv_off_marker = Marker()
+        self.asv_off_marker.header.frame_id = "map"
+        self.asv_off_marker.header.stamp    = rospy.get_rostime()
+        self.asv_off_marker.ns = "asv_off_marker"
+        self.asv_off_marker.id = 0
+        self.asv_off_marker.type = 2
+        self.asv_off_marker.action = 0
+        self.asv_off_marker.pose.position.x = 0.
+        self.asv_off_marker.pose.position.y = 0.
+        self.asv_off_marker.pose.position.z = 0
+        self.asv_off_marker.pose.orientation.x = 0
+        self.asv_off_marker.pose.orientation.y = 0
+        self.asv_off_marker.pose.orientation.z = 0
+        self.asv_off_marker.pose.orientation.w = 1.0
+        self.asv_off_marker.scale.x = 1.0
+        self.asv_off_marker.scale.y = 1.0
+        self.asv_off_marker.scale.z = 1.0
+        self.asv_off_marker.color.r = 0.5
+        self.asv_off_marker.color.g = 0.0
+        self.asv_off_marker.color.b = 0.5
+        self.asv_off_marker.color.a = 1.0
+        self.asv_off_marker.lifetime = rospy.Duration(0.)
+
+        self.obst_off_marker = Marker()
+        self.obst_off_marker.header.frame_id = "map"
+        self.obst_off_marker.header.stamp    = rospy.get_rostime()
+        self.obst_off_marker.ns = "obst_off_marker"
+        self.obst_off_marker.id = 0
+        self.obst_off_marker.type = 2
+        self.obst_off_marker.action = 0
+        self.obst_off_marker.pose.position.x = 0
+        self.obst_off_marker.pose.position.y = 0
+        self.obst_off_marker.pose.position.z = 0
+        self.obst_off_marker.pose.orientation.x = 0
+        self.obst_off_marker.pose.orientation.y = 0
+        self.obst_off_marker.pose.orientation.z = 0
+        self.obst_off_marker.pose.orientation.w = 1.0
+        self.obst_off_marker.scale.x = 1.0
+        self.obst_off_marker.scale.y = 1.0
+        self.obst_off_marker.scale.z = 1.0
+        self.obst_off_marker.color.r = 0.5
+        self.obst_off_marker.color.g = 0.0
+        self.obst_off_marker.color.b = 0.5
+        self.obst_off_marker.color.a = 1.0
+        self.obst_off_marker.lifetime = rospy.Duration(0.)
+
     def _odom_callback(self, data):
         t = rospy.get_time()
         x = self.odom[0]
         y = self.odom[1]
         vx = self.odom[2]
         vy = self.odom[3]
-        #print(vx,vy,np.sqrt(vx**2+vy**2))
         self.odom[0] = data.pose.pose.position.x
         self.odom[1] = data.pose.pose.position.y
         self.odom[2] = (self.odom[0]-x)/(t-self.odom[6])
@@ -81,24 +151,13 @@ class Referee(object) :
             self.indic1 = np.zeros(self.n_obst)
             self.indic2 = np.zeros(self.n_obst)
             self.obst_states = np.zeros((self.n_obst, 5))
-            self.security = np.zeros((self.n_obst,4))
-            self.obst_front = np.array(self.n_obst*[True])
+            self.security = np.zeros((self.n_obst,8))
 
         for i in range(self.n_obst) :
-            #vx = self.obst_states[i,2]
-            #vy = self.obst_states[i,3]
             self.obst_states[i, 0] = data.states[i].x
             self.obst_states[i, 1] = data.states[i].y
             self.obst_states[i, 2] = data.states[i].u*np.cos(data.states[i].psi)
             self.obst_states[i, 3] = data.states[i].u*np.sin(data.states[i].psi)
-            front = (np.dot(self.obst_states[i,2:4],self.odom[0:2]-self.obst_states[i,0:2]) > 0) #asv devant obstacle?
-            if (front and self.obst_front[i]) :
-                self.obst_states[i, 4] += 1
-            #self.obst_states[i, 4] = (self.obst_states[i, 2]-vx)/(t-self.obst_states[i, 6])
-            #self.obst_states[i, 5] = (self.obst_states[i, 3]-vy)/(t-self.obst_states[i, 6])
-            #self.obst_states[i, 6] = t
-
-
 
     def _start_callback(self, data):
         if (not self.start):
@@ -108,7 +167,9 @@ class Referee(object) :
             print("---------------------BEGINNING OF THE SIMULATION---------------------")
 
     def _finish_callback(self, data) :
-        self.security[:,3] = np.sqrt(self.security[:,3]/self.obst_states[:,4])
+        for k in range(4):
+            self.security[:,4+k] = np.sqrt(self.security[:,4+k]/self.obst_states[:,4])
+        self.security[:,0] = time.time() -self.begin_wall
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
@@ -118,12 +179,10 @@ class Referee(object) :
             print(f'Ship {i+1}')
             print(f'     --> dCPA = {self.dcpa[i]} m')
             print(f'     --> t = {self.time_occur[i]} s')
-            #print(f'     --> indic1 = {self.indic1[i]} m/s')
-            #print(f'     --> indic2 = {self.indic2[i]} m/s')
             print(f'     --> security = {self.security[i]}')
 
             if (self.opus <= 1) :
-                f.write('OPUS    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION\n')
+                f.write('OPUS    TIME   LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_INV   ANTICIPATION_OFF    ANTICIPATION_LIN    ANTICIPATION_EXP\n')
             f.write(f'{self.opus}')
             for sec_indic in range(len(self.security[0])) :
                 f.write(f'    {np.max(self.security[:,sec_indic])}')
@@ -141,105 +200,56 @@ class Referee(object) :
             d = self.ob_dist()
             secu = self.ob_secu()
             for i in range(self.n_obst) :
-                for j in range(3):
-                    self.security[i, j] = np.maximum(self.security[i, j],secu[j,i])
-                if self.obst_front :
-                    self.security[i,3] += secu[3,i]**2
-                if (d[i] < self.dcpa[i]) :
+                for j in range(1,4):
+                    self.security[i, j] = max(self.security[i, j],secu[i,j])
+                if (d[i] <= self.dcpa[i]) :
                     self.dcpa[i] = d[i]
-                    #norm_ot = np.array([self.odom[0] - self.obst_states[i, 0], self.odom[1] - self.obst_states[i, 1]])
-                    #norm_ot = self.obst_states[i,:2] - self.odom[:2]
-                    #norm_ot /= np.linalg.norm(norm_ot)
-                    #aux = np.array([self.obst_states[i, 2]*np.cos(self.obst_states[i, 3]), self.obst_states[i, 2]*np.sin(self.obst_states[i, 3])])
-                    #aux2 = np.array([self.odom[2], self.odom[3]])
-                    #self.indic1[i] = - np.dot(aux, norm_ot)
-                    #self.indic2[i] = np.dot(norm_ot, aux2)
+                    self.obst_states[i,4] += 1
+                    for k in range(4) :
+                        self.security[i,4+k] += secu[i,4+k]**2
                     self.time_occur[i] = rospy.get_time() - self.begin_sim
-        #self.sim_time += self.rate
+
+                    self.ant_marker.pose.position.x = self.odom[0]
+                    self.ant_marker.pose.position.y = self.odom[1]
+                    self.ant_publisher.publish(self.ant_marker)
 
     def ob_dist(self) :
         dist = np.zeros(self.n_obst)
         for i in range(self.n_obst) :
-            dist[i] = np.linalg.norm(self.obst_states[i,:2]-self.odom[:2]) # beware of the map resolution
+            dist[i] = np.linalg.norm(self.obst_states[i,:2]-self.odom[:2]) # beware of the map secuolution
         return dist
 
     def ob_secu(self) :
         dist = self.ob_dist()
-        rvel = np.zeros(self.n_obst) #relative velocity
-        acc = np.linalg.norm(self.odom[4:6]) #asv acceleration
-        offd = np.zeros(self.n_obst) #distance avec offset
+        rvel = np.zeros(self.n_obst)            #relative velocity
+        acc = np.linalg.norm(self.odom[4:6])    #asv acceleration
+        offd = np.zeros(self.n_obst)            #distance avec offset
 
-        #asv_psi = np.arctan2(self.odom[3],self.odom[2])
-        #asv_off = self.odom[:2]+rot(self.r_offset*self.odom[2:4]/np.linalg.norm(self.odom[2:4]),self.psi_offset)
         asv_off = self.odom[:2]+rot(self.r_offset*self.odom[2:4]/np.linalg.norm(self.odom[2:4]),-self.psi_offset)
 
-
-        #print(self.odom[2:4])
-        #sim(asv_off,self.psi_offset,self.r_offset)
-        #self.odom[:2]+np.array([self.r_offset*np.cos(asv_psi-self.psi_offset),
-                                #self.r_offset*np.sin(asv_psi-self.psi_offset)])
-
-        asv_off_marker = Marker()
-        asv_off_marker.header.frame_id = "map"
-        asv_off_marker.header.stamp    = rospy.get_rostime()
-        asv_off_marker.ns = "asv_off_marker"
-        asv_off_marker.id = 0
-        asv_off_marker.type = 2
-        asv_off_marker.action = 0
-        asv_off_marker.pose.position.x = asv_off[0]
-        asv_off_marker.pose.position.y = asv_off[1]
-        asv_off_marker.pose.position.z = 0
-        asv_off_marker.pose.orientation.x = 0
-        asv_off_marker.pose.orientation.y = 0
-        asv_off_marker.pose.orientation.z = 0
-        asv_off_marker.pose.orientation.w = 1.0
-        asv_off_marker.scale.x = 1.0
-        asv_off_marker.scale.y = 1.0
-        asv_off_marker.scale.z = 1.0
-        asv_off_marker.color.r = 0.5
-        asv_off_marker.color.g = 0.0
-        asv_off_marker.color.b = 0.5
-        asv_off_marker.color.a = 1.0
-        asv_off_marker.lifetime = rospy.Duration(0.)
-        self.asv_off_publisher.publish(asv_off_marker)
-
-        #obst_psi = np.arctan2(self.obst_states[:,3],self.obst_states[:,2])
-        obst_off_marker = Marker()
+        self.asv_off_marker.pose.position.x = asv_off[0]
+        self.asv_off_marker.pose.position.y = asv_off[1]
+        self.asv_off_publisher.publish(self.asv_off_marker)
 
         for i in range(self.n_obst) :
             rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])
-            #obst_off = self.obst_states[i,:2]+np.array([self.r_offset*np.cos(obst_psi[i]+self.psi_offset),
-            #                                            self.r_offset*np.sin(obst_psi[i]+self.psi_offset)])
             obst_off = self.obst_states[i,:2]+rot(self.r_offset*self.obst_states[i,2:4]/np.linalg.norm(self.obst_states[i,2:4]),self.psi_offset)
 
-            obst_off_marker.header.frame_id = "map"
-            obst_off_marker.header.stamp    = rospy.get_rostime()
-            obst_off_marker.ns = "obst_off_marker"
-            obst_off_marker.id = 0
-            obst_off_marker.type = 2
-            obst_off_marker.action = 0
-            obst_off_marker.pose.position.x = obst_off[0]
-            obst_off_marker.pose.position.y = obst_off[1]
-            obst_off_marker.pose.position.z = 0
-            obst_off_marker.pose.orientation.x = 0
-            obst_off_marker.pose.orientation.y = 0
-            obst_off_marker.pose.orientation.z = 0
-            obst_off_marker.pose.orientation.w = 1.0
-            obst_off_marker.scale.x = 1.0
-            obst_off_marker.scale.y = 1.0
-            obst_off_marker.scale.z = 1.0
-            obst_off_marker.color.r = 0.5
-            obst_off_marker.color.g = 0.0
-            obst_off_marker.color.b = 0.5
-            obst_off_marker.color.a = 1.0
-            obst_off_marker.lifetime = rospy.Duration(0.)
-            self.obst_off_publisher.publish(obst_off_marker)
+            self.obst_off_marker.pose.position.x = obst_off[0]
+            self.obst_off_marker.pose.position.y = obst_off[1]
+            self.obst_off_publisher.publish(self.obst_off_marker)
 
-            offd[i] = np.linalg.norm(asv_off-obst_off) #beware of the map resolution
-        return np.array([np.log(self.t0*rvel/dist),  #indicateur logarithmique de collision
-                         self.t0*rvel/dist,          #indicateur naturel de collision
-                         np.log(self.t0*rvel/offd),  #indicateur logarithmique de collision avec offset
-                         acc/dist])                 #indicateur d'anticipation
+            offd[i] = np.linalg.norm(asv_off-obst_off)  #beware of the map secuolution
+        secu = np.zeros((self.n_obst,8))
+        secu[:,0] = 0
+        secu[:,1] = np.log(self.t0*rvel/dist)     #indicateur logarithmique de collision
+        secu[:,2] = self.t0*rvel/dist             #indicateur naturel de collision
+        secu[:,3] = np.log(self.t0*rvel/offd)     #indicateur logarithmique de collision avec offset
+        secu[:,4] = acc*self.dist_att(dist,0)     #indicateurs d'irrégularité
+        secu[:,5] = acc*self.dist_att(dist,1)
+        secu[:,6] = acc*self.dist_att(dist,2)
+        secu[:,7] = acc*self.dist_att(dist,3)
+        return secu
 
 
     def run_controller(self):
@@ -258,6 +268,16 @@ class Referee(object) :
         #rospy.on_shutdown(h)
         rospy.signal_shutdown("End of the simulation")
 
+    def dist_att(self,d,option) :
+        if option == 0:
+            return self.d0/d
+        if option == 1:
+            return 1/(1+d/self.d0)
+        if option == 2:
+            return (1-d/self.d0+np.abs(1-d/self.d0))/2
+        if option == 3:
+            return np.exp(-d/self.d0)
+
 def rot(u,phi):
     v = np.zeros(2)
     v[0] = np.cos(phi)*u[0]-np.sin(phi)*u[1]
@@ -268,7 +288,7 @@ if __name__ == "__main__" :
 
     rospy.init_node("Referee")
 
-    dt = 1/rospy.get_param("~update_rate", 5.)
+    dt = 1/rospy.get_param("~update_rate", 15.)
     finished = rospy.get_param("~shutdown", 0)
     output = rospy.get_param("~output_file", '/home/adrien/catkin/src/seaowl/asv_system/output/test.txt')
     op = rospy.get_param("~opus", '0')

@@ -207,7 +207,7 @@ class Referee(object) :
         obst_off_marker = Marker()
 
         for i in range(self.n_obst) :
-            rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])            
+            rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])
             #obst_off = self.obst_states[i,:2]+np.array([self.r_offset*np.cos(obst_psi[i]+self.psi_offset),
             #                                            self.r_offset*np.sin(obst_psi[i]+self.psi_offset)])
             obst_off = self.obst_states[i,:2]+rot(self.r_offset*self.obst_states[i,2:4]/np.linalg.norm(self.obst_states[i,2:4]),self.psi_offset)
@@ -234,7 +234,7 @@ class Referee(object) :
             obst_off_marker.color.a = 1.0
             obst_off_marker.lifetime = rospy.Duration(0.)
             self.obst_off_publisher.publish(obst_off_marker)
-            
+
             offd[i] = np.linalg.norm(asv_off-obst_off) #beware of the map resolution
         return np.array([np.log(self.t0*rvel/dist),  #indicateur logarithmique de collision
                          self.t0*rvel/dist,          #indicateur naturel de collision

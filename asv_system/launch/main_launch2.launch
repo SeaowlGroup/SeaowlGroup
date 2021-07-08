@@ -17,6 +17,7 @@
   <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes2.yaml" unless="$(arg there_are_waves)"/>
   <arg name="vessel_model_file" default="$(find asv_simulator)/config/models/viknes.urdf" />
   <arg name="use_vo" default="True" />
+  <arg name="rviz" default="True" />
   <!-- Output -->
   <arg name="opus" default="0" />
   <arg name="output_file" default="$(find asv_system)/output/test.txt" />
@@ -81,10 +82,12 @@
           output="screen" />
   </group>
 
-  <node pkg="rviz"
-        type="rviz"
-        name="rviz"
-        args="-d $(find asv_simulator)/config/rviz/map_and_proc_map.rviz" />
+  <group if="$(arg rviz)">
+    <node pkg="rviz"
+          type="rviz"
+          name="rviz"
+          args="-d $(find asv_simulator)/config/rviz/map_and_proc_map.rviz" />
+  </group>
 
   <!-- <node pkg="rosbag"
         type="record"

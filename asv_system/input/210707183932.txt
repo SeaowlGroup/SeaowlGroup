@@ -1,4 +1,0 @@
-OPUS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC
-1    5.0    False    180.0    5.0    0.0    8.0    none    100.0
-2    5.0    True    180.0    5.0    0.0    8.0    none    100.0
-3    5.0    True    180.0    5.0    0.0    8.0    none    100.0

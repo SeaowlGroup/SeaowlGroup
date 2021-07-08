@@ -297,12 +297,8 @@ class Scenario(object):
         launch_files = [(roslaunch_file0, roslaunch_args0), (roslaunch_file1, roslaunch_args1)]
 
         launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
-        try :
-            launch.start()
-            launch.spin()
-        except roslaunch.core.RLException  as e:
-            print(e)
-            return
+        launch.start()
+        launch.spin()
 
     def plot_graph(self, i, j, width, height):
 
@@ -335,7 +331,7 @@ class Scenario(object):
         ax.set_xlabel(xlab[i])
         ax.set_ylabel(ylab[j-1])
 
-        for p in range(len(x)):
+        for p in range(1,len(x)):
             ax.plot(x[p], y[p], 'o', color=colors[p], label=labels[p])
 
         handles, labels = ax.get_legend_handles_labels()

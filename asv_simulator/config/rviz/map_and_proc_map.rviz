@@ -229,18 +229,18 @@ Visualization Manager:
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /ant
+      Marker Topic: /cpa
       Name: Marker
       Namespaces:
-        ant_marker: true
+        cpa: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /ant2
+      Marker Topic: /cpa2
       Name: Marker
       Namespaces:
-        ant_marker: true
+        cpa2: true
       Queue Size: 100
       Value: true
   Enabled: true

@@ -6,7 +6,6 @@ from nav_msgs.msg import Odometry
 from std_msgs.msg import Empty
 from asv_msgs.msg import StateArray
 from visualization_msgs.msg import Marker
-from geometry_msgs.msg import Point
 
 import time
 
@@ -38,82 +37,77 @@ class Referee(object) :
         self.start_publisher   = rospy.Publisher("/start_simulation", Empty, queue_size=1, latch=True)
         self.asv_off_publisher = rospy.Publisher("/asv_off", Marker, queue_size=10, latch=True)
         self.obst_off_publisher = rospy.Publisher("/obst_off", Marker, queue_size=10, latch=True)
-        self.ant_publisher = rospy.Publisher("/ant", Marker, queue_size=10, latch=True)
-        self.ant_publisher2 = rospy.Publisher("/ant2", Marker, queue_size=10, latch=True)
-
-
-
+        self.cpa_publisher = rospy.Publisher("/cpa", Marker, queue_size=10, latch=True)
+        self.cpa2_publisher = rospy.Publisher("/cpa2", Marker, queue_size=10, latch=True)
 
         self.odom = np.zeros(7)
         self.n_obst = -1
         self.obst_states = []
         self.dcpa = []
-        self.time_occur = []
-        self.indic1 = []
-        self.indic2 = []
+        self.tcpa = []
         self.security = []        #indicateurs de sécurité pour chaque obstacle
         self.t0 = 30              #temps de sécurité en s
         self.d0 = 200             #distance de manoeuvre
         self.r_offset = 5.        #offset pour COLREG
         self.psi_offset = np.pi/6 #offset pour COLREG
-
+        self.size = 8.            #asv size radius
         self.output = output
         self.opus = op
 
         self.finished = finished #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
 
-        self.ant_marker = Marker()
-        self.ant_marker.header.frame_id = "map"
-        self.ant_marker.header.stamp    = rospy.get_rostime()
-        self.ant_marker.ns = "ant_marker"
-        self.ant_marker.id = 0
-        self.ant_marker.type = 1
-        self.ant_marker.action = 0
-        self.ant_marker.pose.position.x = self.odom[0]
-        self.ant_marker.pose.position.y = self.odom[1]
-        self.ant_marker.pose.position.z = 10
-        self.ant_marker.pose.orientation.x = 0
-        self.ant_marker.pose.orientation.y = 0
-        self.ant_marker.pose.orientation.z = 0
-        self.ant_marker.pose.orientation.w = 1.0
-        self.ant_marker.scale.x = 1.0
-        self.ant_marker.scale.y = 1.0
-        self.ant_marker.scale.z = 1.0
-        self.ant_marker.color.r = 1.0
-        self.ant_marker.color.g = 0
-        self.ant_marker.color.b = 0.
-        self.ant_marker.color.a = 1.0
-        self.ant_marker.lifetime = rospy.Duration(0.)
+        self.cpa = Marker()
+        self.cpa.header.frame_id = "map"
+        self.cpa.header.stamp    = rospy.get_rostime()
+        self.cpa.ns = "cpa"
+        self.cpa.id = 0
+        self.cpa.type = 1
+        self.cpa.action = 0
+        self.cpa.pose.position.x = 0
+        self.cpa.pose.position.y = 0
+        self.cpa.pose.position.z = 10
+        self.cpa.pose.orientation.x = 0
+        self.cpa.pose.orientation.y = 0
+        self.cpa.pose.orientation.z = 0
+        self.cpa.pose.orientation.w = 1.0
+        self.cpa.scale.x = 1.0
+        self.cpa.scale.y = 1.0
+        self.cpa.scale.z = 1.0
+        self.cpa.color.r = 1.0
+        self.cpa.color.g = 0
+        self.cpa.color.b = 0.
+        self.cpa.color.a = 1.0
+        self.cpa.lifetime = rospy.Duration(0.)
 
 
-        self.ant_marker2 = Marker()
-        self.ant_marker2.header.frame_id = "map"
-        self.ant_marker2.header.stamp    = rospy.get_rostime()
-        self.ant_marker2.ns = "ant_marker"
-        self.ant_marker2.id = 0
-        self.ant_marker2.type = 1
-        self.ant_marker2.action = 0
-        self.ant_marker2.pose.position.x = self.odom[0]
-        self.ant_marker2.pose.position.y = self.odom[1]
-        self.ant_marker2.pose.position.z = 10
-        self.ant_marker2.pose.orientation.x = 0
-        self.ant_marker2.pose.orientation.y = 0
-        self.ant_marker2.pose.orientation.z = 0
-        self.ant_marker2.pose.orientation.w = 1.0
-        self.ant_marker2.scale.x = 1.0
-        self.ant_marker2.scale.y = 1.0
-        self.ant_marker2.scale.z = 1.0
-        self.ant_marker2.color.r = 1.0
-        self.ant_marker2.color.g = 0
-        self.ant_marker2.color.b = 0.
-        self.ant_marker2.color.a = 1.0
-        self.ant_marker2.lifetime = rospy.Duration(0.)
+        self.cpa2 = Marker()
+        self.cpa2.header.frame_id = "map"
+        self.cpa2.header.stamp    = rospy.get_rostime()
+        self.cpa2.ns = "cpa2"
+        self.cpa2.id = 1
+        self.cpa2.type = 1
+        self.cpa2.action = 0
+        self.cpa2.pose.position.x = 0
+        self.cpa2.pose.position.y = 0
+        self.cpa2.pose.position.z = 10
+        self.cpa2.pose.orientation.x = 0
+        self.cpa2.pose.orientation.y = 0
+        self.cpa2.pose.orientation.z = 0
+        self.cpa2.pose.orientation.w = 1.0
+        self.cpa2.scale.x = 1.0
+        self.cpa2.scale.y = 1.0
+        self.cpa2.scale.z = 1.0
+        self.cpa2.color.r = 1.0
+        self.cpa2.color.g = 0
+        self.cpa2.color.b = 0.
+        self.cpa2.color.a = 1.0
+        self.cpa2.lifetime = rospy.Duration(0.)
 
         self.asv_off_marker = Marker()
         self.asv_off_marker.header.frame_id = "map"
         self.asv_off_marker.header.stamp    = rospy.get_rostime()
         self.asv_off_marker.ns = "asv_off_marker"
-        self.asv_off_marker.id = 0
+        self.asv_off_marker.id = 2
         self.asv_off_marker.type = 2
         self.asv_off_marker.action = 0
         self.asv_off_marker.pose.position.x = 0.
@@ -136,7 +130,7 @@ class Referee(object) :
         self.obst_off_marker.header.frame_id = "map"
         self.obst_off_marker.header.stamp    = rospy.get_rostime()
         self.obst_off_marker.ns = "obst_off_marker"
-        self.obst_off_marker.id = 0
+        self.obst_off_marker.id = 3
         self.obst_off_marker.type = 2
         self.obst_off_marker.action = 0
         self.obst_off_marker.pose.position.x = 0
@@ -173,11 +167,11 @@ class Referee(object) :
         if (self.n_obst == -1) :
             self.n_obst = len(data.states)
             self.dcpa = np.ones(self.n_obst)*sys.float_info.max
-            self.time_occur = np.zeros(self.n_obst)
-            self.indic1 = np.zeros(self.n_obst)
-            self.indic2 = np.zeros(self.n_obst)
-            self.obst_states = np.zeros((self.n_obst, 5))
+            self.tcpa = np.zeros(self.n_obst)
+            self.obst_states = np.zeros((self.n_obst, 6))
             self.security = np.zeros((self.n_obst,8))
+            for i in range(self.n_obst):
+                self.obst_states[i,5] = data.states[i].header.radius
 
         for i in range(self.n_obst) :
             self.obst_states[i, 0] = data.states[i].x
@@ -204,7 +198,7 @@ class Referee(object) :
         for i in range(self.n_obst) :
             print(f'Ship {i+1}')
             print(f'     --> dCPA = {self.dcpa[i]} m')
-            print(f'     --> t = {self.time_occur[i]} s')
+            print(f'     --> t = {self.tcpa[i]} s')
             print(f'     --> security = {self.security[i]}')
 
             if (self.opus <= 1) :
@@ -228,25 +222,25 @@ class Referee(object) :
             for i in range(self.n_obst) :
                 for j in range(1,4):
                     self.security[i, j] = max(self.security[i, j],secu[i,j])
-                if (d[i] <= self.dcpa[i]) :
+                if (d[i] < self.dcpa[i]) :
                     self.dcpa[i] = d[i]
+                    self.tcpa[i] = rospy.get_time() - self.begin_sim
                     self.obst_states[i,4] += 1
                     for k in range(4) :
                         self.security[i,4+k] += secu[i,4+k]**2
-                    self.time_occur[i] = rospy.get_time() - self.begin_sim
+                    self.cpa.pose.position.x = self.odom[0]
+                    self.cpa.pose.position.y = self.odom[1]
+                    self.cpa2.pose.position.x = self.obst_states[i,0]
+                    self.cpa2.pose.position.y = self.obst_states[i,1]
+                self.cpa_publisher.publish(self.cpa)
+                self.cpa2_publisher.publish(self.cpa2)
 
-                    self.ant_marker.pose.position.x = self.odom[0]
-                    self.ant_marker.pose.position.y = self.odom[1]
-                    self.ant_publisher.publish(self.ant_marker)
-
-                    self.ant_marker2.pose.position.x = self.obst_states[i,0]
-                    self.ant_marker2.pose.position.y = self.obst_states[i,1]
-                    self.ant_publisher2.publish(self.ant_marker2)
 
     def ob_dist(self) :
         dist = np.zeros(self.n_obst)
         for i in range(self.n_obst) :
-            dist[i] = np.linalg.norm(self.obst_states[i,:2]-self.odom[:2]) # beware of the map secuolution
+            dist[i] = max(0,np.linalg.norm(self.obst_states[i,:2]-self.odom[:2])
+                            -self.size-self.obst_states[i,5])
         return dist
 
     def ob_secu(self) :
@@ -269,7 +263,8 @@ class Referee(object) :
             self.obst_off_marker.pose.position.y = obst_off[1]
             self.obst_off_publisher.publish(self.obst_off_marker)
 
-            offd[i] = np.linalg.norm(asv_off-obst_off)  #beware of the map secuolution
+            offd[i] = min(max(0,np.linalg.norm(asv_off-obst_off)-self.size-self.obst_states[i,5]),
+                          max(0,dist[i]-self.size-self.obst_states[i,5]))
         secu = np.zeros((self.n_obst,8))
         secu[:,0] = 0
         secu[:,1] = np.log(self.t0*rvel/dist)     #indicateur logarithmique de collision
@@ -325,7 +320,7 @@ if __name__ == "__main__" :
 
     print(f'Output : {output}')
 
-    refer = Referee(dt, finished, output, op)
+    refer = Referee(.01, finished, output, op)
 
     msg  = Empty()
     refer.start_publisher.publish(msg) #top départ (temporary)

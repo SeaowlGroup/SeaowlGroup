@@ -49,12 +49,12 @@ class Referee(object) :
         self.t0 = 30              #temps de sécurité en s
         self.d0 = 200             #distance de manoeuvre
         self.r_offset = 5.        #offset pour COLREG
-        self.psi_offset = np.pi/6 #offset pour COLREG
+        self.psi_offset = np.pi/6 #offset pour COLREG (0-np.pi/4)
         self.size = 8.            #asv size radius
         self.output = output
         self.opus = op
-
-        self.finished = finished #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
+        self.doff = []
+        self.finished = finished  #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
 
         self.cpa = Marker()
         self.cpa.header.frame_id = "map"
@@ -170,6 +170,7 @@ class Referee(object) :
             self.tcpa = np.zeros(self.n_obst)
             self.obst_states = np.zeros((self.n_obst, 6))
             self.security = np.zeros((self.n_obst,8))
+            self.doff = np.array(self.n_obst*[np.inf])
             for i in range(self.n_obst):
                 self.obst_states[i,5] = data.states[i].header.radius
 
@@ -200,6 +201,7 @@ class Referee(object) :
             print(f'     --> dCPA = {self.dcpa[i]} m')
             print(f'     --> t = {self.tcpa[i]} s')
             print(f'     --> security = {self.security[i]}')
+            print(f'     --> doff = {self.doff[i]}')
 
             if (self.opus <= 1) :
                 f.write('OPUS    TIME   LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_INV   ANTICIPATION_OFF    ANTICIPATION_LIN    ANTICIPATION_EXP\n')
@@ -249,7 +251,7 @@ class Referee(object) :
         acc = np.linalg.norm(self.odom[4:6])    #asv acceleration
         offd = np.zeros(self.n_obst)            #distance avec offset
 
-        asv_off = self.odom[:2]+rot(self.r_offset*self.odom[2:4]/np.linalg.norm(self.odom[2:4]),-self.psi_offset)
+        asv_off = self.odom[:2]+rot(self.r_offset*self.odom[2:4]/np.linalg.norm(self.odom[2:4]),-self.psi_offset-np.pi/2)
 
         self.asv_off_marker.pose.position.x = asv_off[0]
         self.asv_off_marker.pose.position.y = asv_off[1]
@@ -257,14 +259,13 @@ class Referee(object) :
 
         for i in range(self.n_obst) :
             rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])
-            obst_off = self.obst_states[i,:2]+rot(self.r_offset*self.obst_states[i,2:4]/np.linalg.norm(self.obst_states[i,2:4]),self.psi_offset)
+            obst_off = self.obst_states[i,:2]+rot(self.r_offset*self.obst_states[i,2:4]/np.linalg.norm(self.obst_states[i,2:4]),-self.psi_offset-np.pi/2)
 
             self.obst_off_marker.pose.position.x = obst_off[0]
             self.obst_off_marker.pose.position.y = obst_off[1]
             self.obst_off_publisher.publish(self.obst_off_marker)
-
-            offd[i] = min(max(0,np.linalg.norm(asv_off-obst_off)-self.size-self.obst_states[i,5]),
-                          max(0,dist[i]-self.size-self.obst_states[i,5]))
+            offd[i]= max(0,np.linalg.norm(asv_off-obst_off)-self.size-self.obst_states[i,5])
+            self.doff[i] = min(self.doff[i],offd[i])
         secu = np.zeros((self.n_obst,8))
         secu[:,0] = 0
         secu[:,1] = np.log(self.t0*rvel/dist)     #indicateur logarithmique de collision

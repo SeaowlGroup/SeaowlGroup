@@ -265,11 +265,9 @@ class Referee(object) :
             cpa = rot((self.obst_states[i,2:4]-self.odom[2:4])/rvel,np.pi/2)
             if np.dot(cpa,rot(self.odom[2:4],np.pi/2))>0 :
                 cpa = -cpa
-            print("right",np.dot(cpa,rot(self.odom[2:4],np.pi/2)),cpa)
             if self.obst_prior[i] == "g":
                 if np.dot(cpa,self.odom[2:4]) < 0:
                     cpa = -cpa 
-                print("g",np.dot(cpa,self.odom[2:4]),cpa)
                 asv_off = self.odom[:2]+self.r_offset*cpa   #off before asv
                 obst_off = self.obst_states[i,:2]-self.r_offset*cpa  
             elif self.obst_prior[i] == "s":

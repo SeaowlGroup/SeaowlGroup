@@ -10,81 +10,105 @@ def clear_frame(frame):
     for w in frame.winfo_children():
         w.destroy()
 
-def plot_graph(i, j, serial, cut, lp, vo, g) :
-    rospack = rospkg.RosPack()
-    input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
-    output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
+class Fig(object):
 
-    x = []
-    y = []
-    xlab = ['OPUS', 'CLASS', 'U_D_ASV', 'LOC_PLAN', 'HEADING', 'U_D', 'DCPA', 'SIZE', 'PRIOR', 'D_DETEC']
-    ylab = ['TIME', 'LOG_COL', 'NAT_COL', 'OFFSET_LOG', 'ANTICIPATION_INV', 'ANTICIPATION_OFF', 'ANTICIPATION_LIN', 'ANTICIPATION_EXP']
-    labels = []
-    colors = []
-    markers = []
-    groups = []
-    f1 = open(input,'r')
-    f2 = open(output,'r')
-    f1.readline()
-    f2.readline()
+    def __init__(self, serial='survivor3'):
+        rospack = rospkg.RosPack()
+        self.input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
+        self.output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
 
-    for line in f1:
-        content = line.split()
-        x.append(float(content[i]))
-        groups.append(int(content[10]))
-        if content[3] == "True":
-            labels.append('Velocity Obstacles')
-            markers.append('v')
-        else:
-            labels.append('No LP')
-            markers.append('o')
+        self.i = 0
+        self.j = 1
+        self.cutoff = 1000
+        self.disp_lp = [True]*2
+        self.disp_groups = [True]*5
+        self.annotate = False
+        self.disp_witness = False
 
-        if content[1] == 'CF':
-            colors.append('blue')
-            labels[-1]+="/CF"
-        elif content[1] == 'CL':
-            colors.append('orange')
-            labels[-1]+="/CL"
-        elif content[1] == 'WITNESS':
-            colors.append('purple')
-            labels[-1]+="/Witness"
-        else:
-            colors.append('grey')
+        self.xlab = ['OPUS', 'CLASS', 'U_D_ASV', 'LOC_PLAN', 'HEADING', 'U_D', 'DCPA', 'SIZE', 'PRIOR', 'D_DETEC']
+        self.ylab = ['TIME', 'LOG_COL', 'NAT_COL', 'OFFSET_LOG', 'ANTICIPATION_INV', 'ANTICIPATION_OFF',
+                     'ANTICIPATION_LIN', 'ANTICIPATION_EXP', 'DCPA', 'CROSSING_DIST']
+
+        self.labels = []
+        self.colors = []
+        self.markers = []
+        self.groups = []
+        f1 = open(self.input,'r')
+        f1.readline()
+
+        for line in f1:
+            content = line.split()
+            self.groups.append(int(content[10]))
+            if content[3] == "True":
+                self.labels.append('Velocity Obstacles')
+                self.markers.append('v')
+            else:
+                self.labels.append('No LP')
+                self.markers.append('o')
+
+            if content[1] == 'CF':
+                self.colors.append('blue')
+                self.labels[-1]+="/CF"
+            elif content[1] == 'CL':
+                self.colors.append('orange')
+                self.labels[-1]+="/CL"
+            elif content[1] == 'WITNESS':
+                self.colors.append('purple')
+                self.labels[-1]+="/Witness"
+            else:
+                self.colors.append('grey')
+
+        f1.close()
 
 
-    for line in f2:
-        content = line.split()
-        y.append(float(content[j]))
-    f1.close()
-    f2.close()
+    def plot_graph(self) :
+        x = []
+        y = []
 
-    figure = plt.Figure(figsize=(8,8), dpi=100)
+        f1 = open(self.input,'r')
+        f2 = open(self.output,'r')
+        f1.readline()
+        f2.readline()
 
-    ax = figure.add_subplot(111)
-    ax.set_title("Results of the Simulation")
-    ax.set_xlabel(xlab[i])
-    ax.set_ylabel(ylab[j-1])
+        for line in f1:
+            content = line.split()
+            x.append(float(content[self.i]))
+        for line in f2:
+            content = line.split()
+            y.append(float(content[self.j]))
 
-    n = min(len(x), len(y))
+        f1.close()
+        f2.close()
 
-    for p in range(40):
-        #if p!=13 and markers[p]!='o':
-        if y[p] < cut and g[groups[p]-1].get()==1:
-            if (lp==1 and markers[p]=='o') or (vo==1 and markers[p]=='v'):
-                ax.plot(x[p], y[p], marker=markers[p], color=colors[p], label=labels[p])
-    #ax.axhline(y[40], '--', color='lightgrey', label='witness 50')
-    #ax.axhline(y[41], '--', color='black', label='witness 100')
-    ax.axhline(y[40], linewidth=0.5, color='grey', label='witness 50')
-    ax.axhline(y[41], linewidth=0.5, color='black', label='witness 100')
+        figure = plt.Figure(figsize=(8,8), dpi=100)
 
-    handles, labels = ax.get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    ax.legend(by_label.values(), by_label.keys())
+        ax = figure.add_subplot(111)
+        ax.set_title("Results of the Simulation")
+        ax.set_xlabel(self.xlab[self.i])
+        ax.set_ylabel(self.ylab[self.j-1])
 
-    return figure
+        n = min(len(x), len(y))
+
+        for p in range(40):
+            #if p!=13 and markers[p]!='o':
+            if y[p] < self.cutoff and self.disp_groups[self.groups[p]-1]:
+                if (self.disp_lp[0] and self.markers[p]=='o') or (self.disp_lp[1] and self.markers[p]=='v'):
+                    ax.plot(x[p], y[p], marker=self.markers[p], color=self.colors[p], label=self.labels[p])
+                    if self.annotate:
+                        ax.annotate(p, xy=(x[p],y[p]), xytext=(6,6), textcoords='offset pixels')
+        if self.disp_witness:
+            ax.axhline(y[40], linewidth=0.5, color='grey', label='witness 50')
+            ax.axhline(y[41], linewidth=0.5, color='black', label='witness 100')
+
+        handles, labels = ax.get_legend_handles_labels()
+        by_label = dict(zip(labels, handles))
+        ax.legend(by_label.values(), by_label.keys())
+
+        return figure
 
 if __name__ == "__main__":
     aux_frame = tk.Tk()
+    graph_fig = Fig()
 
     graph_frame = tk.Frame(aux_frame, bg='white')
     graph_frame.grid(rowspan=2, column=1)
@@ -105,6 +129,10 @@ if __name__ == "__main__":
     y.set(1)
     cutoff = tk.DoubleVar()
     cutoff.set(1000)
+    anno = tk.IntVar()
+    anno.set(0)
+    wit = tk.IntVar()
+    wit.set(0)
     lp = tk.IntVar()
     lp.set(1)
     vo = tk.IntVar()
@@ -113,15 +141,25 @@ if __name__ == "__main__":
 
     def update_plot():
         clear_frame(graph_frame)
-        fig = plot_graph(x.get(), y.get(), 'survivor2', cutoff.get(), lp.get(), vo.get(), groups)
+
+        graph_fig.i = x.get()
+        graph_fig.j = y.get()
+        graph_fig.cutoff = cutoff.get()
+        graph_fig.disp_lp = [bool(lp.get()), bool(vo.get())]
+        for g in range(5):
+            graph_fig.disp_groups[g] = bool(groups[g].get())
+        graph_fig.annotate = anno.get()
+        graph_fig.disp_witness = wit.get()
+
+        fig = graph_fig.plot_graph()
         chart_type = FigureCanvasTkAgg(fig, graph_frame)
         chart_type.get_tk_widget().pack()
         cutoff.set(1000)
 
-    x_list = [["Opus",0], ["Obstacle Heading",4], ["dCPA",6], ["Detection Distance",9]]
+    x_list = [["Opus",0], ["Obstacle Heading",4], ["Theoretical dCPA",6], ["Detection Distance",9]]
     y_list = [["Time",1], ["Natural Collision Indic.",3], ["Logarithmic Collision Indic.",2],
               ["Offset Collision Indic.",4], ["Anticipation Inv Indic.",5], ["Anticipation Off Indic.",6],
-              ["Anticipation Lin Indic.",7], ["Anticipation Exp Indic.",8]]
+              ["Anticipation Lin Indic.",7], ["Anticipation Exp Indic.",8], ["Real dCPA", 9], ["Crossing Distance", 10]]
 
     for w in x_list:
         tk.Radiobutton(frame1, variable=x, text=w[0], value=w[1], highlightthickness=0, command=update_plot).pack(fill='both')
@@ -134,6 +172,8 @@ if __name__ == "__main__":
     tk.Label(frame3_1, text='Cutoff:').pack(side='left')
     tk.Entry(frame3_1, textvariable=cutoff, width=5).pack()
     tk.Button(frame3, text='Set Cutoff', command=update_plot).pack()
+    tk.Checkbutton(frame3, text="Annotate", variable=anno, command=update_plot).pack()
+    tk.Checkbutton(frame3, text="Display Witnesses", variable=wit, command=update_plot).pack()
     tk.Checkbutton(frame3, text="Display LP", variable=lp, command=update_plot).pack()
     tk.Checkbutton(frame3, text="Display VO", variable=vo, command=update_plot).pack()
 

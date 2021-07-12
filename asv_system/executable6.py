@@ -31,14 +31,15 @@ def run(serial, input_file) :
         lp = "True" if param[opus, 3]==1 else "False"
         d_detec = param[opus, 4]
         dcpa = param[opus, 5]
+        group = param[opus, 6]
         size = 8.0
         type = 'none'
 
 
 
         if opus == 0:
-            input_file.write(f'OPUS    CLASS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC\n')
-        input_file.write(f'{opus}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}\n')
+            input_file.write(f'OPUS    CLASS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC    GROUP\n')
+        input_file.write(f'{opus+1}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}    {group}\n')
 
         # Creation of the launch files
         cli_args0 = ['asv_system', 'main_launch2.launch',

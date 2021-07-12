@@ -49,12 +49,12 @@ class Referee(object) :
         self.t0 = 30              #temps de sécurité en s
         self.d0 = 200             #distance de manoeuvre
         self.r_offset = 5.        #offset pour COLREG
-        self.psi_offset = np.pi/6 #offset pour COLREG (0-np.pi/4)
         self.size = 8.            #asv size radius
         self.output = output
         self.opus = op
-        self.doff = []
         self.finished = finished  #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
+        self.cross = []
+        self.obst_prior = []
 
         self.cpa = Marker()
         self.cpa.header.frame_id = "map"
@@ -150,7 +150,7 @@ class Referee(object) :
         self.obst_off_marker.lifetime = rospy.Duration(0.)
 
     def _odom_callback(self, data):
-        t = rospy.get_time()
+        t = rospy.Time.to_sec(data.header.stamp)
         x = self.odom[0]
         y = self.odom[1]
         vx = self.odom[2]
@@ -169,8 +169,10 @@ class Referee(object) :
             self.dcpa = np.ones(self.n_obst)*sys.float_info.max
             self.tcpa = np.zeros(self.n_obst)
             self.obst_states = np.zeros((self.n_obst, 6))
-            self.security = np.zeros((self.n_obst,8))
-            self.doff = np.array(self.n_obst*[np.inf])
+            self.security = np.zeros((self.n_obst,10))
+            self.security[:,9] = np.array(self.n_obst*[-1.])
+            self.cross = np.zeros(self.n_obst)
+            self.obst_prior = np.array(self.n_obst*[""])
             for i in range(self.n_obst):
                 self.obst_states[i,5] = data.states[i].header.radius
 
@@ -179,6 +181,7 @@ class Referee(object) :
             self.obst_states[i, 1] = data.states[i].y
             self.obst_states[i, 2] = data.states[i].u*np.cos(data.states[i].psi)
             self.obst_states[i, 3] = data.states[i].u*np.sin(data.states[i].psi)
+            self.obst_prior[i] = data.states[i].header.prior
 
     def _start_callback(self, data):
         if (not self.start):
@@ -201,10 +204,9 @@ class Referee(object) :
             print(f'     --> dCPA = {self.dcpa[i]} m')
             print(f'     --> t = {self.tcpa[i]} s')
             print(f'     --> security = {self.security[i]}')
-            print(f'     --> doff = {self.doff[i]}')
 
             if (self.opus <= 1) :
-                f.write('OPUS    TIME   LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_INV   ANTICIPATION_OFF    ANTICIPATION_LIN    ANTICIPATION_EXP\n')
+                f.write('OPUS    TIME   LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_INV   ANTICIPATION_OFF    ANTICIPATION_LIN    ANTICIPATION_EXP    DCPA    CROSSING_DIST\n')
             f.write(f'{self.opus}')
             for sec_indic in range(len(self.security[0])) :
                 f.write(f'    {np.max(self.security[:,sec_indic])}')
@@ -230,12 +232,19 @@ class Referee(object) :
                     self.obst_states[i,4] += 1
                     for k in range(4) :
                         self.security[i,4+k] += secu[i,4+k]**2
+                    self.security[i,8] = d[i]
                     self.cpa.pose.position.x = self.odom[0]
                     self.cpa.pose.position.y = self.odom[1]
                     self.cpa2.pose.position.x = self.obst_states[i,0]
                     self.cpa2.pose.position.y = self.obst_states[i,1]
                 self.cpa_publisher.publish(self.cpa)
                 self.cpa2_publisher.publish(self.cpa2)
+                side = np.dot(self.odom[0:2]-self.obst_states[i,0:2],rot(self.obst_states[i,2:4],np.pi/2))
+                front  = np.dot(self.odom[0:2]-self.obst_states[i,0:2],self.obst_states[i,2:4])
+                if (side*self.cross[i] < 0 and front > 0) :
+                    self.security[i,9] = d[i]
+                self.cross[i] = side
+
 
 
     def ob_dist(self) :
@@ -251,25 +260,44 @@ class Referee(object) :
         acc = np.linalg.norm(self.odom[4:6])    #asv acceleration
         offd = np.zeros(self.n_obst)            #distance avec offset
 
-        asv_off = self.odom[:2]+rot(self.r_offset*self.odom[2:4]/np.linalg.norm(self.odom[2:4]),-self.psi_offset-np.pi/2)
-
-        self.asv_off_marker.pose.position.x = asv_off[0]
-        self.asv_off_marker.pose.position.y = asv_off[1]
-        self.asv_off_publisher.publish(self.asv_off_marker)
-
         for i in range(self.n_obst) :
             rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])
-            obst_off = self.obst_states[i,:2]+rot(self.r_offset*self.obst_states[i,2:4]/np.linalg.norm(self.obst_states[i,2:4]),-self.psi_offset-np.pi/2)
-
+            cpa = rot((self.obst_states[i,2:4]-self.odom[2:4])/rvel,np.pi/2)
+            if np.dot(cpa,rot(self.odom[2:4],np.pi/2))>0 :
+                cpa = -cpa
+            if self.obst_prior[i] == "g":
+                if np.dot(cpa,self.odom[2:4]) < 0:
+                    cpa = -cpa 
+                asv_off = self.odom[:2]+self.r_offset*cpa   #off before asv
+                obst_off = self.obst_states[i,:2]-self.r_offset*cpa  
+            elif self.obst_prior[i] == "s":
+                if np.dot(cpa,self.odom[2:4]) > 0:
+                    cpa = -cpa
+                asv_off = self.odom[:2]+self.r_offset*cpa   #off behind asv 
+                obst_off = self.obst_states[i,:2]-self.r_offset*cpa  
+            else:
+                if np.dot(self.obst_states[i,2:4],rot(self.odom[2:4],np.pi/2))>0 : #obst right of asv
+                    if np.dot(cpa,self.odom[2:4]) > 0:
+                        cpa = -cpa
+                    asv_off = self.odom[:2]+self.r_offset*cpa   #off behind asv 
+                    obst_off = self.obst_states[i,:2]-self.r_offset*cpa
+                else : #obst left of asv
+                    if np.dot(cpa,self.odom[2:4]) < 0:
+                        cpa = -cpa
+                    asv_off = self.odom[:2]+self.r_offset*cpa   #off before asv 
+                    obst_off = self.obst_states[i,:2]-self.r_offset*cpa
+            self.asv_off_marker.pose.position.x = asv_off[0]
+            self.asv_off_marker.pose.position.y = asv_off[1]
+            self.asv_off_publisher.publish(self.asv_off_marker)
             self.obst_off_marker.pose.position.x = obst_off[0]
             self.obst_off_marker.pose.position.y = obst_off[1]
             self.obst_off_publisher.publish(self.obst_off_marker)
-            offd[i]= max(0,np.linalg.norm(asv_off-obst_off)-self.size-self.obst_states[i,5])
-            self.doff[i] = min(self.doff[i],offd[i])
+
+            offd[i]= min(max(0,np.linalg.norm(asv_off-obst_off)-self.size-self.obst_states[i,5]), dist[i])
         secu = np.zeros((self.n_obst,8))
         secu[:,0] = 0
         if dist == 0:
-            secu[:,1] = 10     #indicateur logarithmique de collision
+            secu[:,1] = 10              #indicateur logarithmique de collision
             secu[:,2] = 250             #indicateur naturel de collision
             secu[:,4] = 30
         else:
@@ -297,10 +325,6 @@ class Referee(object) :
                 if rospy.is_shutdown():
                     break
                 raise
-
-        #def h() :
-        #    print "Shutting down..."
-        #rospy.on_shutdown(h)
         rospy.signal_shutdown("End of the simulation")
 
     def dist_att(self,d,option) :

@@ -268,10 +268,19 @@ class Referee(object) :
             self.doff[i] = min(self.doff[i],offd[i])
         secu = np.zeros((self.n_obst,8))
         secu[:,0] = 0
-        secu[:,1] = np.log(self.t0*rvel/dist)     #indicateur logarithmique de collision
-        secu[:,2] = self.t0*rvel/dist             #indicateur naturel de collision
-        secu[:,3] = np.log(self.t0*rvel/offd)     #indicateur logarithmique de collision avec offset
-        secu[:,4] = acc*self.dist_att(dist,0)     #indicateurs d'irrégularité
+        if dist == 0:
+            secu[:,1] = 10     #indicateur logarithmique de collision
+            secu[:,2] = 250             #indicateur naturel de collision
+            secu[:,4] = 30
+        else:
+            secu[:,1] = np.minimum(10, np.log(self.t0*rvel/dist))    #indicateur logarithmique de collision
+            secu[:,2] = np.minimum(250, self.t0*rvel/dist)           #indicateur naturel de collision
+            secu[:,4] = np.minimum(30, acc*self.dist_att(dist,0))
+        if offd == 0:
+            secu[:,3] = 10
+        else:
+            secu[:,3] = np.minimum(10, np.log(self.t0*rvel/offd))
+
         secu[:,5] = acc*self.dist_att(dist,1)
         secu[:,6] = acc*self.dist_att(dist,2)
         secu[:,7] = acc*self.dist_att(dist,3)

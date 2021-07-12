@@ -1,6 +1,0 @@
-NAME    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC
-CF0   5.0    False    180    5    0    8.0    none    500
-CF1   5.0    False    180    5    0    8.0    none    250
-CF2   5.0    False    180    5    0    8.0    none    100
-CF3   5.0    False    183    8    0    8.0    none    50
-CF4   5.0    False    180    5    5    8.0    none    250

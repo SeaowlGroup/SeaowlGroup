@@ -10,7 +10,7 @@ def clear_frame(frame):
     for w in frame.winfo_children():
         w.destroy()
 
-def plot_graph(i, j, serial) :
+def plot_graph(i, j, serial, cut) :
     rospack = rospkg.RosPack()
     input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
     output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
@@ -67,7 +67,7 @@ def plot_graph(i, j, serial) :
 
     for p in range(40):
         #if p!=13 and markers[p]!='o':
-        if p!=13:
+        if p!=13 and y[p] < cut:
             ax.plot(x[p], y[p], marker=markers[p], color=colors[p], label=labels[p])
     ax.plot(range(n), [y[40]]*n, '--', color='lightgrey', label='witness 50')
     ax.plot(range(n), [y[41]]*n, '--', color='black', label='witness 100')
@@ -82,15 +82,17 @@ if __name__ == "__main__":
     aux_frame = tk.Tk()
 
     graph_frame = tk.Frame(aux_frame, bg='white')
-    graph_frame.pack()
-
+    graph_frame.grid(row=0, columnspan=3)
 
     frame1 = tk.Frame(aux_frame, bg='gainsboro')
     frame2 = tk.Frame(aux_frame, bg='gainsboro')
-    frame1.pack(side='left', expand='yes')
-    frame2.pack(side='left', expand='yes')
-    tk.Label(frame1, text='X :', bg='gainsboro').pack()
+    frame3 = tk.Frame(aux_frame, bg='gainsboro')
+    frame1.grid(row=1, column=0)
+    frame2.grid(row=1, column=1)
+    frame3.grid(row=1, column=2)
+    tk.Label(frame1, text='X :', anchor='n', bg='gainsboro').pack(fill='both')
     tk.Label(frame2, text='Y :', bg='gainsboro').pack()
+    tk.Label(frame3, text='Parameters :', bg='gainsboro').pack()
 
     x = tk.IntVar()
     y = tk.IntVar()
@@ -101,16 +103,28 @@ if __name__ == "__main__":
 
     x.set(0)
     y.set(1)
+    cutoff = tk.DoubleVar()
+    cutoff.set(1000)
 
     def update_plot():
         clear_frame(graph_frame)
-        fig = plot_graph(x.get(), y.get(), 'survivor')
+        fig = plot_graph(x.get(), y.get(), 'survivor2', cutoff.get())
         chart_type = FigureCanvasTkAgg(fig, graph_frame)
         chart_type.get_tk_widget().pack()
+        cutoff.set(1000)
+
 
     for w in x_list:
         tk.Radiobutton(frame1, variable=x, text=w[0], value=w[1], highlightthickness=0, command=update_plot).pack(fill='both')
     for w in y_list:
         tk.Radiobutton(frame2, variable=y, text=w[0], value=w[1], highlightthickness=0, command=update_plot).pack(fill='both')
+
+
+    #cutoff.trace("w", callback)
+    tk.Label(frame3, text='Cutoff').pack(side='left')
+    tk.Entry(frame3, textvariable=cutoff).pack()
+
+
+    update_plot()
 
     aux_frame.mainloop()

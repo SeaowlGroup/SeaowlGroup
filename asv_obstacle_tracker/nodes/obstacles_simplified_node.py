@@ -48,7 +48,7 @@ class Obstacles(object):
             t_col = self.t_collision[i]
             u = self.u_d[i]
             cpa = np.array([-u*np.sin(psi)+u_d_asv*np.sin(psi_asv),u*np.cos(psi)-u_d_asv*np.cos(psi_asv)])
-            cpa = self.dcpa[i]*cpa/np.linalg.norm(cpa) #postion du cpa de l'obst par rapport à l'asv 
+            cpa = self.dcpa[i]*cpa/np.linalg.norm(cpa) #postion du cpa de l'obst par rapport à l'asv
 
             # Delay time
             if dist_init(u, u_d_asv, theta, t_col) < self.d_detection[i] :
@@ -71,7 +71,7 @@ class Obstacles(object):
             x = (x_asv
                 +t_col*u_d_asv*np.cos(psi_asv)
                 +cpa[0]
-                -(t_col-delay_time[i])*u*np.cos(psi))   
+                -(t_col-delay_time[i])*u*np.cos(psi))
             y = (y_asv
                 +t_col*u_d_asv*np.sin(psi_asv)
                 +cpa[1]

@@ -150,7 +150,7 @@ class Referee(object) :
         self.obst_off_marker.lifetime = rospy.Duration(0.)
 
     def _odom_callback(self, data):
-        t = rospy.get_time()
+        t = rospy.Time.to_sec(data.header.stamp)
         x = self.odom[0]
         y = self.odom[1]
         vx = self.odom[2]

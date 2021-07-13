@@ -12,7 +12,7 @@ def clear_frame(frame):
 
 class Fig(object):
 
-    def __init__(self, serial='survivor2'):
+    def __init__(self, serial='survivor4'):
         rospack = rospkg.RosPack()
         self.input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
         self.output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
@@ -21,7 +21,7 @@ class Fig(object):
         self.j = 1
         self.cutoff = 1000
         self.disp_lp = [True]*2
-        self.disp_groups = [True]*5
+        self.disp_groups = [True]
         self.annotate = False
         self.disp_witness = False
 
@@ -89,7 +89,7 @@ class Fig(object):
 
         n = min(len(x), len(y))
 
-        for p in range(40):
+        for p in range(n):
             #if p!=13 and markers[p]!='o':
             if y[p] < self.cutoff and self.disp_groups[self.groups[p]-1]:
                 if (self.disp_lp[0] and self.markers[p]=='o') or (self.disp_lp[1] and self.markers[p]=='v'):
@@ -146,7 +146,7 @@ if __name__ == "__main__":
         graph_fig.j = y.get()
         graph_fig.cutoff = cutoff.get()
         graph_fig.disp_lp = [bool(lp.get()), bool(vo.get())]
-        for g in range(5):
+        for g in range(1):
             graph_fig.disp_groups[g] = bool(groups[g].get())
         graph_fig.annotate = anno.get()
         graph_fig.disp_witness = wit.get()
@@ -156,7 +156,7 @@ if __name__ == "__main__":
         chart_type.get_tk_widget().pack()
         cutoff.set(1000)
 
-    x_list = [["Opus",0], ["Obstacle Heading",4], ["Theoretical dCPA",6], ["Detection Distance",9]]
+    x_list = [["Opus",0], ["Speed of the ASV",2], ["Obstacle Heading",4], ["Theoretical dCPA",6], ["Detection Distance",9]]
     y_list = [["Time",1], ["Natural Collision Indic.",3], ["Logarithmic Collision Indic.",2],
               ["Offset Collision Indic.",4], ["Anticipation Inv Indic.",5], ["Anticipation Off Indic.",6],
               ["Anticipation Lin Indic.",7], ["Anticipation Exp Indic.",8], ["Real dCPA", 9], ["Crossing Distance", 10]]
@@ -177,7 +177,7 @@ if __name__ == "__main__":
     tk.Checkbutton(frame3, text="Display LP", variable=lp, command=update_plot).pack()
     tk.Checkbutton(frame3, text="Display VO", variable=vo, command=update_plot).pack()
 
-    for g in range(5):
+    for g in range(1):
         groups.append(tk.IntVar())
         groups[g].set(1)
         tk.Checkbutton(frame3, text=f"Display Group {g+1}", variable=groups[g], command=update_plot).pack()

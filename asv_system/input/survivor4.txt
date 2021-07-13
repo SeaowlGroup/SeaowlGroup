@@ -1,0 +1,16 @@
+OPUS    CLASS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC    GROUP
+1    CF   1.0    False    179    1    0    8.0    none    500    1
+1    CF   2.0    False    179    2    0    8.0    none    500    1
+1    CF   3.0    False    179    3    0    8.0    none    500    1
+1    CF   4.0    False    179    4    0    8.0    none    500    1
+1    CF   5.0    False    179    5    0    8.0    none    500    1
+1    CF   6.0    False    179    6    0    8.0    none    500    1
+1    CF   8.0    False    179    8    0    8.0    none    500    1
+1    CF   10.0    False    179    10    0    8.0    none    500    1
+1    CF   15.0    False    179    15    0    8.0    none    500    1
+1    CF   20.0    False    179    20    0    8.0    none    500    1
+1    CF   25.0    False    179    25    0    8.0    none    500    1
+1    CF   30.0    False    179    30    0    8.0    none    500    1
+1    CF   35.0    False    179    35    0    8.0    none    500    1
+1    CF   40.0    False    179    40    0    8.0    none    500    1
+

@@ -32,22 +32,24 @@ def run() :
     opus = 0
     # ASV parameters
     asv = yaml_content['asv']
-    u_d_asv = asv['u_d']
     true_heading_asv = asv['heading']
     calc_heading_asv = (90-true_heading_asv)*np.pi/180
-    initial_state_asv = [0.,0.,calc_heading_asv, u_d_asv,0.,0.]
     t_sim = asv['t_sim']
-    #Trajectory
-    waypoints_asv = [[0.,0.],
-                     [t_sim*u_d_asv*np.cos(calc_heading_asv), t_sim*u_d_asv*np.sin(calc_heading_asv)]]
+
     # Obstacles
     obstacles = yaml_content['obstacles']
     N = len(obstacles)
     # Preparation of the different scripts
     ship = obstacles['ship1']
-    for size in ship['size'] :
-        for h in ship['heading'] :
-            for u_d in ship['u_d'] :
+    t_collision = ship['t_collision']
+    for u_d in ship['u_d'] :
+        u_d_asv = u_d
+        #Trajectory
+        initial_state_asv = [0.,0.,calc_heading_asv, u_d_asv,0.,0.]
+        waypoints_asv = [[0.,0.],
+                         [t_sim*u_d_asv*np.cos(calc_heading_asv), t_sim*u_d_asv*np.sin(calc_heading_asv)]]
+        for size in ship['size'] :
+            for h in ship['heading'] :
                 for dcpa in ship['dcpa'] :
                     for type in ship['prior'] :
                         for d_detec in ship['d_detection'] :
@@ -63,7 +65,7 @@ def run() :
                             #for i in range(N) :
                             #ship = obstacles[f'ship{i+1}']
                             opus += 1
-                            t_collision = ship['t_collision']
+
                             # Creation of the launch files
                             cli_args0 = ['asv_system', 'main_launch2.launch',
                                          f'use_sim_time:={use_sim_time}',
@@ -77,8 +79,9 @@ def run() :
                                          f'Fy_current:={Fy_current}',
                                          f'there_are_waves:={there_are_waves}',
                                          f'use_vo:=True',
+                                         f'rviz:=False',
                                          f'opus:={opus}',
-                                         f'output_file:=/home/adrien/catkin_ws/src/seaowl/asv_system/output/{serial}.txt']
+                                         f'output_file:=$(find asv_system)/output/{serial}.txt']
                             roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
                             roslaunch_args0 = cli_args0[2:]
 
@@ -98,30 +101,30 @@ def run() :
                                 roslaunch_args1 = cli_args1[2:]
                                 launch_files = [(roslaunch_file0, roslaunch_args0), (roslaunch_file1, roslaunch_args1)]
 
-                            # launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
-                            # launch.start()
-                            # time.sleep(10)
-                            # cli_args = ['asv_system', 'obstacles2.launch',
-                            #             f'initial_state:={initial_state}',
-                            #             f'waypoints:={waypoints}',
-                            #             f'shipname:={shipname}',
-                            #             f'u_d:={u_d}',
-                            #             f'size:={size}',
-                            #             f'prior:={type}',
-                            #             f'Fx_current:={Fx_current}',
-                            #             f'Fy_current:={Fy_current}',
-                            #             f'there_are_waves:={there_are_waves}',
-                            #             f'node_start_delay:={0.0}'] #max(0., delay_time-3.0)
-                            #
-                            # roslaunch_file = roslaunch.rlutil.resolve_launch_arguments(cli_args)[0]
-                            # roslaunch_args = cli_args[2:]
-                            #
-                            # launch_files = [(roslaunch_file, roslaunch_args)]
-                            launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
-                            try :
-                                launch.start()
-                                launch.spin()
-                            except roslaunch.core.RLException :
-                                return
+                                # launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
+                                # launch.start()
+                                # time.sleep(10)
+                                # cli_args = ['asv_system', 'obstacles2.launch',
+                                #             f'initial_state:={initial_state}',
+                                #             f'waypoints:={waypoints}',
+                                #             f'shipname:={shipname}',
+                                #             f'u_d:={u_d}',
+                                #             f'size:={size}',
+                                #             f'prior:={type}',
+                                #             f'Fx_current:={Fx_current}',
+                                #             f'Fy_current:={Fy_current}',
+                                #             f'there_are_waves:={there_are_waves}',
+                                #             f'node_start_delay:={0.0}'] #max(0., delay_time-3.0)
+                                #
+                                # roslaunch_file = roslaunch.rlutil.resolve_launch_arguments(cli_args)[0]
+                                # roslaunch_args = cli_args[2:]
+                                #
+                                # launch_files = [(roslaunch_file, roslaunch_args)]
+                                launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
+                                try :
+                                    launch.start()
+                                    launch.spin()
+                                except roslaunch.core.RLException :
+                                    return
 if __name__ == "__main__":
     run()

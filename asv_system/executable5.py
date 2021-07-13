@@ -16,7 +16,8 @@ def clear_frame(frame):
 
 class Scenario(object):
 
-    def __init__(self, serial='000000', opus=0):
+    def __init__(self, serial='000000', opus=0, uuid='0'):
+        self.uuid = uuid
         # ASV related attributes
         self.u_d_asv = None
         self.lp = None
@@ -41,20 +42,15 @@ class Scenario(object):
         fenetre = Tk()
         screen_width = fenetre.winfo_screenwidth()
         screen_height = fenetre.winfo_screenheight()
+        screen_width = 1920
+        screen_height = 1080
         w_big = int(screen_width*5/8)
         w_small = int(screen_width*3/8)
         h_unit = int(screen_height/3)
-        #fenetre.geometry("1600x900")
         fenetre.geometry(f"{screen_width}x{screen_height}")
         fenetre.title("Bench Test")
         fenetre.iconphoto(False, PhotoImage(file='icon.png'))
         fenetre.configure(bg='gainsboro')
-        fenetre.columnconfigure(0, weight=1)
-        fenetre.columnconfigure(1, weight=1)
-        fenetre.columnconfigure(2, weight=1)
-        fenetre.rowconfigure(0, weight=1)
-        fenetre.rowconfigure(1, weight=1)
-        fenetre.rowconfigure(2, weight=1)
 
         ###################
 
@@ -260,10 +256,6 @@ class Scenario(object):
         print('=====================================')
 
     def run(self):
-
-        # UUID
-        uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
-        roslaunch.configure_logging(uuid)
         # ASV parameters
         calc_heading_asv = (90-self.true_heading_asv)*np.pi/180
         initial_state_asv = [0.,0.,calc_heading_asv, self.u_d_asv,0.,0.]
@@ -346,7 +338,10 @@ if __name__ == "__main__":
     # Output parameters
     now = datetime.datetime.now()
     serial = now.strftime("%Y%m%d%H%M%S")[2:]
+    # UUID
+    uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+    roslaunch.configure_logging(uuid)
 
-    scenar = Scenario(serial, 0)
+    scenar = Scenario(serial, 0, uuid)
 
     scenar.graphic_interface()

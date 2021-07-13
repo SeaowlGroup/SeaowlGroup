@@ -15,15 +15,15 @@ there_are_waves: false
 
 asv:
   heading: 0.0
-  u_d: 5.0 #m.s-1
-  t_sim: 30
+  u_d: [1,2,3,4,5,6,8,10,15,20,25,30,35,40] #m.s-1
+  t_sim: 60
 
 obstacles:
   ship1:
-    prior: [stand_on, give_way, none]
-    size: [8.0, 30.0] #radius in meters
-    heading: [270, 90]
-    u_d: [5.0, 10.0] #m.s-1
-    t_collision: 15
-    d_detection: [500.0, 500.0]
-    dcpa: [10.0, 10.0]
+    prior: [none]
+    size: [8.0] #radius in meters
+    heading: [180]
+    u_d: [1,2,3,4,5,6,8,10,15,20,25,30,35,40] #m.s-1
+    t_collision: 40
+    d_detection: [500.0]
+    dcpa: [0.0]

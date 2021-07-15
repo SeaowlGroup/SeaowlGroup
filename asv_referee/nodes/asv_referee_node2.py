@@ -60,7 +60,7 @@ class Referee(object) :
         self.finished = finished  #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
         self.side = []
         self.obst_prior = []
-        self.debug = open(f'/home/adrien/catkin_ws/src/seaowl/asv_system/debug.txt','w')
+        #self.debug = open(f'/home/adrien/catkin_ws/src/seaowl/asv_system/debug.txt','w')
         self.traj = []
 
         self.cpa = Marker()
@@ -190,7 +190,7 @@ class Referee(object) :
             if self.n_obst > -1:
                 for i in range(self.n_obst):
                     if (self.bcpa[i]):
-                        self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\t{self.odom[2]}\t{self.odom[3]}\t{self.odom[5]}\t{self.odom[6]}\n')
+                        #self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\t{self.odom[2]}\t{self.odom[3]}\t{self.odom[5]}\t{self.odom[6]}\n')
                         self.traj[i].append(np.array([t,self.odom[0],self.odom[1]]))
 
     def _obst_callback(self, data):
@@ -224,7 +224,7 @@ class Referee(object) :
             print("---------------------BEGINNING OF THE SIMULATION---------------------")
 
     def _finish_callback(self, data) :
-        self.debug.close()
+        #self.debug.close()
         tf = rospy.get_time()-self.begin_sim
         for i in range(self.n_obst):
             self.traj[i] = np.array(self.traj[i])
@@ -237,12 +237,11 @@ class Referee(object) :
                 self.traj[i][:,k+1] = sgf(self.traj[i][:,k+1],w,d)
                 vel[:,k] = np.gradient(self.traj[i][:,k+1], self.traj[i][:,0])
                 vel[:,k] = sgf(vel[:,k],w,d-1)
-                acc[:,k] = np.gradient(vel[:,k], vel[:,0])
+                acc[:,k] = np.gradient(vel[:,k], self.traj[i][:,0])
                 acc[:,k] = sgf(acc[:,k],w,d-2)
             a = np.linalg.norm(acc,axis = 1)
             for k in range(4): #weight type
-                weight = att((self.tcpa[i] -self.traj[i][:,0])/self.t1,k)
-                print(weight)
+                weight = att((np.abs(self.tcpa[i] -self.traj[i][:,0]))/self.t1,k)
                 weight = np.sqrt(weight/np.sum(weight))
                 self.security[i][4+k] = np.linalg.norm(a*weight)
             self.security[i,0] = tf
@@ -260,10 +259,10 @@ class Referee(object) :
             print(f'     --> security = {self.security[i]}')
 
             if (self.opus <= 1) :
-                f.write('OPUS    TIME   LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_INV   ANTICIPATION_OFF    ANTICIPATION_LIN    ANTICIPATION_EXP    DCPA    CROSSING_DIST\n')
+                f.write('OPUS    TIME    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_INV    ANTICIPATION_OFF    ANTICIPATION_LIN    ANTICIPATION_EXP    DCPA    CROSSING_DIST\n')
             f.write(f'{self.opus}')
             for sec_indic in range(len(self.security[0])) :
-                f.write(f'\t{np.max(self.security[:,sec_indic])}')
+                f.write(f'    {np.max(self.security[:,sec_indic])}')
         f.write(f'\n')
         f.close()
         print(f'Output logged in {self.output}')
@@ -288,7 +287,7 @@ class Referee(object) :
 
                 else:
                     self.bcpa[i] = False
-                    self.debug.close()
+                    #self.debug.close()
 
                 self.cpa_publisher.publish(self.cpa)
                 self.cpa2_publisher.publish(self.cpa2)
@@ -316,6 +315,7 @@ class Referee(object) :
         for i in range(self.n_obst) :
             rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])
             cpa = rot((self.obst_states[i,2:4]-self.odom[2:4])/rvel,np.pi/2)
+            self.r_offset = dist[i]/4
             if np.dot(cpa,rot(self.odom[2:4],np.pi/2))>0 :
                 cpa = -cpa
             if self.obst_prior[i] == "g":
@@ -347,6 +347,8 @@ class Referee(object) :
             self.obst_off_publisher.publish(self.obst_off_marker)
 
             offd[i]= min(max(0,np.linalg.norm(asv_off-obst_off)-self.size-self.obst_states[i,5]),
+                         max(0,np.linalg.norm(self.odom[:2]-obst_off)-self.size-self.obst_states[i,5]),
+                         max(0,np.linalg.norm(asv_off-self.obst_states[i,:2])-self.size-self.obst_states[i,5]),
                          dist[i])
                         
         secu = np.zeros((self.n_obst,4))
@@ -373,16 +375,17 @@ class Referee(object) :
 
 #utils
 def att(x,option) :
-    #if x == 0.:
-    #    return 1
-    if option == 0:
-        return np.minimum(1,1/x)
-    if option == 1:
-        return 1/(1+x)
-    if option == 2:
-        return np.maximum(1-x,0)
-    if option == 3:
-        return np.exp(-x)
+    try:
+        if option == 0:
+            return np.minimum(1,1/x)
+        if option == 1:
+            return 1/(1+x)
+        if option == 2:
+            return np.maximum(1-x,0)
+        if option == 3:
+            return np.exp(-x)
+    except ZeroDivisionError:
+        pass
 
 def rot(u,phi):
     v = np.zeros(2)

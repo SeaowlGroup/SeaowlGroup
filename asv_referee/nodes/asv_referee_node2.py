@@ -50,7 +50,7 @@ class Referee(object) :
         self.bcpa = []
         self.cross = []
         self.security = []        #indicateurs de sécurité pour chaque obstacle
-        self.t0 = 8               #temps de sécurité en s
+        self.t0 = 4.              #temps de sécurité en s
         self.d0 = 1/100           #distance minimale
         self.t1 = 10              #temps de manoeuvre
         self.r_offset = 5.        #offset pour COLREG
@@ -354,7 +354,7 @@ class Referee(object) :
         secu = np.zeros((self.n_obst,4))
         secu[:,0] = dist                                                  #distance
         secu[:,1] = 2.+np.log(self.t0*rvel*att(dist/self.d0,0)/self.d0)   #indicateur logarithmique de collision
-        secu[:,2] = self.t0*rvel*att(dist/self.d0,0) /self.d0             #indicateur naturel de collision 
+        secu[:,2] = np.exp(2)*self.t0*rvel*att(dist/self.d0,0) /self.d0   #indicateur naturel de collision 
         secu[:,3] = 2.+np.log(self.t0*rvel*att(offd/self.d0,0)/self.d0)   #indicateur logarithmique de collision avec offset
 
         return secu

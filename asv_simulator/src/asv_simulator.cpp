@@ -215,9 +215,9 @@ void Vessel::updateSystem(double u_d, double psi_d, double r_d)
   tau_waves[2] = wave_filter_psi.updateFilter();
 
   // Integrate system
-  //eta += DT * (rot_z * nu);
-  //nu  += DT * (Minv * (tau + tau_const_disturbance + tau_waves - Cvv - Dvv));
-  this->rk4();
+  eta += DT * (rot_z * nu);
+  nu  += DT * (Minv * (tau + tau_const_disturbance + tau_waves - Cvv - Dvv));
+  // this->rk4();
   // Keep yaw within [-PI,PI)
   eta[2] = normalize_angle(eta[2]);
 

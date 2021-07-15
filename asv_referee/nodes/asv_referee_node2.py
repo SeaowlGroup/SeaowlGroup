@@ -6,6 +6,8 @@ from nav_msgs.msg import Odometry
 from std_msgs.msg import Empty
 from asv_msgs.msg import StateArray
 from visualization_msgs.msg import Marker
+import matplotlib.pyplot as plt
+from scipy.signal import savgol_filter as sgf
 
 import time
 
@@ -40,21 +42,26 @@ class Referee(object) :
         self.cpa_publisher = rospy.Publisher("/cpa", Marker, queue_size=10, latch=True)
         self.cpa2_publisher = rospy.Publisher("/cpa2", Marker, queue_size=10, latch=True)
 
-        self.odom = np.zeros(7)
+        self.odom = []
         self.n_obst = -1
         self.obst_states = []
         self.dcpa = []
         self.tcpa = []
+        self.bcpa = []
+        self.cross = []
         self.security = []        #indicateurs de sécurité pour chaque obstacle
-        self.t0 = 30              #temps de sécurité en s
-        self.d0 = 200             #distance de manoeuvre
+        self.t0 = 4.              #temps de sécurité en s
+        self.d0 = 1/100           #distance minimale
+        self.t1 = 10              #temps de manoeuvre
         self.r_offset = 5.        #offset pour COLREG
         self.size = 8.            #asv size radius
         self.output = output
         self.opus = op
         self.finished = finished  #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
-        self.cross = []
+        self.side = []
         self.obst_prior = []
+        #self.debug = open(f'/home/adrien/catkin_ws/src/seaowl/asv_system/debug.txt','w')
+        self.traj = []
 
         self.cpa = Marker()
         self.cpa.header.frame_id = "map"
@@ -150,38 +157,64 @@ class Referee(object) :
         self.obst_off_marker.lifetime = rospy.Duration(0.)
 
     def _odom_callback(self, data):
-        t = rospy.Time.to_sec(data.header.stamp)
-        x = self.odom[0]
-        y = self.odom[1]
-        vx = self.odom[2]
-        vy = self.odom[3]
-        self.odom[0] = data.pose.pose.position.x
-        self.odom[1] = data.pose.pose.position.y
-        self.odom[2] = (self.odom[0]-x)/(t-self.odom[6])
-        self.odom[3] = (self.odom[1]-y)/(t-self.odom[6])
-        self.odom[4] = (self.odom[2]-vx)/(t-self.odom[6])
-        self.odom[5] = (self.odom[3]-vy)/(t-self.odom[6])
-        self.odom[6] = t
+        if len(self.odom) == 0:
+            self.odom = np.zeros(7)
+            t = rospy.get_time()-self.begin_sim
+            self.odom[0] = data.pose.pose.position.x
+            self.odom[1] = data.pose.pose.position.y
+            self.odom[4] = t
+        elif (self.odom[2] == 0. and self.odom[3] == 0.) : 
+            t = rospy.get_time()-self.begin_sim
+            x = self.odom[0]
+            y = self.odom[1]
+            vx = self.odom[2]    
+            vy = self.odom[3]
+            self.odom[0] = data.pose.pose.position.x
+            self.odom[1] = data.pose.pose.position.y
+            self.odom[2] = (self.odom[0]-x)/(t-self.odom[4])
+            self.odom[3] = (self.odom[1]-y)/(t-self.odom[4])
+            self.odom[4] = t
+        else:
+            t = rospy.get_time()-self.begin_sim
+            x = self.odom[0]
+            y = self.odom[1]
+            vx = self.odom[2]    
+            vy = self.odom[3]
+            self.odom[0] = data.pose.pose.position.x
+            self.odom[1] = data.pose.pose.position.y
+            self.odom[2] = (self.odom[0]-x)/(t-self.odom[4])
+            self.odom[3] = (self.odom[1]-y)/(t-self.odom[4])
+            self.odom[5] = (self.odom[2]-vx)/(t-self.odom[4])
+            self.odom[6] = (self.odom[3]-vy)/(t-self.odom[4])
+            self.odom[4] = t
+            if self.n_obst > -1:
+                for i in range(self.n_obst):
+                    if (self.bcpa[i]):
+                        #self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\t{self.odom[2]}\t{self.odom[3]}\t{self.odom[5]}\t{self.odom[6]}\n')
+                        self.traj[i].append(np.array([t,self.odom[0],self.odom[1]]))
 
     def _obst_callback(self, data):
         if (self.n_obst == -1) :
             self.n_obst = len(data.states)
             self.dcpa = np.ones(self.n_obst)*sys.float_info.max
             self.tcpa = np.zeros(self.n_obst)
+            self.cross = np.array(self.n_obst*[-1])
             self.obst_states = np.zeros((self.n_obst, 6))
             self.security = np.zeros((self.n_obst,10))
-            self.security[:,9] = np.array(self.n_obst*[-1.])
-            self.cross = np.zeros(self.n_obst)
+            self.side = np.zeros(self.n_obst)
             self.obst_prior = np.array(self.n_obst*[""])
+            self.traj = self.n_obst*[[]]
+            self.bcpa = np.ones((self.n_obst),dtype=bool)
             for i in range(self.n_obst):
                 self.obst_states[i,5] = data.states[i].header.radius
+                self.obst_prior[i] = data.states[i].header.prior
+                self.traj[i] = []
 
         for i in range(self.n_obst) :
             self.obst_states[i, 0] = data.states[i].x
             self.obst_states[i, 1] = data.states[i].y
             self.obst_states[i, 2] = data.states[i].u*np.cos(data.states[i].psi)
-            self.obst_states[i, 3] = data.states[i].u*np.sin(data.states[i].psi)
-            self.obst_prior[i] = data.states[i].header.prior
+            self.obst_states[i, 3] = data.states[i].u*np.sin(data.states[i].psi)            
 
     def _start_callback(self, data):
         if (not self.start):
@@ -191,13 +224,33 @@ class Referee(object) :
             print("---------------------BEGINNING OF THE SIMULATION---------------------")
 
     def _finish_callback(self, data) :
-        for k in range(4):
-            self.security[:,4+k] = np.sqrt(self.security[:,4+k]/self.obst_states[:,4])
-        self.security[:,0] = time.time() -self.begin_wall
+        #self.debug.close()
+        tf = rospy.get_time()-self.begin_sim
+        for i in range(self.n_obst):
+            self.traj[i] = np.array(self.traj[i])
+            w = 11
+            d = 2
+            N = len(self.traj[i])
+            vel = np.zeros((N,2))
+            acc = np.zeros((N,2))
+            for k in range(2): #coordinates
+                self.traj[i][:,k+1] = sgf(self.traj[i][:,k+1],w,d)
+                vel[:,k] = np.gradient(self.traj[i][:,k+1], self.traj[i][:,0])
+                vel[:,k] = sgf(vel[:,k],w,d-1)
+                acc[:,k] = np.gradient(vel[:,k], self.traj[i][:,0])
+                acc[:,k] = sgf(acc[:,k],w,d-2)
+            a = np.linalg.norm(acc,axis = 1)
+            for k in range(4): #weight type
+                weight = att((np.abs(self.tcpa[i] -self.traj[i][:,0]))/self.t1,k)
+                weight = np.sqrt(weight/np.sum(weight))
+                self.security[i][4+k] = np.linalg.norm(a*weight)
+            self.security[i,0] = tf
+            self.security[i,8] = self.dcpa[i]
+            self.security[i,9] = self.cross[i]
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
-        print(f'Duration of the simulation (simulation time): {rospy.get_time()-self.begin_sim} s')
+        print(f'Duration of the simulation (simulation time): {tf} s')
         print(f'Number of ships : {self.n_obst}')
         for i in range(self.n_obst) :
             print(f'Ship {i+1}')
@@ -206,7 +259,7 @@ class Referee(object) :
             print(f'     --> security = {self.security[i]}')
 
             if (self.opus <= 1) :
-                f.write('OPUS    TIME   LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_INV   ANTICIPATION_OFF    ANTICIPATION_LIN    ANTICIPATION_EXP    DCPA    CROSSING_DIST\n')
+                f.write('OPUS    TIME    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_INV    ANTICIPATION_OFF    ANTICIPATION_LIN    ANTICIPATION_EXP    DCPA    CROSSING_DIST\n')
             f.write(f'{self.opus}')
             for sec_indic in range(len(self.security[0])) :
                 f.write(f'    {np.max(self.security[:,sec_indic])}')
@@ -214,36 +267,36 @@ class Referee(object) :
         f.close()
         print(f'Output logged in {self.output}')
         print("---------------------------------------------------------------")
-        #Other indic : linear speed of the obstacle/asv scalar the vector between the two poses
-        #write in an extern file
         if self.finished == 1 :
             self.finished = 2
 
     def _update(self):
         if (self.n_obst > -1) :
-            d = self.ob_dist()
             secu = self.ob_secu()
             for i in range(self.n_obst) :
                 for j in range(1,4):
                     self.security[i, j] = max(self.security[i, j],secu[i,j])
-                if (d[i] < self.dcpa[i]) :
-                    self.dcpa[i] = d[i]
+                if (secu[i,0] <= self.dcpa[i]) :
+                    self.dcpa[i] = secu[i,0]
                     self.tcpa[i] = rospy.get_time() - self.begin_sim
-                    self.obst_states[i,4] += 1
-                    for k in range(4) :
-                        self.security[i,4+k] += secu[i,4+k]**2
-                    self.security[i,8] = d[i]
+
                     self.cpa.pose.position.x = self.odom[0]
                     self.cpa.pose.position.y = self.odom[1]
                     self.cpa2.pose.position.x = self.obst_states[i,0]
                     self.cpa2.pose.position.y = self.obst_states[i,1]
+
+                else:
+                    self.bcpa[i] = False
+                    #self.debug.close()
+
                 self.cpa_publisher.publish(self.cpa)
                 self.cpa2_publisher.publish(self.cpa2)
+
                 side = np.dot(self.odom[0:2]-self.obst_states[i,0:2],rot(self.obst_states[i,2:4],np.pi/2))
                 front  = np.dot(self.odom[0:2]-self.obst_states[i,0:2],self.obst_states[i,2:4])
-                if (side*self.cross[i] < 0 and front > 0) :
-                    self.security[i,9] = d[i]
-                self.cross[i] = side
+                if (side*self.side[i] < 0 and front > 0) :
+                    self.cross[i] = secu[i,0]
+                self.side[i] = side
 
 
 
@@ -256,35 +309,35 @@ class Referee(object) :
 
     def ob_secu(self) :
         dist = self.ob_dist()
-        rvel = np.zeros(self.n_obst)            #relative velocity
-        acc = np.linalg.norm(self.odom[4:6])    #asv acceleration
-        offd = np.zeros(self.n_obst)            #distance avec offset
+        rvel = np.zeros(self.n_obst)    #relative velocity
+        offd = np.zeros(self.n_obst)    #distance avec offset
 
         for i in range(self.n_obst) :
             rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])
             cpa = rot((self.obst_states[i,2:4]-self.odom[2:4])/rvel,np.pi/2)
+            self.r_offset = dist[i]/4
             if np.dot(cpa,rot(self.odom[2:4],np.pi/2))>0 :
                 cpa = -cpa
             if self.obst_prior[i] == "g":
                 if np.dot(cpa,self.odom[2:4]) < 0:
                     cpa = -cpa 
-                asv_off = self.odom[:2]+self.r_offset*cpa   #off before asv
+                asv_off = self.odom[:2]+self.r_offset*cpa                          #off before asv
                 obst_off = self.obst_states[i,:2]-self.r_offset*cpa  
             elif self.obst_prior[i] == "s":
                 if np.dot(cpa,self.odom[2:4]) > 0:
                     cpa = -cpa
-                asv_off = self.odom[:2]+self.r_offset*cpa   #off behind asv 
+                asv_off = self.odom[:2]+self.r_offset*cpa                          #off behind asv 
                 obst_off = self.obst_states[i,:2]-self.r_offset*cpa  
             else:
                 if np.dot(self.obst_states[i,2:4],rot(self.odom[2:4],np.pi/2))>0 : #obst right of asv
                     if np.dot(cpa,self.odom[2:4]) > 0:
                         cpa = -cpa
-                    asv_off = self.odom[:2]+self.r_offset*cpa   #off behind asv 
+                    asv_off = self.odom[:2]+self.r_offset*cpa                      #off behind asv 
                     obst_off = self.obst_states[i,:2]-self.r_offset*cpa
-                else : #obst left of asv
+                else :                                                             #obst left of asv
                     if np.dot(cpa,self.odom[2:4]) < 0:
                         cpa = -cpa
-                    asv_off = self.odom[:2]+self.r_offset*cpa   #off before asv 
+                    asv_off = self.odom[:2]+self.r_offset*cpa                      #off before asv 
                     obst_off = self.obst_states[i,:2]-self.r_offset*cpa
             self.asv_off_marker.pose.position.x = asv_off[0]
             self.asv_off_marker.pose.position.y = asv_off[1]
@@ -293,25 +346,17 @@ class Referee(object) :
             self.obst_off_marker.pose.position.y = obst_off[1]
             self.obst_off_publisher.publish(self.obst_off_marker)
 
-            offd[i]= min(max(0,np.linalg.norm(asv_off-obst_off)-self.size-self.obst_states[i,5]), dist[i])
-        secu = np.zeros((self.n_obst,8))
-        secu[:,0] = 0
-        if dist == 0:
-            secu[:,1] = 10              #indicateur logarithmique de collision
-            secu[:,2] = 250             #indicateur naturel de collision
-            secu[:,4] = 30
-        else:
-            secu[:,1] = np.minimum(10, np.log(self.t0*rvel/dist))    #indicateur logarithmique de collision
-            secu[:,2] = np.minimum(250, self.t0*rvel/dist)           #indicateur naturel de collision
-            secu[:,4] = np.minimum(30, acc*self.dist_att(dist,0))
-        if offd == 0:
-            secu[:,3] = 10
-        else:
-            secu[:,3] = np.minimum(10, np.log(self.t0*rvel/offd))
+            offd[i]= min(max(0,np.linalg.norm(asv_off-obst_off)-self.size-self.obst_states[i,5]),
+                         max(0,np.linalg.norm(self.odom[:2]-obst_off)-self.size-self.obst_states[i,5]),
+                         max(0,np.linalg.norm(asv_off-self.obst_states[i,:2])-self.size-self.obst_states[i,5]),
+                         dist[i])
+                        
+        secu = np.zeros((self.n_obst,4))
+        secu[:,0] = dist                                                  #distance
+        secu[:,1] = 2.+np.log(self.t0*rvel*att(dist/self.d0,0)/self.d0)   #indicateur logarithmique de collision
+        secu[:,2] = np.exp(2)*self.t0*rvel*att(dist/self.d0,0) /self.d0   #indicateur naturel de collision 
+        secu[:,3] = 2.+np.log(self.t0*rvel*att(offd/self.d0,0)/self.d0)   #indicateur logarithmique de collision avec offset
 
-        secu[:,5] = acc*self.dist_att(dist,1)
-        secu[:,6] = acc*self.dist_att(dist,2)
-        secu[:,7] = acc*self.dist_att(dist,3)
         return secu
 
 
@@ -327,15 +372,20 @@ class Referee(object) :
                 raise
         rospy.signal_shutdown("End of the simulation")
 
-    def dist_att(self,d,option) :
+
+#utils
+def att(x,option) :
+    try:
         if option == 0:
-            return self.d0/d
+            return np.minimum(1,1/x)
         if option == 1:
-            return 1/(1+d/self.d0)
+            return 1/(1+x)
         if option == 2:
-            return (1-d/self.d0+np.abs(1-d/self.d0))/2
+            return np.maximum(1-x,0)
         if option == 3:
-            return np.exp(-d/self.d0)
+            return np.exp(-x)
+    except ZeroDivisionError:
+        pass
 
 def rot(u,phi):
     v = np.zeros(2)

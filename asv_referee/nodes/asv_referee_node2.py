@@ -19,7 +19,7 @@ class Referee(object) :
                  output='/home/adrien/catkin/src/seaowl/asv_system/output',
                  op='0') :
 
-        self.debug = False
+        self.debugBool = False
         self.begin_wall = 0.
         self.begin_sim = 0.
         self.start = False
@@ -61,7 +61,7 @@ class Referee(object) :
         self.finished = finished  #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
         self.side = []
         self.obst_prior = []
-        if self.debug:
+        if self.debugBool:
             self.debug = open(f'/home/adrien/catkin_ws/src/seaowl/asv_system/debug.txt','w')
         self.traj = []
 
@@ -193,7 +193,7 @@ class Referee(object) :
                 for i in range(self.n_obst):
                     if (self.bcpa[i]):
                         self.traj[i].append(np.array([t,self.odom[0],self.odom[1]]))
-                        if self.debug:
+                        if self.debugBool:
                             self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\t{self.odom[2]}\n')
 
         #print(f'uAsv = {np.linalg.norm(np.array([data.twist.twist.linear.x,data.twist.twist.linear.y]))}')
@@ -228,7 +228,7 @@ class Referee(object) :
             print("---------------------BEGINNING OF THE SIMULATION---------------------")
 
     def _finish_callback(self, data) :
-        if self.debug:
+        if self.debugBool:
             self.debug.close()
         tf = rospy.get_time()-self.begin_sim
         for i in range(self.n_obst):
@@ -292,7 +292,8 @@ class Referee(object) :
 
                 else:
                     self.bcpa[i] = False
-                    self.debug.close()
+                    if self.debugBool:
+                        self.debug.close()
 
                 self.cpa_publisher.publish(self.cpa)
                 self.cpa2_publisher.publish(self.cpa2)

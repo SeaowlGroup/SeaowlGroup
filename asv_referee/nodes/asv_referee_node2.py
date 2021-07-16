@@ -292,7 +292,8 @@ class Referee(object) :
 
                 else:
                     self.bcpa[i] = False
-                    self.debug.close()
+                    if self.debug:
+                        self.debug.close()
 
                 self.cpa_publisher.publish(self.cpa)
                 self.cpa2_publisher.publish(self.cpa2)

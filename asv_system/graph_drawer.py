@@ -13,7 +13,7 @@ def clear_frame(frame):
 
 class Fig(object):
 
-    def __init__(self, serial='survivor6', n_groups=5):
+    def __init__(self, serial='survivor7', n_groups=5):
         rospack = rospkg.RosPack()
         self.input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
         self.output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
@@ -75,6 +75,7 @@ class Fig(object):
 
         for line in f1:
             content = line.split()
+            #if (float(content[2]) > 1.5):
             x.append(float(content[self.i]))
         for line in f2:
             content = line.split()
@@ -93,11 +94,11 @@ class Fig(object):
         n = min(len(x), len(y))
 
         for p in range(n):
-            #if p!=13 and markers[p]!='o':
+            #if p!=0 :
             if y[p] < self.cutoff and self.disp_groups[self.groups[p]-1]:
                 if (self.disp_lp[0] and self.markers[p]=='o') or (self.disp_lp[1] and self.markers[p]=='v'):
-                    if self.j == 10 and content[10] < 0:
-                        ax.plot(x[p], y[p], marker=self.markers[p], color='black', label=self.labels[p])
+                    if self.j == 10 and y[p] < 0:
+                        ax.plot(x[p], y[p], marker=self.markers[p], color='white', mec='black')
                     else:
                         ax.plot(x[p], y[p], marker=self.markers[p], color=self.colors[p], label=self.labels[p])
                     if self.annotate:
@@ -113,8 +114,8 @@ class Fig(object):
             x0, y0, width, height = ax.dataLim.bounds
             ymin, ymax = ax.get_ylim()
             lim = height*2.0/(ymax-ymin)
-            rect_g = Rectangle((x0,y0), width, 2.0-y0, edgecolor='green', facecolor='lightgreen')
-            rect_r = Rectangle((x0,y0), width, height, edgecolor='red', facecolor='tomato')
+            rect_g = Rectangle((x0,y0), width, 2.0-y0, edgecolor='green', facecolor='lightgreen', alpha=0.7)
+            rect_r = Rectangle((x0,y0), width, height, edgecolor='red', facecolor='tomato', alpha=0.5)
             # x0, y0, width, height = ax.viewLim.bounds
             # print(ax.viewLim.bounds)
             # ymin, ymax = ax.get_ylim()
@@ -133,6 +134,7 @@ class Fig(object):
 if __name__ == "__main__":
     aux_frame = tk.Tk()
     graph_fig = Fig()
+    aux_frame.title(graph_fig.output)
 
     graph_frame = tk.Frame(aux_frame, bg='white')
     graph_frame.grid(rowspan=2, column=1)

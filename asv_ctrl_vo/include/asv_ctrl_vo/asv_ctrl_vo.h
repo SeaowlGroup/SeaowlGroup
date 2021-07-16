@@ -95,7 +95,7 @@ class VelocityObstacle
   std::vector<colregs_t> state_list_;
 
   const double RADIUS_;
-  const double MAX_VEL_;
+  double MAX_VEL_;
   const double MAX_ANG_;
   const double MIN_DIST_;
 
@@ -110,7 +110,7 @@ class VelocityObstacle
 
   Eigen::Vector3d asv_pose_;
   Eigen::Vector3d asv_twist_;
-  double u_d_;
+  double u_d_=-1.0;
   double psi_d_;
 
 

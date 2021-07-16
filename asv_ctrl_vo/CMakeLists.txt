@@ -88,7 +88,7 @@ add_executable(asv_ctrl_vo_node src/asv_ctrl_vo_node.cpp src/asv_ctrl_vo.cpp)
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 #add_dependencies(asv_ctrl_vo_node asv_ctrl_vo_node asv_ctrl_vo_generate_messages_cpp)
-add_dependencies(asv_ctrl_vo_node asv_ctrl_vo_node)
+add_dependencies(asv_ctrl_vo_node asv_ctrl_vo_node ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(asv_ctrl_vo_node

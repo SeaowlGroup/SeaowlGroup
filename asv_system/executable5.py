@@ -267,6 +267,7 @@ class Scenario(object):
         # Creation of the launch files
         cli_args0 = ['asv_system', 'main_launch2.launch',
                      f'initial_state:={initial_state_asv}',
+        #             f'use_sim_time:=True',
                      f'waypoints:={waypoints_asv}',
                      f'u_d:={self.u_d_asv}',
                      f'use_vo:={self.lp}',

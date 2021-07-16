@@ -139,7 +139,7 @@ void VelocityObstacle::updateVelocityGrid()
     Eigen::Vector3d obstacle_pose = Eigen::Vector3d(it->x, it->y, it->psi);
     Eigen::Vector3d obstacle_twist = Eigen::Vector3d(it->u, it->v, it->r);
 
-    double combined_radius = RADIUS_ + it->header.radius;
+    double combined_radius = RADIUS_*(obstacle_twist[0]+asv_twist_[0]-1.0) + it->header.radius;
 
     Eigen::Vector2d vb;
     rot2d(obstacle_twist.head(2), obstacle_pose[2], vb);

@@ -163,11 +163,11 @@ class Referee(object) :
             self.odom[0] = data.pose.pose.position.x
             self.odom[1] = data.pose.pose.position.y
             self.odom[4] = t
-        elif (self.odom[2] == 0. and self.odom[3] == 0.) : 
+        elif (self.odom[2] == 0. and self.odom[3] == 0.) :
             t = rospy.get_time()-self.begin_sim
             x = self.odom[0]
             y = self.odom[1]
-            vx = self.odom[2]    
+            vx = self.odom[2]
             vy = self.odom[3]
             self.odom[0] = data.pose.pose.position.x
             self.odom[1] = data.pose.pose.position.y
@@ -178,7 +178,7 @@ class Referee(object) :
             t = rospy.get_time()-self.begin_sim
             x = self.odom[0]
             y = self.odom[1]
-            vx = self.odom[2]    
+            vx = self.odom[2]
             vy = self.odom[3]
             self.odom[0] = data.pose.pose.position.x
             self.odom[1] = data.pose.pose.position.y
@@ -214,7 +214,7 @@ class Referee(object) :
             self.obst_states[i, 0] = data.states[i].x
             self.obst_states[i, 1] = data.states[i].y
             self.obst_states[i, 2] = data.states[i].u*np.cos(data.states[i].psi)
-            self.obst_states[i, 3] = data.states[i].u*np.sin(data.states[i].psi)            
+            self.obst_states[i, 3] = data.states[i].u*np.sin(data.states[i].psi)
 
     def _start_callback(self, data):
         if (not self.start):
@@ -320,24 +320,24 @@ class Referee(object) :
                 cpa = -cpa
             if self.obst_prior[i] == "g":
                 if np.dot(cpa,self.odom[2:4]) < 0:
-                    cpa = -cpa 
+                    cpa = -cpa
                 asv_off = self.odom[:2]+self.r_offset*cpa                          #off before asv
-                obst_off = self.obst_states[i,:2]-self.r_offset*cpa  
+                obst_off = self.obst_states[i,:2]-self.r_offset*cpa
             elif self.obst_prior[i] == "s":
                 if np.dot(cpa,self.odom[2:4]) > 0:
                     cpa = -cpa
-                asv_off = self.odom[:2]+self.r_offset*cpa                          #off behind asv 
-                obst_off = self.obst_states[i,:2]-self.r_offset*cpa  
+                asv_off = self.odom[:2]+self.r_offset*cpa                          #off behind asv
+                obst_off = self.obst_states[i,:2]-self.r_offset*cpa
             else:
                 if np.dot(self.obst_states[i,2:4],rot(self.odom[2:4],np.pi/2))>0 : #obst right of asv
                     if np.dot(cpa,self.odom[2:4]) > 0:
                         cpa = -cpa
-                    asv_off = self.odom[:2]+self.r_offset*cpa                      #off behind asv 
+                    asv_off = self.odom[:2]+self.r_offset*cpa                      #off behind asv
                     obst_off = self.obst_states[i,:2]-self.r_offset*cpa
                 else :                                                             #obst left of asv
                     if np.dot(cpa,self.odom[2:4]) < 0:
                         cpa = -cpa
-                    asv_off = self.odom[:2]+self.r_offset*cpa                      #off before asv 
+                    asv_off = self.odom[:2]+self.r_offset*cpa                      #off before asv
                     obst_off = self.obst_states[i,:2]-self.r_offset*cpa
             self.asv_off_marker.pose.position.x = asv_off[0]
             self.asv_off_marker.pose.position.y = asv_off[1]
@@ -350,11 +350,11 @@ class Referee(object) :
                          max(0,np.linalg.norm(self.odom[:2]-obst_off)-self.size-self.obst_states[i,5]),
                          max(0,np.linalg.norm(asv_off-self.obst_states[i,:2])-self.size-self.obst_states[i,5]),
                          dist[i])
-                        
+
         secu = np.zeros((self.n_obst,4))
         secu[:,0] = dist                                                  #distance
         secu[:,1] = 2.+np.log(self.t0*rvel*att(dist/self.d0,0)/self.d0)   #indicateur logarithmique de collision
-        secu[:,2] = np.exp(2)*self.t0*rvel*att(dist/self.d0,0) /self.d0   #indicateur naturel de collision 
+        secu[:,2] = np.exp(2)*self.t0*rvel*att(dist/self.d0,0) /self.d0   #indicateur naturel de collision
         secu[:,3] = 2.+np.log(self.t0*rvel*att(offd/self.d0,0)/self.d0)   #indicateur logarithmique de collision avec offset
 
         return secu

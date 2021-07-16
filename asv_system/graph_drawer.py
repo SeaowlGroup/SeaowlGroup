@@ -13,7 +13,7 @@ def clear_frame(frame):
 
 class Fig(object):
 
-    def __init__(self, serial='survivor5', n_groups=5):
+    def __init__(self, serial='survivor6', n_groups=5):
         rospack = rospkg.RosPack()
         self.input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
         self.output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"

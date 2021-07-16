@@ -7,7 +7,7 @@ import datetime
 import pandas as pd
 
 def run(serial, input_file) :
-    df = pd.read_excel('param.xlsx',header=0)
+    df = pd.read_excel('param2.xlsx',header=0)
     param = df.to_numpy()
 
     # UUID

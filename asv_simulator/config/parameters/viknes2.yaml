@@ -12,14 +12,14 @@ N_vdot: 0.0
 N_rdot: 0.0
 
 # Linear damping terms [X_u, Y_v, Y_r, N_v, N_r]
-X_u: -16.6
+X_u: 0. #-16.6
 Y_v: -9900.0
 Y_r: 0.0
 N_v: 0.0
 N_r: -330.0
 
 # Nonlinear damping terms [X_|u|u, Y_|v|v, N_|r|r, X_uuu, Y_vvv, N_rrr]
-X_uu:  -8.25
+X_uu:  0 #-8.25
 Y_vv: 330.0
 N_rr:   0.0
 X_uuu:  0.0

@@ -19,7 +19,7 @@ class Referee(object) :
                  output='/home/adrien/catkin/src/seaowl/asv_system/output',
                  op='0') :
 
-        self.debug = True
+        self.debug = False
         self.begin_wall = 0.
         self.begin_sim = 0.
         self.start = False
@@ -196,7 +196,7 @@ class Referee(object) :
                         if self.debug:
                             self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\t{self.odom[2]}\n')
 
-        print(f'uAsv = {np.linalg.norm(np.array([data.twist.twist.linear.x,data.twist.twist.linear.y]))}')
+        #print(f'uAsv = {np.linalg.norm(np.array([data.twist.twist.linear.x,data.twist.twist.linear.y]))}')
     def _obst_callback(self, data):
         if (self.n_obst == -1) :
             self.n_obst = len(data.states)

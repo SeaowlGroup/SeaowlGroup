@@ -19,6 +19,7 @@ class Referee(object) :
                  output='/home/adrien/catkin/src/seaowl/asv_system/output',
                  op='0') :
 
+        self.debug = False
         self.begin_wall = 0.
         self.begin_sim = 0.
         self.start = False
@@ -60,7 +61,8 @@ class Referee(object) :
         self.finished = finished  #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
         self.side = []
         self.obst_prior = []
-        #self.debug = open(f'/home/adrien/catkin_ws/src/seaowl/asv_system/debug.txt','w')
+        if self.debug:
+            self.debug = open(f'/home/adrien/catkin_ws/src/seaowl/asv_system/debug.txt','w')
         self.traj = []
 
         self.cpa = Marker()
@@ -190,9 +192,11 @@ class Referee(object) :
             if self.n_obst > -1:
                 for i in range(self.n_obst):
                     if (self.bcpa[i]):
-                        #self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\t{self.odom[2]}\t{self.odom[3]}\t{self.odom[5]}\t{self.odom[6]}\n')
                         self.traj[i].append(np.array([t,self.odom[0],self.odom[1]]))
+                        if self.debug:
+                            self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\t{self.odom[2]}\n')
 
+        #print(f'uAsv = {np.linalg.norm(np.array([data.twist.twist.linear.x,data.twist.twist.linear.y]))}')
     def _obst_callback(self, data):
         if (self.n_obst == -1) :
             self.n_obst = len(data.states)
@@ -224,7 +228,8 @@ class Referee(object) :
             print("---------------------BEGINNING OF THE SIMULATION---------------------")
 
     def _finish_callback(self, data) :
-        #self.debug.close()
+        if self.debug:
+            self.debug.close()
         tf = rospy.get_time()-self.begin_sim
         for i in range(self.n_obst):
             self.traj[i] = np.array(self.traj[i])
@@ -287,7 +292,7 @@ class Referee(object) :
 
                 else:
                     self.bcpa[i] = False
-                    #self.debug.close()
+                    self.debug.close()
 
                 self.cpa_publisher.publish(self.cpa)
                 self.cpa2_publisher.publish(self.cpa2)

@@ -56,7 +56,7 @@ def run() :
                             print('=====================================')
                             print('size : ', size)
                             print('heading : ', h)
-                            print('u_d : ', u_d)
+                            print('u_d : ', u_d, u_d_asv)
                             print('dcpa : ', dcpa)
                             print('prior : ', type)
                             print('d_detec : ', d_detec)
@@ -79,7 +79,7 @@ def run() :
                                          f'Fy_current:={Fy_current}',
                                          f'there_are_waves:={there_are_waves}',
                                          f'use_vo:=True',
-                                         f'rviz:=False',
+                                         f'rviz:=True',
                                          f'opus:={opus}',
                                          f'output_file:=$(find asv_system)/output/{serial}.txt']
                             roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]

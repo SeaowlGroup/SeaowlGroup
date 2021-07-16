@@ -63,7 +63,7 @@ add_executable(asv_global_planner_node src/asv_global_planner_node.cpp src/asv_g
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 #add_dependencies(asv_global_planner_node asv_global_planner_node asv_global_planner_generate_messages_cpp)
-add_dependencies(asv_global_planner_node asv_global_planner_node)
+add_dependencies(asv_global_planner_node asv_global_planner_node ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(asv_global_planner_node

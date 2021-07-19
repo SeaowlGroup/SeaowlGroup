@@ -19,7 +19,7 @@ class Referee(object) :
                  output='/home/adrien/catkin/src/seaowl/asv_system/output',
                  op='0') :
 
-        self.debugBool = False
+        self.debugBool = False #if True prints the trajectory (t,x,y) of asv in debug.txt
         self.begin_wall = 0.
         self.begin_sim = 0.
         self.start = False
@@ -204,7 +204,7 @@ class Referee(object) :
             self.tcpa = np.zeros(self.n_obst)
             self.cross = np.array(self.n_obst*[-1])
             self.obst_states = np.zeros((self.n_obst, 6))
-            self.security = np.zeros((self.n_obst,9))
+            self.security = np.zeros((self.n_obst,14))
             self.side = np.zeros(self.n_obst)
             self.obst_prior = np.array(self.n_obst*[""])
             self.traj = self.n_obst*[[]]
@@ -214,7 +214,7 @@ class Referee(object) :
                 self.obst_prior[i] = data.states[i].header.prior
                 self.traj[i] = []
                 for j in range(1,4):
-                    self.secu[i,j] = -np.inf
+                    self.security[i,j] = -np.inf
 
         for i in range(self.n_obst) :
             self.obst_states[i, 0] = data.states[i].x
@@ -247,17 +247,21 @@ class Referee(object) :
                 acc[:,k] = np.gradient(vel[:,k], self.traj[i][:,0])
                 acc[:,k] = sgf(acc[:,k],w,d-2)
             v = np.linalg.norm(vel,axis = 1)
-            irr = np.zeros((N,3))
-            irr[:,0] = np.linalg.norm(acc,axis = 1)
-            irr[:,1] = (vel[:,0]*acc[:,1]-vel[:,1]*acc[:,0])/v**2
-            irr[:,2] = irr[:,1]/v
+            irr = np.zeros((N,3))                                   #irregularity indicator
+            irr[:,0] = np.linalg.norm(acc,axis = 1)                 #acceleration
+            irr[:,1] = (vel[:,0]*acc[:,1]-vel[:,1]*acc[:,0])/v**2   #angular velocity
+            irr[:,2] = irr[:,1]/v                                   #curvature radius
             weight = att((np.abs(self.tcpa[i] -self.traj[i][:,0]))/self.t1,3)
             weight = np.sqrt(weight/np.sum(weight))
             for k in range(3):
                 self.security[i][4+k] = np.linalg.norm(irr[:,k]*weight)
+                self.security[i,7+k] = self.security[i,1]+max(0,self.security[i,1])*self.security[i][4+k]
             self.security[i,0] = tf
-            self.security[i,7] = self.dcpa[i]
-            self.security[i,8] = self.cross[i]
+            self.security[i,10] = self.dcpa[i]
+            self.security[i,11] = self.cross[i]
+            weight = irr[:,0]**2/np.sum(irr[:,0]**2)
+            self.security[i,12] = np.dot(weight,(np.abs(self.tcpa[i] -self.traj[i][:,0])/self.t1))
+            self.security[i,13] = 1/self.security[i,2]+max(1/self.security[i,2]-1,0)*self.security[i,12]
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
@@ -270,7 +274,7 @@ class Referee(object) :
             print(f'     --> security = {self.security[i]}')
 
             if (self.opus <= 1) :
-                f.write('OPUS    TIME    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_ACC    ANTICIPATION_OMEGA    ANTICIPATION_R    DCPA    CROSSING_DIST\n')
+                f.write('OPUS    TIME    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_ACC    ANTICIPATION_OMEGA    ANTICIPATION_R    AGG_ACC    AGG_OMEGA    AGG_R    DCPA    CROSSING_DIST    ANT_TIME    AGG_TIME\n')
             f.write(f'{self.opus}')
             for sec_indic in range(len(self.security[0])) :
                 f.write(f'    {np.max(self.security[:,sec_indic])}')

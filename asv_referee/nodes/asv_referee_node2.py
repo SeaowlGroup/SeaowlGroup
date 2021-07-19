@@ -19,7 +19,7 @@ class Referee(object) :
                  output='/home/adrien/catkin/src/seaowl/asv_system/output',
                  op='0') :
 
-        self.debug = False
+        self.debugBool = False
         self.begin_wall = 0.
         self.begin_sim = 0.
         self.start = False
@@ -61,7 +61,7 @@ class Referee(object) :
         self.finished = finished  #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
         self.side = []
         self.obst_prior = []
-        if self.debug:
+        if self.debugBool:
             self.debug = open(f'/home/adrien/catkin_ws/src/seaowl/asv_system/debug.txt','w')
         self.traj = []
 
@@ -193,7 +193,7 @@ class Referee(object) :
                 for i in range(self.n_obst):
                     if (self.bcpa[i]):
                         self.traj[i].append(np.array([t,self.odom[0],self.odom[1]]))
-                        if self.debug:
+                        if self.debugBool:
                             self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\t{self.odom[2]}\n')
 
         #print(f'uAsv = {np.linalg.norm(np.array([data.twist.twist.linear.x,data.twist.twist.linear.y]))}')
@@ -204,7 +204,7 @@ class Referee(object) :
             self.tcpa = np.zeros(self.n_obst)
             self.cross = np.array(self.n_obst*[-1])
             self.obst_states = np.zeros((self.n_obst, 6))
-            self.security = np.zeros((self.n_obst,10))
+            self.security = np.zeros((self.n_obst,9))
             self.side = np.zeros(self.n_obst)
             self.obst_prior = np.array(self.n_obst*[""])
             self.traj = self.n_obst*[[]]
@@ -213,6 +213,8 @@ class Referee(object) :
                 self.obst_states[i,5] = data.states[i].header.radius
                 self.obst_prior[i] = data.states[i].header.prior
                 self.traj[i] = []
+                for j in range(1,4):
+                    self.secu[i,j] = -np.inf
 
         for i in range(self.n_obst) :
             self.obst_states[i, 0] = data.states[i].x
@@ -228,7 +230,7 @@ class Referee(object) :
             print("---------------------BEGINNING OF THE SIMULATION---------------------")
 
     def _finish_callback(self, data) :
-        if self.debug:
+        if self.debugBool:
             self.debug.close()
         tf = rospy.get_time()-self.begin_sim
         for i in range(self.n_obst):
@@ -244,14 +246,18 @@ class Referee(object) :
                 vel[:,k] = sgf(vel[:,k],w,d-1)
                 acc[:,k] = np.gradient(vel[:,k], self.traj[i][:,0])
                 acc[:,k] = sgf(acc[:,k],w,d-2)
-            a = np.linalg.norm(acc,axis = 1)
-            for k in range(4): #weight type
-                weight = att((np.abs(self.tcpa[i] -self.traj[i][:,0]))/self.t1,k)
-                weight = np.sqrt(weight/np.sum(weight))
-                self.security[i][4+k] = np.linalg.norm(a*weight)
+            v = np.linalg.norm(vel,axis = 1)
+            irr = np.zeros((N,3))
+            irr[:,0] = np.linalg.norm(acc,axis = 1)
+            irr[:,1] = (vel[:,0]*acc[:,1]-vel[:,1]*acc[:,0])/v**2
+            irr[:,2] = irr[:,1]/v
+            weight = att((np.abs(self.tcpa[i] -self.traj[i][:,0]))/self.t1,3)
+            weight = np.sqrt(weight/np.sum(weight))
+            for k in range(3):
+                self.security[i][4+k] = np.linalg.norm(irr[:,k]*weight)
             self.security[i,0] = tf
-            self.security[i,8] = self.dcpa[i]
-            self.security[i,9] = self.cross[i]
+            self.security[i,7] = self.dcpa[i]
+            self.security[i,8] = self.cross[i]
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
@@ -264,7 +270,7 @@ class Referee(object) :
             print(f'     --> security = {self.security[i]}')
 
             if (self.opus <= 1) :
-                f.write('OPUS    TIME    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_INV    ANTICIPATION_OFF    ANTICIPATION_LIN    ANTICIPATION_EXP    DCPA    CROSSING_DIST\n')
+                f.write('OPUS    TIME    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_ACC    ANTICIPATION_OMEGA    ANTICIPATION_R    DCPA    CROSSING_DIST\n')
             f.write(f'{self.opus}')
             for sec_indic in range(len(self.security[0])) :
                 f.write(f'    {np.max(self.security[:,sec_indic])}')
@@ -292,7 +298,11 @@ class Referee(object) :
 
                 else:
                     self.bcpa[i] = False
+<<<<<<< HEAD
                     if self.debug:
+=======
+                    if self.debugBool:
+>>>>>>> c4890e0682bf6990a1f0f5985bbcfa1e3bebe0a5
                         self.debug.close()
 
                 self.cpa_publisher.publish(self.cpa)
@@ -359,9 +369,9 @@ class Referee(object) :
 
         secu = np.zeros((self.n_obst,4))
         secu[:,0] = dist                                                  #distance
-        secu[:,1] = 2.+np.log(self.t0*rvel*att(dist/self.d0,0)/self.d0)   #indicateur logarithmique de collision
-        secu[:,2] = np.exp(2)*self.t0*rvel*att(dist/self.d0,0) /self.d0   #indicateur naturel de collision
-        secu[:,3] = 2.+np.log(self.t0*rvel*att(offd/self.d0,0)/self.d0)   #indicateur logarithmique de collision avec offset
+        secu[:,1] = np.log(self.t0*rvel*att(dist/self.d0,0)/self.d0)      #indicateur logarithmique de collision
+        secu[:,2] = self.t0*rvel*att(dist/self.d0,0) /self.d0             #indicateur naturel de collision
+        secu[:,3] = np.log(self.t0*rvel*att(offd/self.d0,0)/self.d0)      #indicateur logarithmique de collision avec offset
 
         return secu
 
@@ -387,9 +397,9 @@ def att(x,option) :
         if option == 1:
             return 1/(1+x)
         if option == 2:
-            return np.maximum(1-x,0)
-        if option == 3:
             return np.exp(-x)
+        if option == 3:
+            return np.maximum(1-x,0)
     except ZeroDivisionError:
         pass
 

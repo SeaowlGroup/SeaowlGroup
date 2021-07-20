@@ -19,29 +19,12 @@ class Referee(object) :
                  output='/home/adrien/catkin/src/seaowl/asv_system/output',
                  op='0') :
 
-        self.debugBool = False #if True prints the trajectory (t,x,y) of asv in debug.txt
+        self.debugBool = False   #if True prints the trajectory (t,x,y) of asv in debug.txt
+
         self.begin_wall = 0.
         self.begin_sim = 0.
         self.start = False
         self.rate = 1/dt
-
-        self._odom_subscriber = rospy.Subscriber("/asv/state", Odometry,
-                                                    self._odom_callback,
-                                                    queue_size=1)
-        self._obst_subscriber = rospy.Subscriber("/obstacle_states",
-                                                    StateArray, self._obst_callback,
-                                                    queue_size=1)
-        self._finish_subscriber = rospy.Subscriber("/end_simulation",
-                                                    Empty, self._finish_callback,
-                                                    queue_size=1)
-        self._start_subscriber = rospy.Subscriber("/start_simulation", Empty,
-                                                    self._start_callback,
-                                                    queue_size=10)
-        self.start_publisher   = rospy.Publisher("/start_simulation", Empty, queue_size=1, latch=True)
-        self.asv_off_publisher = rospy.Publisher("/asv_off", Marker, queue_size=10, latch=True)
-        self.obst_off_publisher = rospy.Publisher("/obst_off", Marker, queue_size=10, latch=True)
-        self.cpa_publisher = rospy.Publisher("/cpa", Marker, queue_size=10, latch=True)
-        self.cpa2_publisher = rospy.Publisher("/cpa2", Marker, queue_size=10, latch=True)
 
         self.odom = []
         self.n_obst = -1
@@ -158,23 +141,31 @@ class Referee(object) :
         self.obst_off_marker.color.a = 1.0
         self.obst_off_marker.lifetime = rospy.Duration(0.)
 
+        self.start_publisher   = rospy.Publisher("/start_simulation", Empty, queue_size=1, latch=True)
+        self.asv_off_publisher = rospy.Publisher("/asv_off", Marker, queue_size=10, latch=True)
+        self.obst_off_publisher = rospy.Publisher("/obst_off", Marker, queue_size=10, latch=True)
+        self.cpa_publisher = rospy.Publisher("/cpa", Marker, queue_size=10, latch=True)
+        self.cpa2_publisher = rospy.Publisher("/cpa2", Marker, queue_size=10, latch=True)
+
+        self._odom_subscriber = rospy.Subscriber("/asv/state", Odometry,
+                                                    self._odom_callback,
+                                                    queue_size=1)
+        self._obst_subscriber = rospy.Subscriber("/obstacle_states",
+                                                    StateArray, self._obst_callback,
+                                                    queue_size=1)
+        self._finish_subscriber = rospy.Subscriber("/end_simulation",
+                                                    Empty, self._finish_callback,
+                                                    queue_size=1)
+        self._start_subscriber = rospy.Subscriber("/start_simulation", Empty,
+                                                    self._start_callback,
+                                                    queue_size=10)
+
     def _odom_callback(self, data):
         if len(self.odom) == 0:
-            self.odom = np.zeros(7)
+            self.odom = np.zeros(5)
             t = rospy.get_time()-self.begin_sim
             self.odom[0] = data.pose.pose.position.x
             self.odom[1] = data.pose.pose.position.y
-            self.odom[4] = t
-        elif (self.odom[2] == 0. and self.odom[3] == 0.) :
-            t = rospy.get_time()-self.begin_sim
-            x = self.odom[0]
-            y = self.odom[1]
-            vx = self.odom[2]
-            vy = self.odom[3]
-            self.odom[0] = data.pose.pose.position.x
-            self.odom[1] = data.pose.pose.position.y
-            self.odom[2] = (self.odom[0]-x)/(t-self.odom[4])
-            self.odom[3] = (self.odom[1]-y)/(t-self.odom[4])
             self.odom[4] = t
         else:
             t = rospy.get_time()-self.begin_sim
@@ -186,16 +177,14 @@ class Referee(object) :
             self.odom[1] = data.pose.pose.position.y
             self.odom[2] = (self.odom[0]-x)/(t-self.odom[4])
             self.odom[3] = (self.odom[1]-y)/(t-self.odom[4])
-            self.odom[5] = (self.odom[2]-vx)/(t-self.odom[4])
-            self.odom[6] = (self.odom[3]-vy)/(t-self.odom[4])
             self.odom[4] = t
             if self.n_obst > -1:
                 for i in range(self.n_obst):
                     if (self.bcpa[i]):
                         self.traj[i].append(np.array([t,self.odom[0],self.odom[1]]))
                         if self.debugBool:
-                            self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\t{self.odom[2]}\n')
-
+                            self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\n')
+                            #print(f'add {t}')
         #print(f'uAsv = {np.linalg.norm(np.array([data.twist.twist.linear.x,data.twist.twist.linear.y]))}')
     def _obst_callback(self, data):
         if (self.n_obst == -1) :
@@ -231,6 +220,7 @@ class Referee(object) :
 
     def _finish_callback(self, data) :
         if self.debugBool:
+            self.bcpa = np.array(self.n_obst*[False])
             self.debug.close()
         tf = rospy.get_time()-self.begin_sim
         for i in range(self.n_obst):
@@ -262,6 +252,7 @@ class Referee(object) :
             weight = irr[:,0]**2/np.sum(irr[:,0]**2)
             self.security[i,12] = np.dot(weight,(np.abs(self.tcpa[i] -self.traj[i][:,0])/self.t1))
             self.security[i,13] = 1/self.security[i,2]+max(1/self.security[i,2]-1,0)*self.security[i,12]
+            
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
@@ -270,7 +261,7 @@ class Referee(object) :
         for i in range(self.n_obst) :
             print(f'Ship {i+1}')
             print(f'     --> dCPA = {self.dcpa[i]} m')
-            print(f'     --> t = {self.tcpa[i]} s')
+            print(f'     --> tCPA = {self.tcpa[i]} s')
             print(f'     --> security = {self.security[i]}')
 
             if (self.opus <= 1) :
@@ -292,6 +283,7 @@ class Referee(object) :
                 for j in range(1,4):
                     self.security[i, j] = max(self.security[i, j],secu[i,j])
                 if (secu[i,0] <= self.dcpa[i]) :
+                    self.bcpa[i] = True
                     self.dcpa[i] = secu[i,0]
                     self.tcpa[i] = rospy.get_time() - self.begin_sim
 
@@ -302,9 +294,6 @@ class Referee(object) :
 
                 else:
                     self.bcpa[i] = False
-
-                    if self.debugBool:
-                        self.debug.close()
 
                 self.cpa_publisher.publish(self.cpa)
                 self.cpa2_publisher.publish(self.cpa2)
@@ -422,8 +411,6 @@ if __name__ == "__main__" :
     print(f'Output : {output}')
 
     refer = Referee(.01, finished, output, op)
-
     msg  = Empty()
     refer.start_publisher.publish(msg) #top départ (temporary)
-
     refer.run_controller()

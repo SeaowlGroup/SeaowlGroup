@@ -7,7 +7,7 @@ import datetime
 import pandas as pd
 
 def run(serial, input_file) :
-    df = pd.read_excel('param2.xlsx',header=0)
+    df = pd.read_excel('param3.xlsx',header=0)
     param = df.to_numpy()
 
     # UUID
@@ -18,8 +18,8 @@ def run(serial, input_file) :
     calc_heading_asv = np.pi/2
     u_d_asv = 5.0
     initial_state_asv = [0.,0.,calc_heading_asv, u_d_asv,0.,0.]
-    t_sim = 35
-    t_collision = 25
+    t_sim = 60
+    t_collision = 45
     #Trajectory
     waypoints_asv = [[0.,0.],
                      [t_sim*u_d_asv*np.cos(calc_heading_asv), t_sim*u_d_asv*np.sin(calc_heading_asv)]]

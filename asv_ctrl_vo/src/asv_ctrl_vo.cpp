@@ -143,8 +143,10 @@ void VelocityObstacle::updateVelocityGrid()
 
     double a = obstacle_twist[0];
     double b = asv_twist_[0];
-    double theta = asv_pose_[2]-obstacle_twist[2];
-    double combined_radius = RADIUS_*std::max((a*a+b*b-2*a*b*cos(theta)-1.0),1.0) + it->header.radius;
+    double angle_diff = asv_pose_[2] - obstacle_pose[2];
+    double v_ret = a*a+b*b-2*a*b*cos(angle_diff);
+    // double combined_radius = RADIUS_*std::max((v_ret+0.5),1.0) + it->header.radius;
+    double combined_radius = RADIUS_ + it->header.radius;
 
     Eigen::Vector2d vb;
     rot2d(obstacle_twist.head(2), obstacle_pose[2], vb);
@@ -160,7 +162,6 @@ void VelocityObstacle::updateVelocityGrid()
     while(bearing > 2*M_PI)
       bearing -= 2*M_PI;
 
-    double angle_diff = asv_pose_[2] - obstacle_pose[2];
     normalize_angle_diff(angle_diff, asv_pose_[2]);
 
     bool collision_situation    = inCollisionSituation(asv_pose_, obstacle_pose, va, vb);

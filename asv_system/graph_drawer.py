@@ -13,7 +13,7 @@ def clear_frame(frame):
 
 class Fig(object):
 
-    def __init__(self, serial='survivor7', n_groups=5):
+    def __init__(self, serial='survivorz', n_groups=5):
         rospack = rospkg.RosPack()
         self.input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
         self.output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
@@ -28,8 +28,8 @@ class Fig(object):
         self.validation_color = True
 
         self.xlab = ['OPUS', 'CLASS', 'U_D_ASV', 'LOC_PLAN', 'HEADING', 'U_D', 'DCPA', 'SIZE', 'PRIOR', 'D_DETEC']
-        self.ylab = ['TIME', 'LOG_COL', 'NAT_COL', 'OFFSET_LOG', 'ANTICIPATION_INV', 'ANTICIPATION_OFF',
-                     'ANTICIPATION_LIN', 'ANTICIPATION_EXP', 'DCPA', 'CROSSING_DIST']
+        self.ylab = ['TIME', 'LOG_COL', 'NAT_COL', 'OFFSET_LOG', 'ANTICIPATION_ACC', 'ANTICIPATION_OMEGA',
+                     'ANTICIPATION_R', 'AGG_ACC', 'AGG_OMEGA', 'AGG_R', 'DCPA', 'CROSSING_DIST', 'ANT_TIME', 'AGG_TIME']
 
         self.labels = []
         self.colors = []
@@ -62,6 +62,8 @@ class Fig(object):
                 self.colors.append('grey')
 
         f1.close()
+        self.groups = np.array(self.groups)
+        self.n_groups = np.max(self.groups)
 
 
     def plot_graph(self) :
@@ -107,21 +109,10 @@ class Fig(object):
             ax.axhline(y[41], linewidth=3, color='grey', label='witness 50')
             ax.axhline(y[42], linewidth=3, color='black', label='witness 100')
         if self.validation_color and self.j in {2,4}:
-            #ax.patch.set_facecolor('red')
-            #ax.patch.set_alpha(0.7)
-            #sep_line = ax.axhline(2.0, linewidth=0.5, color='green')
-            #ax.fill_between(x[:n], [2.0]*n, color='green', alpha=0.7)
-            x0, y0, width, height = ax.dataLim.bounds
-            ymin, ymax = ax.get_ylim()
-            lim = height*2.0/(ymax-ymin)
-            rect_g = Rectangle((x0,y0), width, 2.0-y0, edgecolor='green', facecolor='lightgreen', alpha=0.7)
-            rect_r = Rectangle((x0,y0), width, height, edgecolor='red', facecolor='tomato', alpha=0.5)
-            # x0, y0, width, height = ax.viewLim.bounds
-            # print(ax.viewLim.bounds)
-            # ymin, ymax = ax.get_ylim()
-            # lim = height*2.0/(ymax-ymin)
-            # rect_g = Rectangle((0,0), width+2*x0, height, edgecolor='green', facecolor='lightgreen')
-            # rect_r = Rectangle((0,ymin), width+x0, height*4/5, edgecolor='red', facecolor='tomato')
+            x0, y0, width, height = ax.viewLim.bounds
+            lim = 0.0
+            rect_g = Rectangle((x0,y0), width, np.maximum(lim-y0, 0.0), edgecolor='green', facecolor='lightgreen', alpha=0.5)
+            rect_r = Rectangle((x0,y0), width, height, edgecolor='red', facecolor='tomato', alpha=0.3)
             ax.add_patch(rect_r)
             ax.add_patch(rect_g)
 
@@ -187,8 +178,11 @@ if __name__ == "__main__":
 
     x_list = [["Opus",0], ["Speed of the ASV",2], ["Obstacle Heading",4], ["Theoretical dCPA",6], ["Detection Distance",9]]
     y_list = [["Time",1], ["Natural Collision Indic.",3], ["Logarithmic Collision Indic.",2],
-              ["Offset Collision Indic.",4], ["Anticipation Inv Indic.",5], ["Anticipation Off Indic.",6],
-              ["Anticipation Lin Indic.",7], ["Anticipation Exp Indic.",8], ["Real dCPA", 9], ["Crossing Distance", 10]]
+              ["Offset Collision Indic.",4], ["Anticipation Acc Indic.",5], ["Anticipation Omega Indic.",6],
+              ["Anticipation R Indic.",7], ["Agglutination Acc Indic.",8], ["Agglutination Omega Indic.",9],
+              ["Agglutination R Indic.",10], ["Real dCPA", 11], ["Crossing Distance", 12],
+              ["Anticipation Time",13], ["Agglutination Time",14]]
+
 
     for w in x_list:
         tk.Radiobutton(frame1, variable=x, text=w[0], value=w[1], highlightthickness=0, command=update_plot).pack(fill='both')

@@ -160,22 +160,22 @@ class Referee(object) :
 
     def _odom_callback(self, data):
         if len(self.odom) == 0:
-            self.odom = np.zeros(7)
+            self.odom = np.zeros(5)
             t = rospy.get_time()-self.begin_sim
             self.odom[0] = data.pose.pose.position.x
             self.odom[1] = data.pose.pose.position.y
             self.odom[4] = t
-        elif (self.odom[2] == 0. and self.odom[3] == 0.) :
-            t = rospy.get_time()-self.begin_sim
-            x = self.odom[0]
-            y = self.odom[1]
-            vx = self.odom[2]
-            vy = self.odom[3]
-            self.odom[0] = data.pose.pose.position.x
-            self.odom[1] = data.pose.pose.position.y
-            self.odom[2] = (self.odom[0]-x)/(t-self.odom[4])
-            self.odom[3] = (self.odom[1]-y)/(t-self.odom[4])
-            self.odom[4] = t
+        #elif (self.odom[2] == 0. and self.odom[3] == 0.) :
+        #    t = rospy.get_time()-self.begin_sim
+        #    x = self.odom[0]
+        #    y = self.odom[1]
+        #    vx = self.odom[2]
+        #    vy = self.odom[3]
+        #    self.odom[0] = data.pose.pose.position.x
+        #    self.odom[1] = data.pose.pose.position.y
+        #    self.odom[2] = (self.odom[0]-x)/(t-self.odom[4])
+        #    self.odom[3] = (self.odom[1]-y)/(t-self.odom[4])
+        #    self.odom[4] = t
         else:
             t = rospy.get_time()-self.begin_sim
             x = self.odom[0]
@@ -186,8 +186,8 @@ class Referee(object) :
             self.odom[1] = data.pose.pose.position.y
             self.odom[2] = (self.odom[0]-x)/(t-self.odom[4])
             self.odom[3] = (self.odom[1]-y)/(t-self.odom[4])
-            self.odom[5] = (self.odom[2]-vx)/(t-self.odom[4])
-            self.odom[6] = (self.odom[3]-vy)/(t-self.odom[4])
+            #self.odom[5] = (self.odom[2]-vx)/(t-self.odom[4])
+            #self.odom[6] = (self.odom[3]-vy)/(t-self.odom[4])
             self.odom[4] = t
             if self.n_obst > -1:
                 for i in range(self.n_obst):
@@ -421,8 +421,6 @@ if __name__ == "__main__" :
     print(f'Output : {output}')
 
     refer = Referee(.01, finished, output, op)
-
     msg  = Empty()
     refer.start_publisher.publish(msg) #top départ (temporary)
-
     refer.run_controller()

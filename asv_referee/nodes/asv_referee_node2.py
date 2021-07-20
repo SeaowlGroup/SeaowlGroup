@@ -241,11 +241,11 @@ class Referee(object) :
             vel = np.zeros((N,2))
             acc = np.zeros((N,2))
             for k in range(2): #coordinates
-                self.traj[i][:,k+1] = sgf(self.traj[i][:,k+1],w,d)
+                self.traj[i][:,k+1] = sgf(self.traj[i][:,k+1],w,d, mode='nearest')
                 vel[:,k] = np.gradient(self.traj[i][:,k+1], self.traj[i][:,0])
-                vel[:,k] = sgf(vel[:,k],w,d-1)
+                vel[:,k] = sgf(vel[:,k],w,d-1, mode='nearest')
                 acc[:,k] = np.gradient(vel[:,k], self.traj[i][:,0])
-                acc[:,k] = sgf(acc[:,k],w,d-2)
+                acc[:,k] = sgf(acc[:,k],w,d-2, mode='nearest')
             v = np.linalg.norm(vel,axis = 1)
             irr = np.zeros((N,3))                                   #irregularity indicator
             irr[:,0] = np.linalg.norm(acc,axis = 1)                 #acceleration
@@ -302,6 +302,7 @@ class Referee(object) :
 
                 else:
                     self.bcpa[i] = False
+
                     if self.debugBool:
                         self.debug.close()
 

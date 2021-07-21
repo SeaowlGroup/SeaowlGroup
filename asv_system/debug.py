@@ -18,11 +18,17 @@ data = np.loadtxt('/home/adrien/catkin_ws/src/seaowl/asv_system/debug.txt',skipr
 t = data[:,0]
 tcpa = t[-1]
 t1 = 10
-N = len(t)
-print(N)
+
+n_obst = (len(data[0,:])-3)//2
 
 x = data[:,1]
 y = data[:,2]
+x_obst = data[:,3]
+y_obst = data[:,4]
+
+plt.plot(t,x)
+plt.plot(t,x_obst)
+plt.show()
 
 w = 11
 d = 2
@@ -45,8 +51,7 @@ v = np.linalg.norm(np.array([sdsx,sdsy]),axis = 0)
 a = np.linalg.norm(np.array([sdsdsx,sdsdsy]),axis = 0)
 
 
-plt.plot(x,y)
-plt.show()
+
 
 weight = att((np.abs(tcpa -t))/t1,3)
 weight = np.sqrt(weight/np.sum(weight))

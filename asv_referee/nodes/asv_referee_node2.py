@@ -20,6 +20,7 @@ class Referee(object) :
                  op='0') :
 
         self.debugBool = False   #if True prints the trajectory (t,x,y) of asv in debug.txt
+        self.rvizBool = False
 
         self.begin_wall = 0.
         self.begin_sim = 0.
@@ -28,10 +29,11 @@ class Referee(object) :
 
         self.odom = []
         self.n_obst = -1
+        self.obst_prior = []
+        self.obst_radii = []
         self.obst_states = []
         self.dcpa = []
         self.tcpa = []
-        self.bcpa = []
         self.cross = []
         self.security = []        #indicateurs de sécurité pour chaque obstacle
         self.t0 = 4.              #temps de sécurité en s
@@ -43,109 +45,109 @@ class Referee(object) :
         self.opus = op
         self.finished = finished  #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
         self.side = []
-        self.obst_prior = []
         if self.debugBool:
             self.debug = open(f'/home/adrien/catkin_ws/src/seaowl/asv_system/debug.txt','w')
         self.traj = []
+        self.nend = True
 
-        self.cpa = Marker()
-        self.cpa.header.frame_id = "map"
-        self.cpa.header.stamp    = rospy.get_rostime()
-        self.cpa.ns = "cpa"
-        self.cpa.id = 0
-        self.cpa.type = 1
-        self.cpa.action = 0
-        self.cpa.pose.position.x = 0
-        self.cpa.pose.position.y = 0
-        self.cpa.pose.position.z = 10
-        self.cpa.pose.orientation.x = 0
-        self.cpa.pose.orientation.y = 0
-        self.cpa.pose.orientation.z = 0
-        self.cpa.pose.orientation.w = 1.0
-        self.cpa.scale.x = 1.0
-        self.cpa.scale.y = 1.0
-        self.cpa.scale.z = 1.0
-        self.cpa.color.r = 1.0
-        self.cpa.color.g = 0
-        self.cpa.color.b = 0.
-        self.cpa.color.a = 1.0
-        self.cpa.lifetime = rospy.Duration(0.)
+        if self.rvizBool:
+            self.cpa = Marker()
+            self.cpa.header.frame_id = "map"
+            self.cpa.header.stamp    = rospy.get_rostime()
+            self.cpa.ns = "cpa"
+            self.cpa.id = 0
+            self.cpa.type = 1
+            self.cpa.action = 0
+            self.cpa.pose.position.x = 0
+            self.cpa.pose.position.y = 0
+            self.cpa.pose.position.z = 10
+            self.cpa.pose.orientation.x = 0
+            self.cpa.pose.orientation.y = 0
+            self.cpa.pose.orientation.z = 0
+            self.cpa.pose.orientation.w = 1.0
+            self.cpa.scale.x = 1.0
+            self.cpa.scale.y = 1.0
+            self.cpa.scale.z = 1.0
+            self.cpa.color.r = 1.0
+            self.cpa.color.g = 0
+            self.cpa.color.b = 0.
+            self.cpa.color.a = 1.0
+            self.cpa.lifetime = rospy.Duration(0.)
+            self.cpa_publisher = rospy.Publisher("/cpa", Marker, queue_size=10, latch=True)
 
+            self.cpa2 = Marker()
+            self.cpa2.header.frame_id = "map"
+            self.cpa2.header.stamp    = rospy.get_rostime()
+            self.cpa2.ns = "cpa2"
+            self.cpa2.id = 1
+            self.cpa2.type = 1
+            self.cpa2.action = 0
+            self.cpa2.pose.position.x = 0
+            self.cpa2.pose.position.y = 0
+            self.cpa2.pose.position.z = 10
+            self.cpa2.pose.orientation.x = 0
+            self.cpa2.pose.orientation.y = 0
+            self.cpa2.pose.orientation.z = 0
+            self.cpa2.pose.orientation.w = 1.0
+            self.cpa2.scale.x = 1.0
+            self.cpa2.scale.y = 1.0
+            self.cpa2.scale.z = 1.0
+            self.cpa2.color.r = 1.0
+            self.cpa2.color.g = 0
+            self.cpa2.color.b = 0.
+            self.cpa2.color.a = 1.0
+            self.cpa2.lifetime = rospy.Duration(0.)
+            self.cpa2_publisher = rospy.Publisher("/cpa2", Marker, queue_size=10, latch=True)
 
-        self.cpa2 = Marker()
-        self.cpa2.header.frame_id = "map"
-        self.cpa2.header.stamp    = rospy.get_rostime()
-        self.cpa2.ns = "cpa2"
-        self.cpa2.id = 1
-        self.cpa2.type = 1
-        self.cpa2.action = 0
-        self.cpa2.pose.position.x = 0
-        self.cpa2.pose.position.y = 0
-        self.cpa2.pose.position.z = 10
-        self.cpa2.pose.orientation.x = 0
-        self.cpa2.pose.orientation.y = 0
-        self.cpa2.pose.orientation.z = 0
-        self.cpa2.pose.orientation.w = 1.0
-        self.cpa2.scale.x = 1.0
-        self.cpa2.scale.y = 1.0
-        self.cpa2.scale.z = 1.0
-        self.cpa2.color.r = 1.0
-        self.cpa2.color.g = 0
-        self.cpa2.color.b = 0.
-        self.cpa2.color.a = 1.0
-        self.cpa2.lifetime = rospy.Duration(0.)
+            self.asv_off_marker = Marker()
+            self.asv_off_marker.header.frame_id = "map"
+            self.asv_off_marker.header.stamp    = rospy.get_rostime()
+            self.asv_off_marker.ns = "asv_off_marker"
+            self.asv_off_marker.id = 2
+            self.asv_off_marker.type = 2
+            self.asv_off_marker.action = 0
+            self.asv_off_marker.pose.position.x = 0.
+            self.asv_off_marker.pose.position.y = 0.
+            self.asv_off_marker.pose.position.z = 0
+            self.asv_off_marker.pose.orientation.x = 0
+            self.asv_off_marker.pose.orientation.y = 0
+            self.asv_off_marker.pose.orientation.z = 0
+            self.asv_off_marker.pose.orientation.w = 1.0
+            self.asv_off_marker.scale.x = 1.0
+            self.asv_off_marker.scale.y = 1.0
+            self.asv_off_marker.scale.z = 1.0
+            self.asv_off_marker.color.r = 0.5
+            self.asv_off_marker.color.g = 0.0
+            self.asv_off_marker.color.b = 0.5
+            self.asv_off_marker.color.a = 1.0
+            self.asv_off_marker.lifetime = rospy.Duration(0.)
+            self.asv_off_publisher = rospy.Publisher("/asv_off", Marker, queue_size=10, latch=True)
 
-        self.asv_off_marker = Marker()
-        self.asv_off_marker.header.frame_id = "map"
-        self.asv_off_marker.header.stamp    = rospy.get_rostime()
-        self.asv_off_marker.ns = "asv_off_marker"
-        self.asv_off_marker.id = 2
-        self.asv_off_marker.type = 2
-        self.asv_off_marker.action = 0
-        self.asv_off_marker.pose.position.x = 0.
-        self.asv_off_marker.pose.position.y = 0.
-        self.asv_off_marker.pose.position.z = 0
-        self.asv_off_marker.pose.orientation.x = 0
-        self.asv_off_marker.pose.orientation.y = 0
-        self.asv_off_marker.pose.orientation.z = 0
-        self.asv_off_marker.pose.orientation.w = 1.0
-        self.asv_off_marker.scale.x = 1.0
-        self.asv_off_marker.scale.y = 1.0
-        self.asv_off_marker.scale.z = 1.0
-        self.asv_off_marker.color.r = 0.5
-        self.asv_off_marker.color.g = 0.0
-        self.asv_off_marker.color.b = 0.5
-        self.asv_off_marker.color.a = 1.0
-        self.asv_off_marker.lifetime = rospy.Duration(0.)
-
-        self.obst_off_marker = Marker()
-        self.obst_off_marker.header.frame_id = "map"
-        self.obst_off_marker.header.stamp    = rospy.get_rostime()
-        self.obst_off_marker.ns = "obst_off_marker"
-        self.obst_off_marker.id = 3
-        self.obst_off_marker.type = 2
-        self.obst_off_marker.action = 0
-        self.obst_off_marker.pose.position.x = 0
-        self.obst_off_marker.pose.position.y = 0
-        self.obst_off_marker.pose.position.z = 0
-        self.obst_off_marker.pose.orientation.x = 0
-        self.obst_off_marker.pose.orientation.y = 0
-        self.obst_off_marker.pose.orientation.z = 0
-        self.obst_off_marker.pose.orientation.w = 1.0
-        self.obst_off_marker.scale.x = 1.0
-        self.obst_off_marker.scale.y = 1.0
-        self.obst_off_marker.scale.z = 1.0
-        self.obst_off_marker.color.r = 0.5
-        self.obst_off_marker.color.g = 0.0
-        self.obst_off_marker.color.b = 0.5
-        self.obst_off_marker.color.a = 1.0
-        self.obst_off_marker.lifetime = rospy.Duration(0.)
+            self.obst_off_marker = Marker()
+            self.obst_off_marker.header.frame_id = "map"
+            self.obst_off_marker.header.stamp    = rospy.get_rostime()
+            self.obst_off_marker.ns = "obst_off_marker"
+            self.obst_off_marker.id = 3
+            self.obst_off_marker.type = 2
+            self.obst_off_marker.action = 0
+            self.obst_off_marker.pose.position.x = 0
+            self.obst_off_marker.pose.position.y = 0
+            self.obst_off_marker.pose.position.z = 0
+            self.obst_off_marker.pose.orientation.x = 0
+            self.obst_off_marker.pose.orientation.y = 0
+            self.obst_off_marker.pose.orientation.z = 0
+            self.obst_off_marker.pose.orientation.w = 1.0
+            self.obst_off_marker.scale.x = 1.0
+            self.obst_off_marker.scale.y = 1.0
+            self.obst_off_marker.scale.z = 1.0
+            self.obst_off_marker.color.r = 0.5
+            self.obst_off_marker.color.g = 0.0
+            self.obst_off_marker.color.b = 0.5
+            self.obst_off_marker.color.a = 1.0
+            self.obst_off_marker.lifetime = rospy.Duration(0.)
+            self.obst_off_publisher = rospy.Publisher("/obst_off", Marker, queue_size=10, latch=True)
 
         self.start_publisher   = rospy.Publisher("/start_simulation", Empty, queue_size=1, latch=True)
-        self.asv_off_publisher = rospy.Publisher("/asv_off", Marker, queue_size=10, latch=True)
-        self.obst_off_publisher = rospy.Publisher("/obst_off", Marker, queue_size=10, latch=True)
-        self.cpa_publisher = rospy.Publisher("/cpa", Marker, queue_size=10, latch=True)
-        self.cpa2_publisher = rospy.Publisher("/cpa2", Marker, queue_size=10, latch=True)
 
         self._odom_subscriber = rospy.Subscriber("/asv/state", Odometry,
                                                     self._odom_callback,
@@ -161,55 +163,52 @@ class Referee(object) :
                                                     queue_size=10)
 
     def _odom_callback(self, data):
-        if len(self.odom) == 0:
-            self.odom = np.zeros(5)
-            t = rospy.get_time()-self.begin_sim
-            self.odom[0] = data.pose.pose.position.x
-            self.odom[1] = data.pose.pose.position.y
-            self.odom[4] = t
-        else:
-            t = rospy.get_time()-self.begin_sim
-            x = self.odom[0]
-            y = self.odom[1]
-            vx = self.odom[2]
-            vy = self.odom[3]
-            self.odom[0] = data.pose.pose.position.x
-            self.odom[1] = data.pose.pose.position.y
-            self.odom[2] = (self.odom[0]-x)/(t-self.odom[4])
-            self.odom[3] = (self.odom[1]-y)/(t-self.odom[4])
-            self.odom[4] = t
-            if self.n_obst > -1:
-                for i in range(self.n_obst):
-                    if (self.bcpa[i]):
-                        self.traj[i].append(np.array([t,self.odom[0],self.odom[1]]))
-                        if self.debugBool:
-                            self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\n')
-                            #print(f'add {t}')
-        #print(f'uAsv = {np.linalg.norm(np.array([data.twist.twist.linear.x,data.twist.twist.linear.y]))}')
+        if self.nend:
+            if len(self.odom) == 0:
+                self.odom = np.zeros(5)
+                t = rospy.get_time()-self.begin_sim
+                self.odom[0] = data.pose.pose.position.x
+                self.odom[1] = data.pose.pose.position.y
+                self.odom[4] = t
+            else:
+                t = rospy.get_time()-self.begin_sim
+                x = self.odom[0]
+                y = self.odom[1]
+                vx = self.odom[2]
+                vy = self.odom[3]
+                self.odom[0] = data.pose.pose.position.x
+                self.odom[1] = data.pose.pose.position.y
+                self.odom[2] = (self.odom[0]-x)/(t-self.odom[4])
+                self.odom[3] = (self.odom[1]-y)/(t-self.odom[4])
+                self.odom[4] = t
+                self.traj.append(np.array([t,self.odom[0],self.odom[1]]))
+                if self.debugBool:
+                    self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\n')
+                    #print(f'add {t}')
+            #print(f'uAsv = {np.linalg.norm(np.array([data.twist.twist.linear.x,data.twist.twist.linear.y]))}')
     def _obst_callback(self, data):
-        if (self.n_obst == -1) :
-            self.n_obst = len(data.states)
-            self.dcpa = np.ones(self.n_obst)*sys.float_info.max
-            self.tcpa = np.zeros(self.n_obst)
-            self.cross = np.array(self.n_obst*[-1])
-            self.obst_states = np.zeros((self.n_obst, 6))
-            self.security = np.zeros((self.n_obst,14))
-            self.side = np.zeros(self.n_obst)
-            self.obst_prior = np.array(self.n_obst*[""])
-            self.traj = self.n_obst*[[]]
-            self.bcpa = np.ones((self.n_obst),dtype=bool)
-            for i in range(self.n_obst):
-                self.obst_states[i,5] = data.states[i].header.radius
-                self.obst_prior[i] = data.states[i].header.prior
-                self.traj[i] = []
-                for j in range(1,4):
-                    self.security[i,j] = -np.inf
+        if self.nend:
+            if (self.n_obst == -1) :
+                self.n_obst = len(data.states)
+                self.dcpa = np.ones(self.n_obst)*sys.float_info.max
+                self.tcpa = np.zeros((self.n_obst,2))
+                self.cross = np.array(self.n_obst*[-1])
+                self.obst_states = np.zeros((self.n_obst, 4))
+                self.obst_radii = np.zeros(self.n_obst)
+                self.security = np.zeros((self.n_obst,14))
+                self.side = np.zeros(self.n_obst)
+                self.obst_prior = np.array(self.n_obst*[""])
+                for i in range(self.n_obst):
+                    self.obst_radii[i] = data.states[i].header.radius
+                    self.obst_prior[i] = data.states[i].header.prior
+                    for j in range(1,4):
+                        self.security[i,j] = -np.inf
 
-        for i in range(self.n_obst) :
-            self.obst_states[i, 0] = data.states[i].x
-            self.obst_states[i, 1] = data.states[i].y
-            self.obst_states[i, 2] = data.states[i].u*np.cos(data.states[i].psi)
-            self.obst_states[i, 3] = data.states[i].u*np.sin(data.states[i].psi)
+            for i in range(self.n_obst) :
+                self.obst_states[i, 0] = data.states[i].x
+                self.obst_states[i, 1] = data.states[i].y
+                self.obst_states[i, 2] = data.states[i].u*np.cos(data.states[i].psi)
+                self.obst_states[i, 3] = data.states[i].u*np.sin(data.states[i].psi)
 
     def _start_callback(self, data):
         if (not self.start):
@@ -219,29 +218,30 @@ class Referee(object) :
             print("---------------------BEGINNING OF THE SIMULATION---------------------")
 
     def _finish_callback(self, data) :
+        self.nend = False
         if self.debugBool:
-            self.bcpa = np.array(self.n_obst*[False])
             self.debug.close()
         tf = rospy.get_time()-self.begin_sim
         for i in range(self.n_obst):
-            self.traj[i] = np.array(self.traj[i])
+            self.traj = np.array(self.traj)
             w = 11
             d = 2
-            N = len(self.traj[i])
+            N = int(self.tcpa[i,1])
+            pos = self.traj[:N,1:]
             vel = np.zeros((N,2))
             acc = np.zeros((N,2))
             for k in range(2):                                     #coordinates
-                self.traj[i][:,k+1] = sgf(self.traj[i][:,k+1],w,d, mode='nearest')
-                vel[:,k] = np.gradient(self.traj[i][:,k+1], self.traj[i][:,0])
+                pos[:,k] = sgf(pos[:,k],w,d, mode='nearest')
+                vel[:,k] = np.gradient(pos[:,k], self.traj[:N,0])
                 vel[:,k] = sgf(vel[:,k],w,d-1, mode='nearest')
-                acc[:,k] = np.gradient(vel[:,k], self.traj[i][:,0])
+                acc[:,k] = np.gradient(vel[:,k], self.traj[:N,0])
                 acc[:,k] = sgf(acc[:,k],w,d-2, mode='nearest')
             v = np.linalg.norm(vel,axis = 1)
             irr = np.zeros((N,3))                                   #irregularity indicator
             irr[:,0] = np.linalg.norm(acc,axis = 1)                 #acceleration
             irr[:,1] = (vel[:,0]*acc[:,1]-vel[:,1]*acc[:,0])/v**2   #angular velocity
             irr[:,2] = irr[:,1]/v                                   #curvature radius
-            weight = att((np.abs(self.tcpa[i] -self.traj[i][:,0]))/self.t1,3)
+            weight = att((np.abs(self.tcpa[i,0] -self.traj[:N,0]))/self.t1,3)
             weight = np.sqrt(weight/np.sum(weight))
             for k in range(3):
                 self.security[i][4+k] = np.linalg.norm(irr[:,k]*weight)
@@ -250,7 +250,7 @@ class Referee(object) :
             self.security[i,10] = self.dcpa[i]
             self.security[i,11] = self.cross[i]
             weight = irr[:,0]**2/np.sum(irr[:,0]**2)
-            self.security[i,12] = np.dot(weight,(np.abs(self.tcpa[i] -self.traj[i][:,0])/self.t1))
+            self.security[i,12] = np.dot(weight,(np.abs(self.tcpa[i,0] -self.traj[:N,0])/self.t1))
             self.security[i,13] = 1/self.security[i,2]+max(1/self.security[i,2]-1,0)*self.security[i,12]
             
         f = open(f'{self.output}','a')
@@ -261,7 +261,7 @@ class Referee(object) :
         for i in range(self.n_obst) :
             print(f'Ship {i+1}')
             print(f'     --> dCPA = {self.dcpa[i]} m')
-            print(f'     --> tCPA = {self.tcpa[i]} s')
+            print(f'     --> tCPA = {self.tcpa[i,0]} s')
             print(f'     --> security = {self.security[i]}')
 
             if (self.opus <= 1) :
@@ -283,20 +283,21 @@ class Referee(object) :
                 for j in range(1,4):
                     self.security[i, j] = max(self.security[i, j],secu[i,j])
                 if (secu[i,0] <= self.dcpa[i]) :
-                    self.bcpa[i] = True
                     self.dcpa[i] = secu[i,0]
-                    self.tcpa[i] = rospy.get_time() - self.begin_sim
+                    self.tcpa[i,0] = rospy.get_time() - self.begin_sim
+                    self.tcpa[i,1] = len(self.traj)
 
-                    self.cpa.pose.position.x = self.odom[0]
-                    self.cpa.pose.position.y = self.odom[1]
-                    self.cpa2.pose.position.x = self.obst_states[i,0]
-                    self.cpa2.pose.position.y = self.obst_states[i,1]
+                    if self.rvizBool:
 
-                else:
-                    self.bcpa[i] = False
+                        self.cpa.pose.position.x = self.odom[0]
+                        self.cpa.pose.position.y = self.odom[1]
+                        self.cpa2.pose.position.x = self.obst_states[i,0]
+                        self.cpa2.pose.position.y = self.obst_states[i,1]
 
-                self.cpa_publisher.publish(self.cpa)
-                self.cpa2_publisher.publish(self.cpa2)
+                if self.rvizBool:
+
+                    self.cpa_publisher.publish(self.cpa)
+                    self.cpa2_publisher.publish(self.cpa2)
 
                 side = np.dot(self.odom[0:2]-self.obst_states[i,0:2],rot(self.obst_states[i,2:4],np.pi/2))
                 front  = np.dot(self.odom[0:2]-self.obst_states[i,0:2],self.obst_states[i,2:4])
@@ -310,7 +311,7 @@ class Referee(object) :
         dist = np.zeros(self.n_obst)
         for i in range(self.n_obst) :
             dist[i] = max(0,np.linalg.norm(self.obst_states[i,:2]-self.odom[:2])
-                            -self.size-self.obst_states[i,5])
+                            -self.size-self.obst_radii[i])
         return dist
 
     def ob_secu(self) :
@@ -346,16 +347,19 @@ class Referee(object) :
                         cpa = -cpa
                     asv_off = self.odom[:2]+self.r_offset*cpa                      #off before asv
                     obst_off = self.obst_states[i,:2]-self.r_offset*cpa
-            self.asv_off_marker.pose.position.x = asv_off[0]
-            self.asv_off_marker.pose.position.y = asv_off[1]
-            self.asv_off_publisher.publish(self.asv_off_marker)
-            self.obst_off_marker.pose.position.x = obst_off[0]
-            self.obst_off_marker.pose.position.y = obst_off[1]
-            self.obst_off_publisher.publish(self.obst_off_marker)
 
-            offd[i]= min(max(0,np.linalg.norm(asv_off-obst_off)-self.size-self.obst_states[i,5]),
-                         max(0,np.linalg.norm(self.odom[:2]-obst_off)-self.size-self.obst_states[i,5]),
-                         max(0,np.linalg.norm(asv_off-self.obst_states[i,:2])-self.size-self.obst_states[i,5]),
+            if self.rvizBool:
+
+                self.asv_off_marker.pose.position.x = asv_off[0]
+                self.asv_off_marker.pose.position.y = asv_off[1]
+                self.asv_off_publisher.publish(self.asv_off_marker)
+                self.obst_off_marker.pose.position.x = obst_off[0]
+                self.obst_off_marker.pose.position.y = obst_off[1]
+                self.obst_off_publisher.publish(self.obst_off_marker)
+
+            offd[i]= min(max(0,np.linalg.norm(asv_off-obst_off)-self.size-self.obst_radii[i]),
+                         max(0,np.linalg.norm(self.odom[:2]-obst_off)-self.size-self.obst_radii[i]),
+                         max(0,np.linalg.norm(asv_off-self.obst_states[i,:2])-self.size-self.obst_radii[i]),
                          dist[i])
 
         secu = np.zeros((self.n_obst,4))
@@ -382,17 +386,15 @@ class Referee(object) :
 
 #utils
 def att(x,option) :
-    try:
-        if option == 0:
-            return np.minimum(1,1/x)
-        if option == 1:
-            return 1/(1+x)
-        if option == 2:
-            return np.exp(-x)
-        if option == 3:
-            return np.maximum(1-x,0)
-    except ZeroDivisionError:
-        pass
+    if option == 0:
+        return np.minimum(1,1/x)
+    if option == 1:
+        return 1/(1+x)
+    if option == 2:
+        return np.exp(-x)
+    if option == 3:
+        return np.maximum(1-x,0)
+
 
 def rot(u,phi):
     v = np.zeros(2)

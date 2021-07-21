@@ -230,7 +230,7 @@ class Referee(object) :
             N = len(self.traj[i])
             vel = np.zeros((N,2))
             acc = np.zeros((N,2))
-            for k in range(2): #coordinates
+            for k in range(2):                                     #coordinates
                 self.traj[i][:,k+1] = sgf(self.traj[i][:,k+1],w,d, mode='nearest')
                 vel[:,k] = np.gradient(self.traj[i][:,k+1], self.traj[i][:,0])
                 vel[:,k] = sgf(vel[:,k],w,d-1, mode='nearest')
@@ -277,7 +277,7 @@ class Referee(object) :
             self.finished = 2
 
     def _update(self):
-        if (self.n_obst > -1) :
+        if (self.n_obst > -1 and len(self.odom) > 0) :
             secu = self.ob_secu()
             for i in range(self.n_obst) :
                 for j in range(1,4):
@@ -315,9 +315,9 @@ class Referee(object) :
 
     def ob_secu(self) :
         dist = self.ob_dist()
-        rvel = np.zeros(self.n_obst)    #relative velocity
-        offd = np.zeros(self.n_obst)    #distance avec offset
-
+        rvel = np.zeros(self.n_obst)                                               #relative velocity
+        offd = np.zeros(self.n_obst)                                               #distance avec offset
+                                                                                   
         for i in range(self.n_obst) :
             rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])
             cpa = rot((self.obst_states[i,2:4]-self.odom[2:4])/rvel,np.pi/2)
@@ -328,6 +328,7 @@ class Referee(object) :
                 if np.dot(cpa,self.odom[2:4]) < 0:
                     cpa = -cpa
                 asv_off = self.odom[:2]+self.r_offset*cpa                          #off before asv
+                                                                                   
                 obst_off = self.obst_states[i,:2]-self.r_offset*cpa
             elif self.obst_prior[i] == "s":
                 if np.dot(cpa,self.odom[2:4]) > 0:

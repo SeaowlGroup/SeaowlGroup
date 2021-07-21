@@ -5,9 +5,12 @@ import numpy as np
 import time
 import datetime
 import pandas as pd
+import rospkg
+import tkinter as tk
+from tkinter.filedialog import askopenfilename
 
-def run(serial, input_file) :
-    df = pd.read_excel('param3.xlsx',header=0)
+def run(serial, input_file, parameter_file) :
+    df = pd.read_excel(parameter_file,header=0)
     param = df.to_numpy()
 
     # UUID
@@ -18,7 +21,7 @@ def run(serial, input_file) :
     calc_heading_asv = np.pi/2
     u_d_asv = 5.0
     initial_state_asv = [0.,0.,calc_heading_asv, u_d_asv,0.,0.]
-    t_sim = 60
+    t_sim = 75
     t_collision = 45
     #Trajectory
     waypoints_asv = [[0.,0.],
@@ -75,14 +78,25 @@ def run(serial, input_file) :
 
 
 if __name__ == "__main__":
-    # Output parameters
-    now = datetime.datetime.now()
-    serial = now.strftime("%Y%m%d%H%M%S")[2:]
 
-    # Write Input
-    input = f"/home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/input/{serial}.txt"
-    f = open(input,'a')
+    rospack = rospkg.RosPack()
+    root = tk.Tk()
+    root.wm_withdraw()
+    param = askopenfilename(title="Load a file :",filetypes=[('excel files','.xlsx', '.xls'),('all files','.*')],
+                                          initialdir=f"{rospack.get_path('asv_system')}/config/param/")
+    root.destroy()
 
-    run(serial, f)
+    if param:
+        # Output parameters
+        now = datetime.datetime.now()
+        serial = now.strftime("%Y%m%d%H%M%S")[2:]
 
-    f.close()
+        # Write Input
+        input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
+        f = open(input,'a')
+
+        run(serial, f, param)
+
+        f.close()
+    else:
+        print("No file chosen")

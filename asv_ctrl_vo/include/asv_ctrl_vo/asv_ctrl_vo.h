@@ -95,7 +95,7 @@ class VelocityObstacle
   std::vector<colregs_t> state_list_;
 
   const double RADIUS_;
-  double MAX_VEL_;
+  const double MAX_VEL_;
   const double MAX_ANG_;
   const double MIN_DIST_;
 

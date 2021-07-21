@@ -22,7 +22,7 @@ class Scenario(object):
         self.u_d_asv = None
         self.lp = None
         self.true_heading_asv = 0.0
-        self.t_sim = 30
+        self.t_sim = 60
         # Obstacle related attributes
         self.heading = None
         self.u_d = None
@@ -30,7 +30,7 @@ class Scenario(object):
         self.size = None
         self.prior = None
         self.d_detec = None
-        self.t_collision = 15
+        self.t_collision = 45
         # Output
         rospack = rospkg.RosPack()
         self.input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"

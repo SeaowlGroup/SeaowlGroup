@@ -13,19 +13,12 @@ def clear_frame(frame):
 
 class Fig(object):
 
-    def __init__(self, serial='survivorz', n_groups=5):
-        rospack = rospkg.RosPack()
-        self.input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
-        self.output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
+    def __init__(self, input, output):
+        self.input = input
+        self.output = output
 
         self.i = 0
         self.j = 1
-        self.cutoff = 1000000
-        self.disp_lp = [True]*2
-        self.disp_groups = [True]*n_groups
-        self.annotate = False
-        self.disp_witness = False
-        self.validation_color = True
 
         self.xlab = ['OPUS', 'CLASS', 'U_D_ASV', 'LOC_PLAN', 'HEADING', 'U_D', 'DCPA', 'SIZE', 'PRIOR', 'D_DETEC']
         self.ylab = ['TIME', 'LOG_COL', 'NAT_COL', 'OFFSET_LOG', 'ANTICIPATION_ACC', 'ANTICIPATION_OMEGA',
@@ -34,7 +27,6 @@ class Fig(object):
         self.labels = []
         self.colors = []
         self.markers = []
-        self.n_groups = n_groups
         self.groups = []
         f1 = open(self.input,'r')
         f1.readline()
@@ -51,20 +43,26 @@ class Fig(object):
 
             if content[1] == 'CF':
                 self.colors.append('blue')
-                self.labels[-1]+="/CF"
+                self.labels[-1]+="_CF"
             elif content[1] == 'CL':
                 self.colors.append('orange')
-                self.labels[-1]+="/CL"
+                self.labels[-1]+="_CL"
             elif content[1] == 'WITNESS':
                 self.colors.append('purple')
-                self.labels[-1]+="/Witness"
+                self.labels[-1]+="_Witness"
             else:
                 self.colors.append('grey')
+                self.labels[-1]+=f"_{content[1]}"
 
         f1.close()
         self.groups = np.array(self.groups)
         self.n_groups = np.max(self.groups)
-
+        self.cutoff = 1000000
+        self.disp_lp = [True]*2
+        self.disp_groups = [True]*self.n_groups
+        self.annotate = False
+        self.disp_witness = False
+        self.validation_color = True
 
     def plot_graph(self) :
         x = []
@@ -99,7 +97,7 @@ class Fig(object):
             #if p!=0 :
             if y[p] < self.cutoff and self.disp_groups[self.groups[p]-1]:
                 if (self.disp_lp[0] and self.markers[p]=='o') or (self.disp_lp[1] and self.markers[p]=='v'):
-                    if self.j == 10 and y[p] < 0:
+                    if self.j == 12 and y[p] < 0:
                         ax.plot(x[p], y[p], marker=self.markers[p], color='white', mec='black')
                     else:
                         ax.plot(x[p], y[p], marker=self.markers[p], color=self.colors[p], label=self.labels[p])
@@ -122,20 +120,23 @@ class Fig(object):
 
         return figure
 
-if __name__ == "__main__":
-    aux_frame = tk.Tk()
-    graph_fig = Fig()
-    aux_frame.title(graph_fig.output)
+def gui(name):
+    title = name.split('.')[0]
+    aux_frame.title(title)
+
+    input = f"{rospack.get_path('asv_system')}/input/{name}"
+    output = f"{rospack.get_path('asv_system')}/output/{name}"
+    graph_fig = Fig(input=input, output=output)
 
     graph_frame = tk.Frame(aux_frame, bg='white')
-    graph_frame.grid(rowspan=2, column=1)
+    graph_frame.grid(row=1, rowspan=2, column=1)
 
     frame1 = tk.Frame(aux_frame, bg='gainsboro', padx=5)
     frame2 = tk.Frame(aux_frame, bg='gainsboro')
     frame3 = tk.Frame(aux_frame, bg='gainsboro', padx=20)
-    frame1.grid(row=0, column=0)
-    frame2.grid(row=1, column=0)
-    frame3.grid(row=0, column=2)
+    frame1.grid(row=1, column=0)
+    frame2.grid(row=2, column=0)
+    frame3.grid(row=1, column=2)
     tk.Label(frame1, text='X :', bg='gainsboro').pack()
     tk.Label(frame2, text='Y :', bg='gainsboro').pack()
     tk.Label(frame3, text='Parameters :', bg='gainsboro').pack()
@@ -210,3 +211,15 @@ if __name__ == "__main__":
     update_plot()
 
     aux_frame.mainloop()
+
+if __name__ == "__main__":
+    aux_frame = tk.Tk()
+
+    rospack = rospkg.RosPack()
+    filepath = tk.filedialog.askopenfilename(title="Load a file :",filetypes=[('txt files','.txt'),('all files','.*')],
+                                             initialdir=f"{rospack.get_path('asv_system')}/output/")
+    if filepath:
+        name = filepath.split('/')[-1]
+        gui(name)
+    else:
+        print("No file chosen")

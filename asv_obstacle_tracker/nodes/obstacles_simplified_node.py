@@ -23,11 +23,11 @@ class Obstacles(object):
 
         self.start = False
 
-        self.start_subscriber = rospy.Subscriber("/start_simulation", Empty,
+        self.start_subscriber = rospy.Subscriber("asv/start_simulation", Empty,
                                                 self.start_callback,
                                                 queue_size=10)
 
-        self.states_pub = rospy.Publisher("/obstacle_states", StateArray, queue_size=1)
+        self.states_pub = rospy.Publisher("obstacle_states", StateArray, queue_size=1)
 
     def run(self):
         statearray = StateArray()

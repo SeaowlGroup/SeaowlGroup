@@ -162,7 +162,7 @@ class Referee(object) :
         self._finish_subscriber = rospy.Subscriber("asv/end_simulation",
                                                     Empty, self._finish_callback,
                                                     queue_size=1)
-        self._start_subscriber = rospy.Subscriber("start_simulation", Empty,
+        self._start_subscriber = rospy.Subscriber("asv/start_simulation", Empty,
                                                     self._start_callback,
                                                     queue_size=10)
 
@@ -223,7 +223,6 @@ class Referee(object) :
 
     def _finish_callback(self, data) :
         self.nend = False
-        print("aaaaaaAAAAaaaAAAaaAAaaaAAaaaAAaaaAAAaaAAAAaaa")
         if self.debugBool:
             self.debug.close()
         tf = rospy.get_time()-self.begin_sim
@@ -242,7 +241,6 @@ class Referee(object) :
                 acc[:,k] = np.gradient(vel[:,k], self.traj[:N,0])
                 acc[:,k] = sgf(acc[:,k],w,d-2, mode='nearest')
             v = np.linalg.norm(vel,axis = 1)
-            print("bbbbbbBBbbbBBBbbBBBbbBBBBbBBBBBBBBBbbbBBBBbbBBb")
             irr = np.zeros((N,3))                                   #irregularity indicator
             irr[:,0] = np.linalg.norm(acc,axis = 1)                 #acceleration
             irr[:,1] = (vel[:,0]*acc[:,1]-vel[:,1]*acc[:,0])/v**2   #angular velocity

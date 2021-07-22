@@ -87,8 +87,8 @@ void VesselNode::initialize(tf::TransformBroadcaster* tf,
       cmd_sub_ = cmd_sub;
       start_sub_ = start_sub;
 
-      if (planner == "None")
-        inNav_ = true;
+      //if (planner == "None")
+      //  inNav_ = true;
 
       theVessel_ = vessel;
       initialized_ = true;

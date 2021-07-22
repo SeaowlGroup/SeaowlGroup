@@ -3,6 +3,7 @@
 import numpy as np
 import rospy
 import tf
+from nav_msgs.msg import Odometry
 from asv_msgs.msg import State, StateArray
 from std_msgs.msg import Empty
 
@@ -23,11 +24,19 @@ class Obstacles(object):
 
         self.start = False
 
+        self.asv_state = []
+
+        self.states_pub = rospy.Publisher("obstacle_states", StateArray, queue_size=1)
+
+
         self.start_subscriber = rospy.Subscriber("asv/start_simulation", Empty,
                                                 self.start_callback,
                                                 queue_size=10)
+        
+        self._odom_subscriber = rospy.Subscriber("asv/state", Odometry,
+                                                    self._odom_callback,
+                                                    queue_size=1)
 
-        self.states_pub = rospy.Publisher("obstacle_states", StateArray, queue_size=1)
 
     def run(self):
         statearray = StateArray()
@@ -93,13 +102,11 @@ class Obstacles(object):
 
         r = rospy.Rate(1/self.dt)
 
-        th_state_asv = np.array([x_asv, y_asv, psi_asv, u_d_asv])
 
-        while not rospy.is_shutdown():
-
+        while (not rospy.is_shutdown()):
 
             for i in range(N) :
-                if (statearray.states[i].x-th_state_asv[0])**2 + (statearray.states[i].y-th_state_asv[1])**2 < (self.d_detection[i]+self.size[i]/2)**2 :
+                if (len(self.asv_state)>0 and statearray.states[i].x-self.asv_state[0])**2 + (statearray.states[i].y-self.asv_state[1])**2 < (self.d_detection[i]+self.size[i]/2)**2 :
                     self.states_pub.publish(statearray) # NE MARCHE QUE SI UN SEUL OBSTACLE
                     br = tf.TransformBroadcaster()
                     br.sendTransform((statearray.states[i].x,statearray.states[i].y,0),
@@ -110,12 +117,18 @@ class Obstacles(object):
 
                 statearray.states[i].x += self.u_d[i]*np.cos(calc_heading[i])*self.dt
                 statearray.states[i].y += self.u_d[i]*np.sin(calc_heading[i])*self.dt
-                th_state_asv[0] += th_state_asv[3]*np.cos(th_state_asv[2])*self.dt
-                th_state_asv[1] += th_state_asv[3]*np.sin(th_state_asv[2])*self.dt
 
             r.sleep()
+
     def start_callback(self, data):
         self.start = True
+    
+    def _odom_callback(self, data):
+        if len(self.asv_state) ==0:
+            self.asv_state = np.zeros(2)
+        self.asv_state[0] = data.pose.pose.position.x
+        self.asv_state[1] = data.pose.pose.position.y
+
 
 # Utils
 def dist_init(u_d, u_d_asv, theta, t_col) :

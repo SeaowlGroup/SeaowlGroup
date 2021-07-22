@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   ros::Publisher noise_pub = nh.advertise<geometry_msgs::Vector3>("wave_noise", 10);
 
   ros::Subscriber cmd_sub = nh.subscribe("cmd_vel", 1, &VesselNode::cmdCallback, &my_vessel_node);
-  ros::Subscriber start_sub = nh.subscribe("/start_simulation", 1, &VesselNode::startCallback, &my_vessel_node);
+  ros::Subscriber start_sub = nh.subscribe("start_simulation", 1, &VesselNode::startCallback, &my_vessel_node);
 
   std::string planner;
   if (!priv_nh.getParam("global_planner", planner))

@@ -1,0 +1,12 @@
+<launch>
+
+  <arg name="nb_processes" default="1" />
+  <param name="nb_processes" value="$(arg nb_processes)"/>
+
+  <node pkg="asv_referee"
+        name="reaper_node"
+        type="asv_reaper_node.py"
+        respawn="true"
+        output="screen" />
+        
+</launch>

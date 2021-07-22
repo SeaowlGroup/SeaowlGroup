@@ -7,6 +7,8 @@ import datetime
 import rospkg
 from multiprocessing import Process
 
+NB_PROCESS = 3
+
 def run(serial, input_file, params, uuid) :
 
     # ASV parameters
@@ -19,7 +21,11 @@ def run(serial, input_file, params, uuid) :
     waypoints_asv = [[0.,0.],
                      [t_sim*u_d_asv*np.cos(calc_heading_asv), t_sim*u_d_asv*np.sin(calc_heading_asv)]]
 
-    launch_files = []
+    cli_args0 = ['asv_system', 'reaper.launch',
+                 f'nb_processes:={NB_PROCESS}']
+    roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
+    roslaunch_args0 = cli_args0[2:]
+    launch_files = [(roslaunch_file0, roslaunch_args0)]
 
     for opus in range(len(params)):
         param = params[opus]
@@ -38,7 +44,7 @@ def run(serial, input_file, params, uuid) :
         input_file.write(f'{opus+1}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}    {group}\n')
 
         # Creation of the launch files
-        cli_args0 = ['asv_system', 'main_launch3.launch',
+        cli_args1 = ['asv_system', 'main_launch3.launch',
                      f'trigger_shutdown:=0',
                      f'initial_state:={initial_state_asv}',
                      f'waypoints:={waypoints_asv}',
@@ -47,11 +53,11 @@ def run(serial, input_file, params, uuid) :
                      f'rviz:=False',
                      f'opus:={opus+1}',
                      f'output_file:=$(find asv_system)/output/{serial}.txt']
-        roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
-        roslaunch_args0 = cli_args0[2:]
-        launch_files.append((roslaunch_file0, roslaunch_args0))
+        roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
+        roslaunch_args1 = cli_args1[2:]
+        launch_files.append((roslaunch_file1, roslaunch_args1))
 
-        cli_args1 = ['asv_obstacle_tracker', 'obst_simplified2.launch',
+        cli_args2 = ['asv_obstacle_tracker', 'obst_simplified2.launch',
                     f'prior:=[{type}]',
                     f'size:=[{size}]',
                     f'heading:=[{h}]',
@@ -61,9 +67,9 @@ def run(serial, input_file, params, uuid) :
                     f'dcpa:=[{dcpa}]',
                     f'initial_state_asv:={initial_state_asv}',
                     f'opus:={opus+1}']
-        roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
-        roslaunch_args1 = cli_args1[2:]
-        launch_files.append((roslaunch_file1, roslaunch_args1))
+        roslaunch_file2 = roslaunch.rlutil.resolve_launch_arguments(cli_args2)[0]
+        roslaunch_args2 = cli_args2[2:]
+        launch_files.append((roslaunch_file2, roslaunch_args2))
 
     launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
     launch.start()
@@ -86,7 +92,6 @@ if __name__ == "__main__":
     # waypoints_asv = [[0.,0.],
     #                  [t_sim*u_d_asv*np.cos(calc_heading_asv), t_sim*u_d_asv*np.sin(calc_heading_asv)]]
 
-
     class_scen = ['CF', 'CL']
     u_d = [5.0, 6.0]
     h = [180, 225]
@@ -98,14 +103,7 @@ if __name__ == "__main__":
     type = ['none', 'none']
 
     # param = [class_scen, u_d, h, lp, d_detec, dcpa, group, size, type]
-    params = [['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
-              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
-              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
-              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
-              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
-              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
-              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
-              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none']]
+    params = [['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none']]*NB_PROCESS
 
     # Output parameters
     now = datetime.datetime.now()
@@ -117,6 +115,5 @@ if __name__ == "__main__":
     f.write(f'OPUS    CLASS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC    GROUP\n')
 
     run(serial, f, params, uuid)
-
 
     f.close()

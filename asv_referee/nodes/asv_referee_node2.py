@@ -219,6 +219,7 @@ class Referee(object) :
             print("---------------------BEGINNING OF THE SIMULATION---------------------")
 
     def _finish_callback(self, data) :
+        print("aaaaaaAAAAaaaAAAaaAAaaaAAaaaAAaaaAAAaaAAAAaaa")
         if self.debugBool:
             self.bcpa = np.array(self.n_obst*[False])
             self.debug.close()
@@ -237,6 +238,7 @@ class Referee(object) :
                 acc[:,k] = np.gradient(vel[:,k], self.traj[i][:,0])
                 acc[:,k] = sgf(acc[:,k],w,d-2, mode='nearest')
             v = np.linalg.norm(vel,axis = 1)
+            print("bbbbbbBBbbbBBBbbBBBbbBBBBbBBBBBBBBBbbbBBBBbbBBb")
             irr = np.zeros((N,3))                                   #irregularity indicator
             irr[:,0] = np.linalg.norm(acc,axis = 1)                 #acceleration
             irr[:,1] = (vel[:,0]*acc[:,1]-vel[:,1]*acc[:,0])/v**2   #angular velocity

@@ -38,8 +38,7 @@
           name="referee_node"
           type="asv_referee_node2.py"
           respawn="false"
-          output="screen"
-          required="true">
+          output="screen">
       <rosparam param="shutdown" subst_value="True">$(arg trigger_shutdown)</rosparam>
       <rosparam param="output_file" subst_value="True">$(arg output_file)</rosparam>
       <rosparam param="opus" subst_value="True">$(arg opus)</rosparam>

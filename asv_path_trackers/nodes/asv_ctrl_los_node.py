@@ -253,7 +253,7 @@ class LOSGuidance(Controller):
         self.Xp = 0.0
         self.u_d = u_d
 
-        self._finished_publisher  = rospy.Publisher("end_simulation", Empty, queue_size=1)
+        self._finished_publisher  = rospy.Publisher("end_simulation", Empty, queue_size=20)
 
     def __str__(self):
         return """Radii: %f\nLookahead distance: %f\nCurrent Waypoint: %d"""%(self.R, self.de, self.cWP)
@@ -343,7 +343,7 @@ if __name__ == "__main__":
                            Ki,
                            dt,
                            max_integral_correction,
-                           switch_criterion='progress')
+                           switch_criterion='circle')
 
     if (gp == "None") :
         waypoints = rospy.get_param("~waypoints")

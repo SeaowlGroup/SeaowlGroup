@@ -141,22 +141,22 @@ class Referee(object) :
         self.obst_off_marker.color.a = 1.0
         self.obst_off_marker.lifetime = rospy.Duration(0.)
 
-        self.start_publisher   = rospy.Publisher("/start_simulation", Empty, queue_size=1, latch=True)
-        self.asv_off_publisher = rospy.Publisher("/asv_off", Marker, queue_size=10, latch=True)
-        self.obst_off_publisher = rospy.Publisher("/obst_off", Marker, queue_size=10, latch=True)
-        self.cpa_publisher = rospy.Publisher("/cpa", Marker, queue_size=10, latch=True)
-        self.cpa2_publisher = rospy.Publisher("/cpa2", Marker, queue_size=10, latch=True)
+        self.start_publisher   = rospy.Publisher("asv/start_simulation", Empty, queue_size=1, latch=True)
+        self.asv_off_publisher = rospy.Publisher("asv_off", Marker, queue_size=10, latch=True)
+        self.obst_off_publisher = rospy.Publisher("obst_off", Marker, queue_size=10, latch=True)
+        self.cpa_publisher = rospy.Publisher("cpa", Marker, queue_size=10, latch=True)
+        self.cpa2_publisher = rospy.Publisher("cpa2", Marker, queue_size=10, latch=True)
 
-        self._odom_subscriber = rospy.Subscriber("/asv/state", Odometry,
+        self._odom_subscriber = rospy.Subscriber("asv/state", Odometry,
                                                     self._odom_callback,
                                                     queue_size=1)
-        self._obst_subscriber = rospy.Subscriber("/obstacle_states",
+        self._obst_subscriber = rospy.Subscriber("obstacle_states",
                                                     StateArray, self._obst_callback,
                                                     queue_size=1)
-        self._finish_subscriber = rospy.Subscriber("/end_simulation",
+        self._finish_subscriber = rospy.Subscriber("asv/end_simulation",
                                                     Empty, self._finish_callback,
                                                     queue_size=1)
-        self._start_subscriber = rospy.Subscriber("/start_simulation", Empty,
+        self._start_subscriber = rospy.Subscriber("start_simulation", Empty,
                                                     self._start_callback,
                                                     queue_size=10)
 
@@ -219,6 +219,7 @@ class Referee(object) :
             print("---------------------BEGINNING OF THE SIMULATION---------------------")
 
     def _finish_callback(self, data) :
+        print("aaaaaaAAAAaaaAAAaaAAaaaAAaaaAAaaaAAAaaAAAAaaa")
         if self.debugBool:
             self.bcpa = np.array(self.n_obst*[False])
             self.debug.close()
@@ -237,6 +238,7 @@ class Referee(object) :
                 acc[:,k] = np.gradient(vel[:,k], self.traj[i][:,0])
                 acc[:,k] = sgf(acc[:,k],w,d-2, mode='nearest')
             v = np.linalg.norm(vel,axis = 1)
+            print("bbbbbbBBbbbBBBbbBBBbbBBBBbBBBBBBBBBbbbBBBBbbBBb")
             irr = np.zeros((N,3))                                   #irregularity indicator
             irr[:,0] = np.linalg.norm(acc,axis = 1)                 #acceleration
             irr[:,1] = (vel[:,0]*acc[:,1]-vel[:,1]*acc[:,0])/v**2   #angular velocity
@@ -252,7 +254,7 @@ class Referee(object) :
             weight = irr[:,0]**2/np.sum(irr[:,0]**2)
             self.security[i,12] = np.dot(weight,(np.abs(self.tcpa[i] -self.traj[i][:,0])/self.t1))
             self.security[i,13] = 1/self.security[i,2]+max(1/self.security[i,2]-1,0)*self.security[i,12]
-            
+
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
@@ -317,7 +319,7 @@ class Referee(object) :
         dist = self.ob_dist()
         rvel = np.zeros(self.n_obst)                                               #relative velocity
         offd = np.zeros(self.n_obst)                                               #distance avec offset
-                                                                                   
+
         for i in range(self.n_obst) :
             rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])
             cpa = rot((self.obst_states[i,2:4]-self.odom[2:4])/rvel,np.pi/2)
@@ -328,7 +330,7 @@ class Referee(object) :
                 if np.dot(cpa,self.odom[2:4]) < 0:
                     cpa = -cpa
                 asv_off = self.odom[:2]+self.r_offset*cpa                          #off before asv
-                                                                                   
+
                 obst_off = self.obst_states[i,:2]-self.r_offset*cpa
             elif self.obst_prior[i] == "s":
                 if np.dot(cpa,self.odom[2:4]) > 0:

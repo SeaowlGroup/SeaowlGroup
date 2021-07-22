@@ -40,6 +40,7 @@ class Referee(object) :
         self.t0 = 4.              #temps de sécurité en s
         self.d0 = 1/100           #distance minimale
         self.t1 = 10              #temps de manoeuvre
+        self.d1 = 500             #distance de manoeuvre
         self.r_offset = 5.        #offset pour COLREG
         self.size = 8.            #asv size radius
         self.output = output
@@ -113,7 +114,7 @@ class Referee(object) :
             self.asv_off_marker.pose.orientation.x = 0
             self.asv_off_marker.pose.orientation.y = 0
             self.asv_off_marker.pose.orientation.z = 0
-            self.asv_off_marker.pose.orientation.w = 1.0
+            self.asv_off_marker.pose.orientation.w = 1.
             self.asv_off_marker.scale.x = 1.0
             self.asv_off_marker.scale.y = 1.0
             self.asv_off_marker.scale.z = 1.0
@@ -200,7 +201,7 @@ class Referee(object) :
                 self.cross = np.array(self.n_obst*[-1])
                 self.obst_states = np.zeros((self.n_obst, 4))
                 self.obst_radii = np.zeros(self.n_obst)
-                self.security = np.zeros((self.n_obst,14))
+                self.security = np.zeros((self.n_obst,15))
                 self.side = np.zeros(self.n_obst)
                 self.obst_prior = np.array(self.n_obst*[""])
                 for i in range(self.n_obst):
@@ -270,7 +271,7 @@ class Referee(object) :
             print(f'     --> security = {self.security[i]}')
 
         if (os.stat(self.output).st_size == 0) :
-            f.write('OPUS    TIME    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_ACC    ANTICIPATION_OMEGA    ANTICIPATION_R    AGG_ACC    AGG_OMEGA    AGG_R    DCPA    CROSSING_DIST    ANT_TIME    AGG_TIME\n')
+            f.write('OPUS    TIME    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_ACC    ANTICIPATION_OMEGA    ANTICIPATION_R    AGG_ACC    AGG_OMEGA    AGG_R    DCPA    CROSSING_DIST    ANT_TIME    AGG_TIME    N_CROSS\n')
         f.write(f'{self.opus}')
         for sec_indic in range(len(self.security[0])) :
             f.write(f'    {np.max(self.security[:,sec_indic])}')
@@ -308,6 +309,7 @@ class Referee(object) :
                 front  = np.dot(self.odom[0:2]-self.obst_states[i,0:2],self.obst_states[i,2:4])
                 if (side*self.side[i] < 0 and front > 0) :
                     self.cross[i] = secu[i,0]
+                    self.security[i,14] += att(secu[i,0]/self.d1,3)
                 self.side[i] = side
 
 

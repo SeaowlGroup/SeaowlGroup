@@ -21,7 +21,7 @@ def run(serial, input_file, params, uuid) :
 
     launch_files = []
 
-    for opus in range(2):
+    for opus in range(5):
         param = params[opus]
 
         class_scen = param[0]
@@ -39,7 +39,7 @@ def run(serial, input_file, params, uuid) :
 
         # Creation of the launch files
         cli_args0 = ['asv_system', 'main_launch3.launch',
-                     f'trigger_shutdown:=1',
+                     f'trigger_shutdown:=0',
                      f'initial_state:={initial_state_asv}',
                      f'waypoints:={waypoints_asv}',
                      f'u_d:={u_d_asv}',
@@ -98,7 +98,11 @@ if __name__ == "__main__":
     type = ['none', 'none']
 
     # param = [class_scen, u_d, h, lp, d_detec, dcpa, group, size, type]
-    params = [['CF', 5.0, 180, "True", 500, 0., 1, 8.0, 'none'], ['CL', 5.0, 225, "True", 500, 10., 1, 8.0, 'none']]
+    params = [['CF', 5.0, 180, "True", 500, 0., 1, 8.0, 'none'],
+              ['CL', 5.0, 225, "True", 500, 10., 1, 8.0, 'none'],
+              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
+              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
+              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none']]
 
     # Output parameters
     now = datetime.datetime.now()

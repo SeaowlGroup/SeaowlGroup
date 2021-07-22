@@ -270,11 +270,11 @@ class Referee(object) :
             print(f'     --> tCPA = {self.tcpa[i,0]} s')
             print(f'     --> security = {self.security[i]}')
 
-            if (self.opus <= 1) :
-                f.write('OPUS    TIME    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_ACC    ANTICIPATION_OMEGA    ANTICIPATION_R    AGG_ACC    AGG_OMEGA    AGG_R    DCPA    CROSSING_DIST    ANT_TIME    AGG_TIME\n')
-            f.write(f'{self.opus}')
-            for sec_indic in range(len(self.security[0])) :
-                f.write(f'    {np.max(self.security[:,sec_indic])}')
+        if (self.opus <= 1) :
+            f.write('OPUS    TIME    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_ACC    ANTICIPATION_OMEGA    ANTICIPATION_R    AGG_ACC    AGG_OMEGA    AGG_R    DCPA    CROSSING_DIST    ANT_TIME    AGG_TIME\n')
+        f.write(f'{self.opus}')
+        for sec_indic in range(len(self.security[0])) :
+            f.write(f'    {np.max(self.security[:,sec_indic])}')
         f.write(f'\n')
         f.close()
         print(f'Output logged in {self.output}')

@@ -23,7 +23,7 @@ class Obstacles(object):
 
         self.start = False
 
-        self.start_subscriber = rospy.Subscriber("start_simulation", Empty,
+        self.start_subscriber = rospy.Subscriber("asv/start_simulation", Empty,
                                                 self.start_callback,
                                                 queue_size=10)
 

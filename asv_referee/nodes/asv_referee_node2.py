@@ -8,6 +8,7 @@ from asv_msgs.msg import StateArray
 from visualization_msgs.msg import Marker
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter as sgf
+import os
 
 import time
 
@@ -268,7 +269,7 @@ class Referee(object) :
             print(f'     --> tCPA = {self.tcpa[i,0]} s')
             print(f'     --> security = {self.security[i]}')
 
-        if (self.opus <= 1) :
+        if (os.stat(self.output).st_size == 0) :
             f.write('OPUS    TIME    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_ACC    ANTICIPATION_OMEGA    ANTICIPATION_R    AGG_ACC    AGG_OMEGA    AGG_R    DCPA    CROSSING_DIST    ANT_TIME    AGG_TIME\n')
         f.write(f'{self.opus}')
         for sec_indic in range(len(self.security[0])) :

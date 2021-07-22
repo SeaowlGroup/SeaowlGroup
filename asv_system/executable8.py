@@ -21,7 +21,7 @@ def run(serial, input_file, params, uuid) :
 
     launch_files = []
 
-    for opus in range(5):
+    for opus in range(len(params)):
         param = params[opus]
 
         class_scen = param[0]
@@ -98,8 +98,11 @@ if __name__ == "__main__":
     type = ['none', 'none']
 
     # param = [class_scen, u_d, h, lp, d_detec, dcpa, group, size, type]
-    params = [['CF', 5.0, 180, "True", 500, 0., 1, 8.0, 'none'],
-              ['CL', 5.0, 225, "True", 500, 10., 1, 8.0, 'none'],
+    params = [['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
+              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
+              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
+              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
+              ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
               ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
               ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none'],
               ['CF', 10.0, 180, "True", 50, 0., 1, 8.0, 'none']]

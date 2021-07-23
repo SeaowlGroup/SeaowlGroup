@@ -28,7 +28,7 @@ class LOSGuidanceROS(object):
                  Ki=0.0,
                  dt=0.2, #Parameter of time
                  max_integral_correction=np.pi*20.0/180.0,
-                 switch_criterion='circle'):
+                 switch_criterion='progress'):
 
         self.controller = LOSGuidance(R2,
                                       u_d,
@@ -229,7 +229,7 @@ class LOSGuidance(Controller):
                  Ki=0.0,
                  dt=0.2,
                  max_integral_correction=np.pi*20.0/180.0,
-                 switch_criterion='circle'):
+                 switch_criterion='progress'):
         self.R2 = R2 # Radii of acceptance (squared)
         self.R  = np.sqrt(R2)
         self.de = de # Lookahead distance
@@ -343,7 +343,7 @@ if __name__ == "__main__":
                            Ki,
                            dt,
                            max_integral_correction,
-                           switch_criterion='circle')
+                           switch_criterion='progress')
 
     if (gp == "None") :
         waypoints = rospy.get_param("~waypoints")

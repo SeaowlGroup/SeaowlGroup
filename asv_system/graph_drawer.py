@@ -7,6 +7,8 @@ import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.patches import Rectangle
 
+COLOR = ['b', 'orange', 'crimson', 'purple', 'cyan', 'magenta', 'gold']
+
 def clear_frame(frame):
     for w in frame.winfo_children():
         w.destroy()
@@ -34,6 +36,7 @@ class Fig(object):
         for line in f1:
             content = line.split()
             self.groups.append(int(content[10]))
+            self.colors.append(COLOR[int(content[10])])
             if content[3] == "True":
                 self.labels.append('Velocity Obstacles')
                 self.markers.append('v')
@@ -41,18 +44,7 @@ class Fig(object):
                 self.labels.append('No LP')
                 self.markers.append('o')
 
-            if content[1] == 'CF':
-                self.colors.append('blue')
-                self.labels[-1]+="_CF"
-            elif content[1] == 'CL':
-                self.colors.append('orange')
-                self.labels[-1]+="_CL"
-            elif content[1] == 'WITNESS':
-                self.colors.append('purple')
-                self.labels[-1]+="_Witness"
-            else:
-                self.colors.append('grey')
-                self.labels[-1]+=f"_{content[1]}"
+            self.labels[-1]+=f"_{content[1]}"
 
         f1.close()
         self.groups = np.array(self.groups)

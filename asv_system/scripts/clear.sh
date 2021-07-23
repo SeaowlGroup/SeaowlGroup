@@ -9,15 +9,15 @@ while [ -z "$file" ]; do
 done
 
 if [ "$file" = "all" ]; then
-  rm ../output/21*
-  rm ../input/21*
+  rm -f ../output/21*
+  rm -f ../input/21*
 elif [ "$file" = "last" ]; then
   cd ../output
-  rm "$(ls 21* | tail -1)"
+  rm -f "$(ls 21* | tail -1)"
   cd ../input
-  rm "$(ls 21* | tail -1)"
+  rm -f "$(ls 21* | tail -1)"
   cd ../scripts
 else
-  rm ../output/"$file"*
-  rm ../input/"$file"*
+  rm -f ../output/"$file"*
+  rm -f ../input/"$file"*
 fi

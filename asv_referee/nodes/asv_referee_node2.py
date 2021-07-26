@@ -6,7 +6,6 @@ from nav_msgs.msg import Odometry
 from std_msgs.msg import Empty
 from asv_msgs.msg import StateArray
 from visualization_msgs.msg import Marker
-import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter as sgf
 import os
 

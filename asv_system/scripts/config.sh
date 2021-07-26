@@ -16,3 +16,7 @@ sudo apt install python3-pip
 pip3 install pandas
 pip3 install openpyxl
 pip3 install scipy
+
+mkdir -p ws/src/
+cd ws/src/
+git clone https://github.com/Straccia11/seaowl.git

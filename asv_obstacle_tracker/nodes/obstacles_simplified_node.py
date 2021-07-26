@@ -29,11 +29,11 @@ class Obstacles(object):
         self.states_pub = rospy.Publisher("obstacle_states", StateArray, queue_size=1)
 
 
-        self.start_subscriber = rospy.Subscriber("asv/start_simulation", Empty,
+        self.start_subscriber = rospy.Subscriber("start_simulation", Empty,
                                                 self.start_callback,
                                                 queue_size=10)
-        
-        self._odom_subscriber = rospy.Subscriber("asv/state", Odometry,
+
+        self._odom_subscriber = rospy.Subscriber("state", Odometry,
                                                     self._odom_callback,
                                                     queue_size=1)
 
@@ -122,7 +122,7 @@ class Obstacles(object):
 
     def start_callback(self, data):
         self.start = True
-    
+
     def _odom_callback(self, data):
         if len(self.asv_state) ==0:
             self.asv_state = np.zeros(2)

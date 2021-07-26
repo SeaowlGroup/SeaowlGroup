@@ -6,7 +6,7 @@
   <node pkg="asv_referee"
         name="reaper_node"
         type="asv_reaper_node.py"
-        respawn="true"
-        output="screen" />
-        
+        output="screen"
+        required="true" />
+
 </launch>

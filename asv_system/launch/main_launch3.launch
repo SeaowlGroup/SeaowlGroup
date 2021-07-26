@@ -44,35 +44,28 @@
       <rosparam param="opus" subst_value="True">$(arg opus)</rosparam>
     </node>
 
+    <node pkg="asv_simulator"
+          name="asv"
+          type="asv_simulator_node"
+          respawn="false"
+          output="screen">
+      <rosparam param="initial_state" subst_value="True">$(arg initial_state)</rosparam>
+      <rosparam command="load" file="$(arg vessel_param_file)" />
+      <rosparam param="Fx_current" subst_value="True">$(arg Fx_current)</rosparam>
+      <rosparam param="Fy_current" subst_value="True">$(arg Fy_current)</rosparam>
+    </node>
 
-    <group ns="asv">
-      <node pkg="asv_simulator"
-            name="asv"
-            type="asv_simulator_node"
-            respawn="false"
-            output="screen">
-        <rosparam param="initial_state" subst_value="True">$(arg initial_state)</rosparam>
-        <rosparam command="load" file="$(arg vessel_param_file)" />
-        <rosparam param="Fx_current" subst_value="True">$(arg Fx_current)</rosparam>
-        <rosparam param="Fy_current" subst_value="True">$(arg Fy_current)</rosparam>
-      </node>
+    <node pkg="asv_path_trackers"
+          name="LOSNode"
+          type="asv_ctrl_los_node.py"
+          respawn="false"
+          output="screen">
+      <rosparam param="u_d" subst_value="True">$(arg u_d)</rosparam>
+      <rosparam param="waypoints" subst_value="True">$(arg waypoints)</rosparam>
 
-      <node pkg="asv_path_trackers"
-            name="LOSNode"
-            type="asv_ctrl_los_node.py"
-            respawn="false"
-            output="screen">
-        <rosparam param="u_d" subst_value="True">$(arg u_d)</rosparam>
-        <rosparam param="waypoints" subst_value="True">$(arg waypoints)</rosparam>
+      <remap from="cmd_vel" to="LOS/cmd_vel" if="$(arg use_vo)"/>
+    </node>
 
-        <remap from="cmd_vel" to="LOS/cmd_vel" if="$(arg use_vo)"/>
-      </node>
-
-      <param name="robot_description" textfile="$(arg vessel_model_file)" />
-      <node pkg="robot_state_publisher"
-            type="robot_state_publisher"
-            name="tf_broadcaster" />
-    </group>
 
     <group if="$(arg use_vo)">
       <node pkg="asv_ctrl_vo"

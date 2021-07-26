@@ -9,7 +9,6 @@ import sys
 def callback(data):
     global count
     count -= 1
-    print("aaaaaaaaaaaaAAaaaaAAaaaAAaaaAAaaaAAAAaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaaaaaaaa", count)
 
 
 if __name__ == "__main__" :
@@ -25,7 +24,7 @@ if __name__ == "__main__" :
 
     for i in range(N):
 
-        suscribers.append(rospy.Subscriber(f"/{i+1}/asv/end_simulation", Empty,
+        suscribers.append(rospy.Subscriber(f"/{i+1}/end_simulation", Empty,
                                            callback,
                                            queue_size=20))
 
@@ -33,11 +32,12 @@ if __name__ == "__main__" :
     r = rospy.Rate(dt)
     while (not rospy.is_shutdown()):
         if count == 0:
-            nodes = os.popen("rosnode list").readlines()
-            for i in range(len(nodes)):
-                nodes[i] = nodes[i].replace("\n","")
-
-            for node in nodes:
-                os.system("rosnode kill "+ node)
+            # nodes = os.popen("rosnode list").readlines()
+            # for i in range(len(nodes)):
+            #     nodes[i] = nodes[i].replace("\n","")
+            #
+            # for node in nodes:
+            #     os.system("rosnode kill "+ node)
+            rospy.signal_shutdown("Set of scenarios ended")
 
         r.sleep()

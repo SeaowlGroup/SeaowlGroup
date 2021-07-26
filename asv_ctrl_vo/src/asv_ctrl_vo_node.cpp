@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
 
   ros::Publisher mk_pub = n.advertise<visualization_msgs::Marker>("vo_markers", 1);
-  ros::Publisher cmd_pub = n.advertise<geometry_msgs::Twist>("asv/cmd_vel", 10);
+  ros::Publisher cmd_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 10);
 
   ros::Subscriber obstacle_sub = n.subscribe("obstacle_states",
                                              1,
@@ -35,12 +35,12 @@ int main(int argc, char *argv[])
                                        &VelocityObstacleNode::mapCallback,
                                        &vo_node);
 
-  ros::Subscriber asv_sub = n.subscribe("asv/state",
+  ros::Subscriber asv_sub = n.subscribe("state",
                                         1,
                                         &VelocityObstacleNode::asvCallback,
                                         &vo_node);
 
-  ros::Subscriber cmd_sub = n.subscribe("asv/LOS/cmd_vel",
+  ros::Subscriber cmd_sub = n.subscribe("LOS/cmd_vel",
                                         1,
                                         &VelocityObstacleNode::cmdCallback,
                                         &vo_node);

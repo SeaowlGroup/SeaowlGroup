@@ -146,24 +146,24 @@ class Referee(object) :
             self.obst_off_marker.color.b = 0.5
             self.obst_off_marker.color.a = 1.0
             self.obst_off_marker.lifetime = rospy.Duration(0.)
-            self.obst_off_publisher = rospy.Publisher("/obst_off", Marker, queue_size=10, latch=True)
+            self.obst_off_publisher = rospy.Publisher("obst_off", Marker, queue_size=10, latch=True)
 
-        self.start_publisher   = rospy.Publisher("asv/start_simulation", Empty, queue_size=1, latch=True)
+        self.start_publisher   = rospy.Publisher("start_simulation", Empty, queue_size=1, latch=True)
         self.asv_off_publisher = rospy.Publisher("asv_off", Marker, queue_size=10, latch=True)
         self.obst_off_publisher = rospy.Publisher("obst_off", Marker, queue_size=10, latch=True)
         self.cpa_publisher = rospy.Publisher("cpa", Marker, queue_size=10, latch=True)
         self.cpa2_publisher = rospy.Publisher("cpa2", Marker, queue_size=10, latch=True)
 
-        self._odom_subscriber = rospy.Subscriber("asv/state", Odometry,
+        self._odom_subscriber = rospy.Subscriber("state", Odometry,
                                                     self._odom_callback,
                                                     queue_size=1)
         self._obst_subscriber = rospy.Subscriber("obstacle_states",
                                                     StateArray, self._obst_callback,
                                                     queue_size=1)
-        self._finish_subscriber = rospy.Subscriber("asv/end_simulation",
+        self._finish_subscriber = rospy.Subscriber("end_simulation",
                                                     Empty, self._finish_callback,
                                                     queue_size=1)
-        self._start_subscriber = rospy.Subscriber("asv/start_simulation", Empty,
+        self._start_subscriber = rospy.Subscriber("start_simulation", Empty,
                                                     self._start_callback,
                                                     queue_size=10)
 

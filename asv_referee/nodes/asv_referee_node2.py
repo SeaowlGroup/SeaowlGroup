@@ -229,7 +229,7 @@ class Referee(object) :
         self.nend = False
         if self.debugBool:
             self.debug.close()
-        tf = (rospy.get_time()-self.begin_sim-self.tth)/self.tth
+        tf = rospy.get_time()-self.begin_sim
         for i in range(self.n_obst):
             self.traj = np.array(self.traj)
             w = 11
@@ -264,7 +264,7 @@ class Referee(object) :
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
-        print(f'Relative duration of the simulation: {tf} s')
+        print(f'Duration of the simulation: {tf} s')
         print(f'Number of ships : {self.n_obst}')
         for i in range(self.n_obst) :
             print(f'Ship {i+1}')

@@ -4,6 +4,9 @@ import rospy
 import geometry_msgs.msg
 import nav_msgs.msg
 from visualization_msgs.msg import Marker
+from std_msgs.msg import Empty
+from asv_msgs.msg import Path
+
 
 from utils import Controller
 
@@ -19,6 +22,7 @@ class PurePursuitROS(object):
         self._cmd_publisher   = rospy.Publisher("cmd_vel", geometry_msgs.msg.Twist, queue_size=1)
         self._odom_subscriber = rospy.Subscriber("state", nav_msgs.msg.Odometry, self._odom_callback, queue_size=1)
         self._wps_publisher   = rospy.Publisher("waypoints", Marker, queue_size=10)
+        self._wps_suscriber   = rospy.Subscriber("asv_waypoints", Path, self._wps_callback, queue_size=1)
 
 
         self.odom = nav_msgs.msg.Odometry()
@@ -112,12 +116,54 @@ class PurePursuitROS(object):
     def _odom_callback(self, data):
         self.odom = data
 
+    def _wps_callback(self, data):
+
+        #Reinitialization
+        #self.R2 = R2 # Radii of acceptance (squared)
+        #self.R  = np.sqrt(R2)
+        #self.de = de # Lookahead distance
+
+        #self.dt = dt
+        #self.max_integral_correction = np.abs(np.tan(max_integral_correction) * de)
+        #self.Ki = Ki
+
+        #self.e_integral = 0.0
+
+        self.controller.cWP = 0 # Current waypoint
+        self.controller.wp = None
+        self.controller.nWP = 0
+        #self.controller.wp_initialized = False
+        #
+
+        self.wp   = self.controller.wp
+        self.nwp  = 0 #number of waypoints
+        self.cwp  = 0 #current waypoint
+
+        self.odom = nav_msgs.msg.Odometry()
+        self.cmd  = geometry_msgs.msg.Twist()
+        self.cmd.linear.x = 0
+
+        self._first_draw = False
+        ##
+
+        l = []
+        for it in data.waypoints :
+            l.append([it.x, it.y])
+
+        if (len(l)>0) :
+            wps = np.array(l)
+            self.wp = wps
+            self.controller.wp = np.copy(wps)
+            self.controller.nWP = len(wps)
+            self.controller.wp_initialized = True
+            self.nwp = len(wps)
+
     def _update(self):
 
         u_d, psi_d, switched = self.controller.update(self.odom.pose.pose.position.x,
                                                       self.odom.pose.pose.position.y)
         if switched:
-            print "Switched!"
+            print("Switched!")
             self.cwp += 1
 
         # Publish cmd_vel
@@ -134,7 +180,14 @@ class PurePursuitROS(object):
 
         while not rospy.is_shutdown():
             self._update()
-            r.sleep()
+            #r.sleep()
+            try:
+                r.sleep()
+            except rospy.exceptions.ROSInterruptException as e:
+                if rospy.is_shutdown():
+                    break
+                raise
+
 
 class PurePursuit(Controller):
     """This class implements the classic LOS guidance scheme."""
@@ -154,6 +207,9 @@ class PurePursuit(Controller):
 
         self.u_d = u_d
 
+        self._finished_publisher  = rospy.Publisher("end_simulation", Empty, queue_size=20)
+
+
     def __str__(self):
         return """Radii: %f\nCurrent Waypoint: %d"""%(self.R, self.cWP)
 
@@ -169,7 +225,7 @@ class PurePursuit(Controller):
 
     def update(self, x, y):
         if not self.wp_initialized:
-            print "Error. No waypoints!"
+            print("Error. No waypoints!")
             return 0,0,False
 
         xk = self.wp[self.cWP][0]
@@ -191,11 +247,13 @@ class PurePursuit(Controller):
                 else:
                     # Last waypoint reached
                     if self.R2 < 999999:
-                        print "Waypoint %d: (%.2f, %.2f) reached!" % (self.cWP,
+                        print("Waypoint %d: (%.2f, %.2f) reached!" % (self.cWP,
                                                                       self.wp[self.cWP][0],
-                                                                      self.wp[self.cWP][1])
-                        print "Last Waypoint reached!"
+                                                                      self.wp[self.cWP][1]))
+                        print("Last Waypoint reached!")
                         self.R2 = np.Inf
+                        msg = Empty()
+                        self._finished_publisher.publish(msg)
                         return 0, psi_d, False
 
 
@@ -207,10 +265,18 @@ if __name__ == "__main__":
 
     waypoints = rospy.get_param("~waypoints")
     u_d = rospy.get_param("~u_d")
+    dt = rospy.get_param("~update_rate", .2)
+    gp = rospy.get_param("~global_planner", "None")
 
-    guide = PurePursuitROS(.2, u_d=u_d)
+
+    guide = PurePursuitROS(dt, u_d=u_d,switch_criterion='circle')
 
     wps = np.array(waypoints)
     guide.set_waypoints(wps)
+
+    if (gp == "None") :
+        waypoints = rospy.get_param("~waypoints")
+        wps = np.array(waypoints)
+        guide.set_waypoints(wps)
 
     guide.run_controller()

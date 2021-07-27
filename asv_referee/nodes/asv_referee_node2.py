@@ -8,10 +8,10 @@ from asv_msgs.msg import StateArray
 from visualization_msgs.msg import Marker
 from scipy.signal import savgol_filter as sgf
 import os
-
 import time
-
 import sys
+
+T_MAX_SIM = 200.0
 
 class Referee(object) :
 
@@ -188,6 +188,7 @@ class Referee(object) :
                 self.odom[2] = (self.odom[0]-x)/(t-self.odom[4])
                 self.odom[3] = (self.odom[1]-y)/(t-self.odom[4])
                 self.odom[4] = t
+                print([t,self.odom[0],self.odom[1]])
                 self.traj.append(np.array([t,self.odom[0],self.odom[1]]))
                 if self.debugBool:
                     self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\n')
@@ -386,7 +387,7 @@ class Referee(object) :
         r = rospy.Rate(self.rate)
         while (not rospy.is_shutdown()) and self.finished < 2 :
             t = rospy.get_time()-self.begin_sim
-            if t < 120.:
+            if t < T_MAX_SIM:
                 self._update()
             else:
                 msg = Empty()

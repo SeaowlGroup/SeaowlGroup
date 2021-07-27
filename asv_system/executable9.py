@@ -25,8 +25,8 @@ def run(serial, input_file, params, uuid) :
     for scenar in params:
 
         h = scenar[0]
-        u_d = scenar[1]*0,514444 #knots to m/s
-        u_d_asv = scenar[2]*0,514444 #knots to m/s
+        u_d = scenar[1]*0.514444 #knots to m/s
+        u_d_asv = scenar[2]*0.514444 #knots to m/s
         dcpa = scenar[3]
         d_detec = scenar[4]
         opus = scenar[5]
@@ -75,8 +75,8 @@ def run(serial, input_file, params, uuid) :
                      f'rviz:=False',
                      f'opus:={opus}',
                      f'output_file:=$(find asv_system)/output/{serial}.txt',
-                     f't_sim:={t_sim},
-                     f'pos_end_waypoint:={waypoints_asv[0]}]
+                     f't_sim:={t_sim}',
+                     f'pos_end_waypoint:={waypoints_asv[0]}']
         roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
         roslaunch_args1 = cli_args1[2:]
         launch_files.append((roslaunch_file1, roslaunch_args1))

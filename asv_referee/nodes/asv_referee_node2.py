@@ -188,7 +188,7 @@ class Referee(object) :
                 self.odom[2] = (self.odom[0]-x)/(t-self.odom[4])
                 self.odom[3] = (self.odom[1]-y)/(t-self.odom[4])
                 self.odom[4] = t
-                print([t,self.odom[0],self.odom[1]])
+                #print([t,self.odom[0],self.odom[1]])
                 self.traj.append(np.array([t,self.odom[0],self.odom[1]]))
                 if self.debugBool:
                     self.debug.write(f'{t}\t{self.odom[0]}\t{self.odom[1]}\n')
@@ -386,12 +386,14 @@ class Referee(object) :
     def run_controller(self):
         r = rospy.Rate(self.rate)
         while (not rospy.is_shutdown()) and self.finished < 2 :
-            t = rospy.get_time()-self.begin_sim
-            if t < T_MAX_SIM:
-                self._update()
-            else:
-                msg = Empty()
-                self._finish_publisher.publish(msg)
+            if self.begin_sim > 0:
+                t = rospy.get_time()-self.begin_sim
+                if t < T_MAX_SIM:
+                    self._update()
+                else:
+                    print("ENDENDEND")
+                    msg = Empty()
+                    self._finish_publisher.publish(msg)
             try:
                 r.sleep()
             except rospy.exceptions.ROSInterruptException as e:

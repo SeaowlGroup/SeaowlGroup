@@ -154,6 +154,7 @@ class Referee(object) :
         self.obst_off_publisher = rospy.Publisher("obst_off", Marker, queue_size=10, latch=True)
         self.cpa_publisher = rospy.Publisher("cpa", Marker, queue_size=10, latch=True)
         self.cpa2_publisher = rospy.Publisher("cpa2", Marker, queue_size=10, latch=True)
+        self._finish_publisher = rospy.Publisher("end_simulation",Empty, queue_size = 1, latch = True)
 
         self._odom_subscriber = rospy.Subscriber("state", Odometry,
                                                     self._odom_callback,
@@ -384,7 +385,12 @@ class Referee(object) :
     def run_controller(self):
         r = rospy.Rate(self.rate)
         while (not rospy.is_shutdown()) and self.finished < 2 :
-            self._update()
+            t = rospy.get_time()-self.begin_sim
+            if t < 120.:
+                self._update()
+            else:
+                msg = Empty()
+                self._finish_publisher.publish(msg)
             try:
                 r.sleep()
             except rospy.exceptions.ROSInterruptException as e:

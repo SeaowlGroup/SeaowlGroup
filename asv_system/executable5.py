@@ -22,7 +22,7 @@ class Scenario(object):
         self.u_d_asv = None
         self.lp = None
         self.true_heading_asv = 0.0
-        self.t_sim = 60
+        self.t_sim = 75
         # Obstacle related attributes
         self.heading = None
         self.u_d = None
@@ -30,7 +30,7 @@ class Scenario(object):
         self.size = None
         self.prior = None
         self.d_detec = None
-        self.t_collision = 45
+        self.t_collision = 15
         # Output
         rospack = rospkg.RosPack()
         self.input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
@@ -265,7 +265,7 @@ class Scenario(object):
                           self.t_sim*self.u_d_asv*np.sin(calc_heading_asv)]]
 
         # Creation of the launch files
-        cli_args0 = ['asv_system', 'main_launch2.launch',
+        cli_args0 = ['asv_system', 'main_launch3.launch',
                      f'initial_state:={initial_state_asv}',
         #             f'use_sim_time:=True',
                      f'waypoints:={waypoints_asv}',
@@ -276,7 +276,7 @@ class Scenario(object):
         roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
         roslaunch_args0 = cli_args0[2:]
 
-        cli_args1 = ['asv_obstacle_tracker', 'obst_simplified.launch',
+        cli_args1 = ['asv_obstacle_tracker', 'obst_simplified2.launch',
                      f'prior:=[{self.prior}]',
                      f'size:=[{self.size}]',
                      f'heading:=[{self.heading}]',
@@ -284,7 +284,8 @@ class Scenario(object):
                      f't_collision:=[{self.t_collision}]',
                      f'd_detection:=[{self.d_detec}]',
                      f'dcpa:=[{self.dcpa}]',
-                     f'initial_state_asv:={initial_state_asv}']
+                     f'initial_state_asv:={initial_state_asv}',
+                     f'opus:={self.opus}']
         roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
         roslaunch_args1 = cli_args1[2:]
         launch_files = [(roslaunch_file0, roslaunch_args0), (roslaunch_file1, roslaunch_args1)]

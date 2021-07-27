@@ -21,6 +21,8 @@
   <!-- Output -->
   <arg name="opus" default="0" />
   <arg name="output_file" default="$(find asv_system)/output/test.txt" />
+  <arg name="t_sim" default="75" />
+  <arg name="pos_end_waypoint" default="[0.,0.]" />
 
 
   <rosparam param="/use_sim_time" subst_value="True">$(arg use_sim_time)</rosparam>
@@ -56,8 +58,8 @@
     </node>
 
     <node pkg="asv_path_trackers"
-          name="LOSNode"
-          type="asv_ctrl_los_node.py"
+          name="PPNode"
+          type="asv_ctrl_pp_node.py"
           respawn="false"
           output="screen">
       <rosparam param="u_d" subst_value="True">$(arg u_d)</rosparam>

@@ -32,7 +32,8 @@ class VelocityObstacleNode
                   ros::Subscriber *og_sub,
                   ros::Subscriber *asv_sub,
                   ros::Subscriber *cmd_sub,
-                  VelocityObstacle *vo);
+                  VelocityObstacle *vo,
+                  int op);
   /**
    * Start the node. Enters a "never ending" while loop.
    */
@@ -46,7 +47,7 @@ class VelocityObstacleNode
  private:
 
   void clearMarkers();
-  void initializeMarker();
+  void initializeMarker(int op);
 
   visualization_msgs::Marker marker_;
   geometry_msgs::Twist cmd_vel_;

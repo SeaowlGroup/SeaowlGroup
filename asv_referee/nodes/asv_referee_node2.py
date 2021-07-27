@@ -20,7 +20,7 @@ class Referee(object) :
                  op='0') :
 
         self.debugBool = False   #if True prints the trajectory (t,x,y) of asv in debug.txt
-        self.rvizBool = False
+        self.rvizBool = True
 
         self.begin_wall = 0.
         self.begin_sim = 0.

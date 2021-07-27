@@ -28,6 +28,7 @@
   <rosparam param="/use_sim_time" subst_value="True">$(arg use_sim_time)</rosparam>
 
   <group ns="$(arg opus)">
+    <param name="opus" value="$(arg opus)" />
     <group if="$(arg use_sim_time)">
       <node pkg="asv_referee"
             name="chronos_node"

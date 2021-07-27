@@ -34,19 +34,23 @@ def run(serial, input_file, params, uuid) :
 
         if (np.abs(h)<=20):
             t_collision = 15
-            class_scen = 'OVERTAKING'
-            group = 1
+            if u_d < u_d_asv:
+                class_scen = 'OVERTAKING'
+                group = 1
+            else :
+                class_scen = 'OVERTAKEN'
+                group = 2
         elif (h>20 and h<150):
             t_collision = 45
             class_scen = 'CROSSING_LEFT'
-            group = 2
+            group = 3
         elif (h>=150 and h<=210):
             t_collision = 45
             class_scen = 'HEAD_ON'
-            group = 3
+            group = 4
         else:
             class_scen = 'CROSSING_RIGHT'
-            group = 4
+            group = 5
 
         # ASV parameters
         calc_heading_asv = np.pi/2
@@ -115,7 +119,7 @@ if __name__ == "__main__":
                 for u_d_asv in yaml_content['u_d_asv']:
                     for dcpa in yaml_content['dcpa']:
                         for d_detec in yaml_content['d_detection_jb']: ############################################
-                            if (h<340 and h>20) or (np.abs(u_d-u_d_asv)>2.57):
+                            if (h<340 and h>20 or np.abs(u_d-u_d_asv)>2.57) and (d_detec > np.abs(dcpa)):
                                 params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])
                                 opus += 1
                                 if len(params) == NB_PROCESS:

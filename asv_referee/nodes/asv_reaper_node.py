@@ -17,14 +17,14 @@ if __name__ == "__main__" :
 
     dt = 1/rospy.get_param("~update_rate", 5.)
     N = rospy.get_param("nb_processes", 1)
+    opus = rospy.get_param("opus", 0)
     # N = int(sys.argv[1])
 
     suscribers = []
     count = N
 
     for i in range(N):
-
-        suscribers.append(rospy.Subscriber(f"/{i+1}/end_simulation", Empty,
+        suscribers.append(rospy.Subscriber(f"/{opus+i}/end_simulation", Empty,
                                            callback,
                                            queue_size=20))
 

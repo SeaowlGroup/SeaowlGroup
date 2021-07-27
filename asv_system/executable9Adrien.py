@@ -8,12 +8,16 @@ import rospkg
 import yaml
 import sys
 
-NB_PROCESS = 6
+NB_PROCESS = 3
 
-def run(serial, input_file, params, uuid) :
+def run(serial, params, uuid) :
+
+    rospack = rospkg.RosPack()
+    first_opus = params[0][5]
 
     cli_args0 = ['asv_system', 'reaper.launch',
-                 f'nb_processes:={NB_PROCESS}']
+                 f'nb_processes:={NB_PROCESS}',
+                 f'opus:={first_opus}']
     roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
     roslaunch_args0 = cli_args0[2:]
     launch_files = [(roslaunch_file0, roslaunch_args0)]
@@ -63,7 +67,10 @@ def run(serial, input_file, params, uuid) :
         waypoints_asv = [[0.,0.],
                          [t_sim*u_d_asv*np.cos(calc_heading_asv), t_sim*u_d_asv*np.sin(calc_heading_asv)]]
 
-        input_file.write(f'{opus}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}    {group}\n')
+        input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
+        f = open(input,'a')
+        f.write(f'{opus}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}    {group}\n')
+        f.close()
 
         # Creation of the launch files
         cli_args1 = ['asv_system', 'main_launch3.launch',
@@ -116,6 +123,8 @@ if __name__ == "__main__":
     rospack = rospkg.RosPack()
     input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
     f = open(input,'a')
+    f.write(f'OPUS    CLASS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC    GROUP\n')
+    f.close()
 
     params = []
     opus = 1
@@ -130,7 +139,7 @@ if __name__ == "__main__":
                                 opus += 1
                                 if len(params) == NB_PROCESS:
                                     #try:
-                                    run(serial, f, params, uuid)
+                                    run(serial, params, uuid)
                                     params = []
                                     # except:
                                     #     print("Unexpected error:", sys.exc_info()[0])
@@ -141,5 +150,3 @@ if __name__ == "__main__":
                                     #     params = []
     except KeyboardInterrupt:
         pass
-
-    f.close()

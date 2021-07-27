@@ -40,6 +40,7 @@ class Referee(object) :
         self.d0 = 1/100           #distance minimale
         self.t1 = 10              #temps de manoeuvre
         self.d1 = 500             #distance de manoeuvre
+        self.tth = 75             #temps théorique de manoeuvre
         self.r_offset = 5.        #offset pour COLREG
         self.size = 8.            #asv size radius
         self.output = output
@@ -226,7 +227,7 @@ class Referee(object) :
         self.nend = False
         if self.debugBool:
             self.debug.close()
-        tf = rospy.get_time()-self.begin_sim
+        tf = (rospy.get_time()-self.begin_sim-self.tth)/self.tth
         for i in range(self.n_obst):
             self.traj = np.array(self.traj)
             w = 11
@@ -261,7 +262,7 @@ class Referee(object) :
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
-        print(f'Duration of the simulation (simulation time): {tf} s')
+        print(f'Relative duration of the simulation: {tf} s')
         print(f'Number of ships : {self.n_obst}')
         for i in range(self.n_obst) :
             print(f'Ship {i+1}')

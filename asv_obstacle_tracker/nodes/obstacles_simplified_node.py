@@ -17,6 +17,8 @@ class Obstacles(object):
         self.t_collision = rospy.get_param("~t_collision", [])
         self.d_detection = rospy.get_param("~d_detection", [])
         self.dcpa = rospy.get_param("~dcpa", [])
+        self.op = rospy.get_param("opusob",-1)
+        print(f'this opus: {self.op}')
 
         self.initial_state_asv = rospy.get_param("~initial_state_asv")
 
@@ -112,7 +114,7 @@ class Obstacles(object):
                     br.sendTransform((statearray.states[i].x,statearray.states[i].y,0),
                                     tf.transformations.quaternion_from_euler(0,0,statearray.states[i].psi),
                                     rospy.Time.now(),
-                                    statearray.states[i].header.name,
+                                    "obst"+str(self.op),
                                     "map")
 
                 statearray.states[i].x += self.u_d[i]*np.cos(calc_heading[i])*self.dt

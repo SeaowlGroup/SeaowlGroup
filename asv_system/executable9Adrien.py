@@ -18,7 +18,6 @@ def run(serial, input_file, params, uuid) :
     roslaunch_args0 = cli_args0[2:]
     launch_files = [(roslaunch_file0, roslaunch_args0)]
 
-    t_sim = 75
     lp = True
     size = 8.0
     type = None
@@ -26,27 +25,36 @@ def run(serial, input_file, params, uuid) :
     for scenar in params:
 
         h = scenar[0]
-        u_d = scenar[1]
-        u_d_asv = scenar[2]
+        u_d = scenar[1]*0.514444 #knots to m/s
+        u_d_asv = scenar[2]*0.514444 #knots to m/s
         dcpa = scenar[3]
         d_detec = scenar[4]
         opus = scenar[5]
 
         if (np.abs(h)<=20):
+            t_sim = 75
             t_collision = 15
-            class_scen = 'OVERTAKING'
-            group = 1
+            if u_d < u_d_asv:
+                class_scen = 'OVERTAKING'
+                group = 1
+            else :
+                class_scen = 'OVERTAKEN'
+                group = 2
         elif (h>20 and h<150):
+            t_sim = 75
             t_collision = 45
             class_scen = 'CROSSING_LEFT'
-            group = 2
+            group = 3
         elif (h>=150 and h<=210):
+            t_sim = 75
             t_collision = 45
             class_scen = 'HEAD_ON'
-            group = 3
-        else:
-            class_scen = 'CROSSING_RIGHT'
             group = 4
+        else:
+            t_sim = 75
+            t_collision = 45
+            class_scen = 'CROSSING_RIGHT'
+            group = 5
 
         # ASV parameters
         calc_heading_asv = np.pi/2
@@ -66,7 +74,9 @@ def run(serial, input_file, params, uuid) :
                      f'use_vo:={lp}',
                      f'rviz:=False',
                      f'opus:={opus}',
-                     f'output_file:=$(find asv_system)/output/{serial}.txt']
+                     f'output_file:=$(find asv_system)/output/{serial}.txt',
+                     f't_sim:={t_sim}',
+                     f'pos_end_waypoint:={waypoints_asv[0]}']
         roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
         roslaunch_args1 = cli_args1[2:]
         launch_files.append((roslaunch_file1, roslaunch_args1))
@@ -115,7 +125,7 @@ if __name__ == "__main__":
                 for u_d_asv in yaml_content['u_d_asv']:
                     for dcpa in yaml_content['dcpa']:
                         for d_detec in yaml_content['d_detection_adrien']: ############################################
-                            if (h<340 and h>20) or (np.abs(u_d-u_d_asv)>2.57):
+                            if (h<340 and h>20 or np.abs(u_d-u_d_asv)>2.57) and (d_detec > np.abs(dcpa)):
                                 params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])
                                 opus += 1
                                 if len(params) == NB_PROCESS:

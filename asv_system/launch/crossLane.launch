@@ -24,10 +24,10 @@
   <arg name="t_sim" default="75" />
   <arg name="pos_end_waypoint" default="[0.,0.]" />
   <!-- Obstacles parameters -->
-  <arg name="nOb" default="21" />
-  <arg name="rlw" default="301" />
-  <arg name="llw" default="301" />
-  <arg name="ld" default="151" />
+  <arg name="nOb" default="14" />
+  <arg name="rlw" default="300" />
+  <arg name="llw" default="300" />
+  <arg name="ld" default="150" />
 
   <rosparam param="/use_sim_time" subst_value="True">$(arg use_sim_time)</rosparam>
 

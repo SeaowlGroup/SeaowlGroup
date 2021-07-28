@@ -29,9 +29,9 @@ def run(serial, params, uuid) :
         opus = scenar[0]
         angle = scenar[1]/180*np.pi #degrees ro radians
         u_d = scenar[2]*0.514444    #knots to m/s
-        nOb = scenar[3]
-        rlw = scenar[4]*1852. #natical miles to m
-        llw = scenar[5]*1852. #natical miles to m
+        nOb = 2*scenar[3] #per lane to total
+        rlw = scenar[4]*1852. #nautical miles to m
+        llw = scenar[5]*1852. #nautical miles to m
         ld = scenar[6]*1852. #natical miles to m
         gp = 0
 

@@ -11,7 +11,6 @@
   <arg name="there_are_waves" default="false" />
   <!-- ASV parameters -->
   <arg name="initial_state" default="[0.0, -475., 0.0, 0.0, 0.0, 0.0]" />
-
   <arg name="waypoints" default="[[0.0, -475.], [0.0, 475.]]" />
   <arg name="u_d" default="5." />
   <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes.yaml" if="$(arg there_are_waves)"/>
@@ -24,17 +23,11 @@
   <arg name="output_file" default="$(find asv_system)/output/test.txt" />
   <arg name="t_sim" default="75" />
   <arg name="pos_end_waypoint" default="[0.,0.]" />
-  <!-- Obstacles parameters 
-  <arg name="prior" default="[]" />
-  <arg name="size" default="[]" />
-  <arg name="heading" default="[]" />
-  <arg name="u_d" default="[]" />
-  <arg name="t_collision" default="[]" />
-  <arg name="d_detection" default="[]" />
-  <arg name="dcpa" default="[]" />
-  <arg name="initial_state_asv" default="[0.,0.,0., 0.,0.,0.]" />
-  <arg name="opus" default="0" />
-  -->
+  <!-- Obstacles parameters -->
+  <arg name="nOb" default="21" />
+  <arg name="rlw" default="301" />
+  <arg name="llw" default="301" />
+  <arg name="ld" default="151" />
 
   <rosparam param="/use_sim_time" subst_value="True">$(arg use_sim_time)</rosparam>
 
@@ -101,16 +94,10 @@
           type="crossLaneObstNode.py"
           respawn="false"
           output="screen">
-      <!--
-      <rosparam param="prior" subst_value="True">$(arg prior)</rosparam>
-      <rosparam param="size" subst_value="True">$(arg size)</rosparam>
-      <rosparam param="heading" subst_value="True">$(arg heading)</rosparam>
-      <rosparam param="u_d" subst_value="True">$(arg u_d)</rosparam>
-      <rosparam param="t_collision" subst_value="True">$(arg t_collision)</rosparam>
-      <rosparam param="d_detection" subst_value="True">$(arg d_detection)</rosparam>
-      <rosparam param="dcpa" subst_value="True">$(arg dcpa)</rosparam>
-      <rosparam param="initial_state_asv" subst_value="True">$(arg initial_state_asv)</rosparam>
-      -->
+      <rosparam param="nOb" subst_value="True">$(arg nOb)</rosparam>
+      <rosparam param="rlw" subst_value="True">$(arg rlw)</rosparam>
+      <rosparam param="llw" subst_value="True">$(arg llw)</rosparam>
+      <rosparam param="ld" subst_value="True">$(arg ld)</rosparam>
     </node>
   </group>
 

@@ -177,7 +177,7 @@ class Referee(object) :
                 self.odom[0] = data.pose.pose.position.x
                 self.odom[1] = data.pose.pose.position.y
                 self.odom[4] = t
-                print(f'init pose: {self.odom[0:2]}')
+                #print(f'init pose: {self.odom[0:2]}')
             else:
                 t = rospy.get_time()-self.begin_sim
                 x = self.odom[0]

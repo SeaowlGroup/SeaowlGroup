@@ -10,7 +10,7 @@
   <arg name="Fy_current" default="0.0" />
   <arg name="there_are_waves" default="false" />
   <!-- ASV parameters -->
-  <arg name="initial_state" default="[0.0, -475., 0.0, 0.0, 0.0, 0.0]" />
+  <arg name="initial_state" default="[0.0, -475., 1.571, 0.0, 0.0, 0.0]" />
   <arg name="waypoints" default="[[0.0, -475.], [0.0, 475.]]" />
   <arg name="u_d" default="5." />
   <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes.yaml" if="$(arg there_are_waves)"/>
@@ -19,7 +19,7 @@
   <arg name="use_vo" default="True" />
   <arg name="rviz" default="True" />
   <!-- Output -->
-  <arg name="opus" default="0" />
+  <arg name="opus" default="1" />
   <arg name="output_file" default="$(find asv_system)/output/test.txt" />
   <arg name="t_sim" default="75" />
   <arg name="pos_end_waypoint" default="[0.,0.]" />
@@ -101,9 +101,4 @@
     </node>
   </group>
 
-    <!-- <node pkg="rosbag"
-          type="record"
-          name="rosbag_record"
-          args="-O /home/soubi/Documents/SEAOWL//home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/bagfiles/mozambique.bag /asv/state /obstacles/ship1/state /obstacles/ship2/state /obstacle_states"
-          /> -->
 </launch>

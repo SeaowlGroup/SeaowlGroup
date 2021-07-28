@@ -49,10 +49,10 @@ def run(serial, params, uuid) :
 
         # Creation of the launch files
         cli_args1 = ['asv_system', 'crossLane.launch',
-                    f'nOb := {nOb}',
-                     f'rlw := {rlw}',
-                     f'llw := {llw}',
-                     f'ld := {ld}',
+                    f'nOb:={nOb}',
+                     f'rlw:={rlw}',
+                     f'llw:={llw}',
+                     f'ld:={ld}',
                      f'trigger_shutdown:=0',
                      f'initial_state:={initial_state_asv}',
                      f'waypoints:={waypoints_asv}',

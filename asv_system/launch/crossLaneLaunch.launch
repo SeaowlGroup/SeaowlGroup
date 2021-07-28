@@ -50,7 +50,7 @@
 
     <node pkg="asv_referee"
           name="referee_node"
-          type="asv_referee_node2.py"
+          type="asv_referee_node.py"
           respawn="false"
           output="screen">
       <rosparam param="shutdown" subst_value="True">$(arg trigger_shutdown)</rosparam>

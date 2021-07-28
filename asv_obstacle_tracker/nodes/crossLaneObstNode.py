@@ -6,6 +6,8 @@ import tf
 from nav_msgs.msg import Odometry
 from asv_msgs.msg import State, StateArray
 from std_msgs.msg import Empty
+from visualization_msgs.msg import Marker
+from geometry_msgs.msg import Point
 
 class Obstacles(object):
 
@@ -32,6 +34,71 @@ class Obstacles(object):
         self.obStates = []
 
         self.states_pub = rospy.Publisher("obstacle_states", StateArray, queue_size=1)
+        self.obStatesRef_pub = rospy.Publisher("obStatesRef", StateArray, queue_size=1)
+        self.br = tf.TransformBroadcaster()
+
+        self.detect = Marker()
+        self.detect.header.frame_id = "map"
+        self.detect.header.stamp    = rospy.get_rostime()
+        self.detect.ns = "detect"
+        self.detect.id = 0
+        self.detect.type = 7
+        self.detect.action = 0
+        self.detect.pose.orientation.x = 0
+        self.detect.pose.orientation.y = 0
+        self.detect.pose.orientation.z = 0
+        self.detect.pose.orientation.w = 1.0
+        self.detect.scale.x = 2.0
+        self.detect.scale.y = 2.0
+        self.detect.scale.z = 2.0
+        self.detect.color.r = 2.0
+        self.detect.color.g = 0
+        self.detect.color.b = 0.
+        self.detect.color.a = 1.0
+        self.detect.lifetime = rospy.Duration(0.)
+        self.detect_pub = rospy.Publisher("detect", Marker, queue_size=10, latch=True)
+
+        self.rlane = Marker()
+        self.rlane.header.frame_id = "map"
+        self.rlane.header.stamp    = rospy.get_rostime()
+        self.rlane.ns = "rlane"
+        self.rlane.id = 0
+        self.rlane.type = 4
+        self.rlane.action = 0
+        self.rlane.pose.orientation.x = 0
+        self.rlane.pose.orientation.y = 0
+        self.rlane.pose.orientation.z = 0
+        self.rlane.pose.orientation.w = 1.0
+        self.rlane.scale.x = 2.0
+        self.rlane.scale.y = 2.0
+        self.rlane.scale.z = 2.0
+        self.rlane.color.r = 2.0
+        self.rlane.color.g = 0
+        self.rlane.color.b = 0.
+        self.rlane.color.a = 1.0
+        self.rlane.lifetime = rospy.Duration(100.)
+        self.rlane_pub = rospy.Publisher("rlane", Marker, queue_size=10, latch=True)
+
+        self.llane = Marker()
+        self.llane.header.frame_id = "map"
+        self.llane.header.stamp    = rospy.get_rostime()
+        self.llane.ns = "llane"
+        self.llane.id = 0
+        self.llane.type = 4
+        self.llane.action = 0
+        self.llane.pose.orientation.x = 0
+        self.llane.pose.orientation.y = 0
+        self.llane.pose.orientation.z = 0
+        self.llane.pose.orientation.w = 1.0
+        self.llane.scale.x = 2.0
+        self.llane.scale.y = 2.0
+        self.llane.scale.z = 2.0
+        self.llane.color.r = 2.0
+        self.llane.color.g = 0
+        self.llane.color.b = 0.
+        self.llane.color.a = 1.0
+        self.llane.lifetime = rospy.Duration(100.)
+        self.llane_pub = rospy.Publisher("llane", Marker, queue_size=10, latch=True)
 
 
         self._start_subscriber = rospy.Subscriber("start_simulation", Empty,
@@ -66,9 +133,22 @@ class Obstacles(object):
             else:
                 s.psi = np.pi
                 s.x = ((i//2)/(self.nOb//2)-.5)*self.ll
-                s.y = self.ld/2-((i//2)/(self.nOb//2))*self.llw
+                s.y = -self.ld/2-((i//2)/(self.nOb//2))*self.llw
 
             self.obStates.states.append(s)
+        
+        self.rlane.points = [Point(-self.ll/2,self.ld/2,0.),
+                             Point(self.ll/2,self.ld/2,0.),
+                             Point(self.ll/2,self.ld/2+self.rlw,0.),
+                             Point(-self.ll/2,self.ld/2+self.rlw,0.),
+                             Point(-self.ll/2,self.ld/2,0.)]
+        self.llane.points = [Point(-self.ll/2,-self.ld/2,0.),
+                             Point(self.ll/2,-self.ld/2,0.),
+                             Point(self.ll/2,-self.ld/2-self.llw,0.),
+                             Point(-self.ll/2,-self.ld/2-self.llw,0.),
+                             Point(-self.ll/2,-self.ld/2,0.)]
+        self.rlane_pub.publish(self.rlane)
+        self.llane_pub.publish(self.llane)
     
     def incr(self,x,dx):
         return (x+dx+self.ll/2)%self.ll-self.ll/2
@@ -82,9 +162,10 @@ class Obstacles(object):
                                         self.obStates.states[i].u*np.sin(self.obStates.states[i].psi)*self.dt)
 
     def publish(self):
+        self.obStatesRef_pub.publish(self.obStates)
         msg = StateArray()
+        self.detect.points = []
         pOb = np.zeros(2)
-        br = tf.TransformBroadcaster()
 
         for i in range(self.nOb):
             pOb[0] = self.obStates.states[i].x
@@ -92,14 +173,16 @@ class Obstacles(object):
 
             if np.linalg.norm(self.asvPose-pOb) < self.dDetect[i]:
                 msg.states.append(self.obStates.states[i])
+                self.detect.points.append(Point(pOb[0],pOb[1],10.))
             
-            br.sendTransform((self.obStates.states[i].x,self.obStates.states[i].y,0),
+            self.br.sendTransform((self.obStates.states[i].x,self.obStates.states[i].y,0),
                             tf.transformations.quaternion_from_euler(0,0,self.obStates.states[i].psi),
                             rospy.Time.now(),
                             str(self.op)+self.obStates.states[i].header.name,
                             "map")
 
         self.states_pub.publish(msg)
+        self.detect_pub.publish(self.detect)
 
     def run(self):
         r = rospy.Rate(1/self.dt)

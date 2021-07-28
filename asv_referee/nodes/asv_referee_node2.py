@@ -45,7 +45,7 @@ class Referee(object) :
         self.size = 8.            #asv size radius
         self.output = output
         self.opus = op
-        self.finished = finished  #0 : no shutdown at the end, 1 : shutdown at the end but program running, 2 : shutdown and prgrm ended
+        self.finished = finished  #0,2 : no shutdown at the end; 1,3 : no shutdown at the end; 0,1 : program running; 2,3 : prgrm ended
         self.side = []
         if self.debugBool:
             self.debug = open(f'/home/adrien/catkin_ws/src/seaowl/asv_system/debug.txt','w')
@@ -284,8 +284,8 @@ class Referee(object) :
         f.close()
         print(f'Output logged in {self.output}')
         print("---------------------------------------------------------------")
-        if self.finished == 1 :
-            self.finished = 2
+        if self.finished == 0 or self.finished == 1:
+            self.finished += 2
 
     def _update(self):
         if (self.n_obst > -1 and len(self.odom) > 0) :
@@ -388,10 +388,9 @@ class Referee(object) :
         while (not rospy.is_shutdown()) and self.finished < 2 :
             if self.begin_sim > 0:
                 t = rospy.get_time()-self.begin_sim
-                if t < T_MAX_SIM:
+                if t < T_MAX_SIM or t>3*T_MAX_SIM:
                     self._update()
                 else:
-                    print("ENDENDEND")
                     msg = Empty()
                     self._finish_publisher.publish(msg)
             try:
@@ -400,7 +399,8 @@ class Referee(object) :
                 if rospy.is_shutdown():
                     break
                 raise
-        rospy.signal_shutdown("End of the simulation")
+        if self.finished == 3:
+            rospy.signal_shutdown("End of the simulation")
 
 
 #utils

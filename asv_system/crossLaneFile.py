@@ -65,7 +65,7 @@ def run(serial, params, uuid) :
         roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
         roslaunch_args1 = cli_args1[2:]
         launch_files.append((roslaunch_file1, roslaunch_args1))
-        print([opus, angle, u_d, nOb, rlw, llw, ld])
+        #print([opus, angle, u_d, nOb, rlw, llw, ld])
     launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
     launch.start()
     launch.spin()

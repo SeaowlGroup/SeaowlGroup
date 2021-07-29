@@ -27,7 +27,7 @@
   <include file="$(find asv_simulator)/launch/test.launch">
     <arg name="u_d" value="5.0" />
     <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/mozambique.yaml" />
-    <arg name="initial_state" value="[525.0, 625.0, -1.56, 0.,0.,0.]" />
+    <arg name="initial_state" value="[661.0, 791.0, -2.34, 0.,0.,0.]" />
   </include>
 
   <include file="$(find asv_system)/launch/mapserver.launch">

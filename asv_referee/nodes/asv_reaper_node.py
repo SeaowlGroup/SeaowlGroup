@@ -31,7 +31,7 @@ if __name__ == "__main__" :
 
     r = rospy.Rate(dt)
     while (not rospy.is_shutdown()):
-        if count == 0:
+        if count >= 0:
             # nodes = os.popen("rosnode list").readlines()
             # for i in range(len(nodes)):
             #     nodes[i] = nodes[i].replace("\n","")

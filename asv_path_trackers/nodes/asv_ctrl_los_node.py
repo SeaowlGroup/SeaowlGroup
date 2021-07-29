@@ -90,7 +90,7 @@ class LOSGuidanceROS(object):
                 mk.pose.position.y = self.wp[wp,1]
                 mk.pose.orientation.w = 1
 
-                mk.lifetime = rospy.Duration(0.7)
+                mk.lifetime = rospy.Duration(2)
                 mk.color.a = .3
                 mk.color.r = 0.
                 mk.color.g = 0.
@@ -123,7 +123,7 @@ class LOSGuidanceROS(object):
                 mk.pose.position.y = self.wp[wp,1]
                 mk.pose.orientation.w = 1
 
-                mk.lifetime = rospy.Duration(0.7)
+                mk.lifetime = rospy.Duration(2)
                 mk.color.a = .3
                 mk.color.r = 0.
                 mk.color.g = 0.

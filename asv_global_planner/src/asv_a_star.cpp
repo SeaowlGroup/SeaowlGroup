@@ -86,6 +86,10 @@ bool AStarPlanner::isDestination(int x, int y, Node dest) {
 
 double AStarPlanner::calculateH(int x, int y, Node dest) {
   double H = (sqrt((x - dest.x)*(x - dest.x) + (y - dest.y)*(y - dest.y)));
+
+  int x_rep_pt = 700/X_STEP_;
+  int y_rep_pt = 575/Y_STEP_;
+  // H += 100/((x - dest.x)*(x - dest.x) + (y - dest.y)*(y - dest.y)); // penalizes the trajectories too "on the up and right" of the map
   return H;
 }
 
@@ -160,10 +164,10 @@ asv_msgs::Path AStarPlanner::aStar(Node player, Node dest) {
           }
           else if (closedList[x + newX][y + newY] == false) {
             if(newX == newY){
-	      gNew = node.gCost + 1.414;
-	    } else {
-	      gNew = node.gCost + 1.0;
-	    }
+	             gNew = node.gCost + 1.414;
+	          } else {
+	             gNew = node.gCost + 1.0;
+	          }
             hNew = calculateH(x + newX, y + newY, dest);
             fNew = gNew + hNew;
             // Check if this path is better than the one already present
@@ -185,6 +189,7 @@ asv_msgs::Path AStarPlanner::aStar(Node player, Node dest) {
     ROS_ERROR("GLOBAL PLANNER FAIL : Path not found");
     return empty;
   }
+  return empty;
 }
 
 asv_msgs::Path AStarPlanner::makePath(Node dest) {

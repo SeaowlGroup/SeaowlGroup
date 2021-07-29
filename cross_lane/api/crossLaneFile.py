@@ -45,13 +45,13 @@ def run(serial, params, uuid) :
         waypoints_asv = [[(ld/2+llw+dAsv)/np.tan(angle)/2,-ld/2-llw-dAsv],
                          [(ld/2+rlw+dAsv)/np.tan(angle)/2,ld/2+rlw+dAsv]]
 
-        input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
+        input = f"{rospack.get_path('cross_lane')}/input/{serial}.txt"
         f = open(input,'a')
         f.write(f'{opus}    {angle}    {u_d}    {rld}    {lld}    {rlw}    {llw}    {ld}   {gp}\n')
         f.close()
 
         # Creation of the launch files
-        cli_args1 = ['crossLane', 'crossLane.launch',
+        cli_args1 = ['cross_lane', 'crossLane.launch',
                      f'rld:={rld}',
                      f'lld:={lld}',
                      f'rlw:={rlw}',
@@ -64,7 +64,7 @@ def run(serial, params, uuid) :
                      f'use_vo:={True}',
                      f'rviz:=False',
                      f'opus:={opus}',
-                     f'output_file:=$(find crossLane)/output/{serial}.txt',
+                     f'output_file:=$(find cross_lane)/output/{serial}.txt',
                      f'pos_end_waypoint:={waypoints_asv[-1]}']
         roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
         roslaunch_args1 = cli_args1[2:]
@@ -78,7 +78,7 @@ def run(serial, params, uuid) :
 if __name__ == "__main__":
     rospack = rospkg.RosPack()
 
-    yaml_file = open(f"{rospack.get_path('crossLane')}/config/param/crossLane.yaml", 'r')
+    yaml_file = open(f"{rospack.get_path('cross_lane')}/config/param/crossLane.yaml", 'r')
     yaml_content = yaml.safe_load(yaml_file)
 
     # UUID
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         serial = SERIAL_TO_UPDATE
 
     # Write Input
-    input = f"{rospack.get_path('crossLane')}/input/{serial}.txt"
+    input = f"{rospack.get_path('cross_lane')}/input/{serial}.txt"
     f = open(input,'a')
     f.write(f'OPUS    ANGLE    U_D    RLD    LLD    RLW    LLW    LD   GROUP\n')
     f.close()

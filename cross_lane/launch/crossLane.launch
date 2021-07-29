@@ -20,7 +20,7 @@
   <arg name="rviz" default="True" />
   <!-- Output -->
   <arg name="opus" default="1" />
-  <arg name="output_file" default="$(find crossLane)/output/test.txt" />
+  <arg name="output_file" default="$(find cross_lane)/output/test.txt" />
   <arg name="t_sim" default="75" />
   <arg name="pos_end_waypoint" default="[0.,0.]" />
   <!-- Obstacles parameters -->
@@ -87,7 +87,7 @@
       <node pkg="rviz"
             type="rviz"
             name="rviz"
-            args="-d $(find crossLane)/config/rviz/crossLane.rviz" />
+            args="-d $(find cross_lane)/config/rviz/crossLane.rviz" />
     </group>
 
     <node pkg="asv_obstacle_tracker"

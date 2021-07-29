@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /Grid21/Offset1
         - /TF1
-        - /TF1/Frames1
       Splitter Ratio: 0.5
     Tree Height: 607
   - Class: rviz/Selection
@@ -88,7 +87,33 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 9000
       Frames:
+        2014:
+          Value: true
+        2014Ship 0:
+          Value: true
+        2015:
+          Value: true
+        2015Ship 0:
+          Value: true
+        2016:
+          Value: true
+        2016Ship 0:
+          Value: true
+        2017:
+          Value: true
+        2017Ship 0:
+          Value: true
+        2018:
+          Value: true
+        2018Ship 0:
+          Value: true
+        2019:
+          Value: true
+        2019Ship 0:
+          Value: true
         All Enabled: true
+        map:
+          Value: true
       Marker Alpha: 1
       Marker Scale: 50
       Name: TF
@@ -96,7 +121,31 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        {}
+        map:
+          2014:
+            {}
+          2014Ship 0:
+            {}
+          2015:
+            {}
+          2015Ship 0:
+            {}
+          2016:
+            {}
+          2016Ship 0:
+            {}
+          2017:
+            {}
+          2017Ship 0:
+            {}
+          2018:
+            {}
+          2018Ship 0:
+            {}
+          2019:
+            {}
+          2019Ship 0:
+            {}
       Update Interval: 0
       Value: true
     - Alpha: 0.20000000298023224
@@ -108,6 +157,22 @@ Visualization Manager:
       Topic: /processed_map
       Unreliable: false
       Use Timestamp: false
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /2014/waypoints
+      Name: Marker
+      Namespaces:
+        waypoints: true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /2014/vo_markers
+      Name: Marker
+      Namespaces:
+        2014: true
+      Queue Size: 100
       Value: true
   Enabled: true
   Global Options:
@@ -137,7 +202,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 84.17625427246094
+      Distance: 1018.637451171875
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -153,9 +218,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0003989934921265
-      Target Frame: <Fixed Frame>
-      Yaw: 4.688574314117432
+      Pitch: 0.9853982925415039
+      Target Frame: 2014Ship 0
+      Yaw: 5.023582935333252
     Saved: ~
 Window Geometry:
   Displays:

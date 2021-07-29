@@ -19,6 +19,7 @@
       <rosparam param="initial_state" subst_value="True">$(arg initial_state)</rosparam>
       <rosparam command="load" file="$(arg vessel_param_file)" />
       <rosparam param="global_planner" subst_value="True">$(arg global_planner)</rosparam>
+      <remap from="start_simulation" to="/start_simulation" />
     </node>
 
     <group if="$(eval global_planner == 'AStar')">
@@ -39,7 +40,7 @@
       <rosparam param="global_planner" subst_value="True">$(arg global_planner)</rosparam>
       <!-- <rosparam command="load" file="$(arg waypoint_file)" unless="$(eval global_planner == 'None')"/> -->
 
-
+      <remap from="end_simulation" to="/end_simulation" />
       <remap from="cmd_vel" to="LOS/cmd_vel" if="$(arg use_vo)"/>
     </node>
 
@@ -47,14 +48,15 @@
     <node pkg="robot_state_publisher"
           type="robot_state_publisher"
           name="tf_broadcaster" />
-  </group>
 
-  <group if="$(arg use_vo)">
-    <node pkg="asv_ctrl_vo"
-          name="vo_node"
-          type="asv_ctrl_vo_node"
-          respawn="false"
-          output="screen" />
+    <remap from="obstacle_states" to="/obstacle_states" />
+    <group if="$(arg use_vo)">
+      <node pkg="asv_ctrl_vo"
+            name="vo_node"
+            type="asv_ctrl_vo_node"
+            respawn="false"
+            output="screen" />
+    </group>
   </group>
 
 </launch>

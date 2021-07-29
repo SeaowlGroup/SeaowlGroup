@@ -27,7 +27,7 @@ struct Node
 class AStarPlanner : public GlobalPlanner
 {
   public :
-    AStarPlanner(int X_STEP = 10, int Y_STEP = 10);
+    AStarPlanner(int X_STEP = 5, int Y_STEP = 5);
     ~AStarPlanner();
     void initialize(nav_msgs::OccupancyGrid *map);
     void reinit();

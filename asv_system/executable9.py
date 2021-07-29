@@ -8,7 +8,7 @@ import rospkg
 import yaml
 import sys
 
-NB_PROCESS = 3
+NB_PROCESS = 6
 
 def run(serial, params, uuid) :
 

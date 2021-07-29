@@ -145,8 +145,8 @@ void VelocityObstacle::updateVelocityGrid()
     double b = asv_twist_[0];
     double angle_diff = asv_pose_[2] - obstacle_pose[2];
     double v_ret = a*a+b*b-2*a*b*cos(angle_diff);
-    double combined_radius = RADIUS_*std::max((v_ret+0.5),1.0) + it->header.radius;
-    // double combined_radius = RADIUS_ + it->header.radius;
+    // double combined_radius = RADIUS_*std::max((v_ret+0.5),1.0) + it->header.radius;
+    double combined_radius = RADIUS_ + it->header.radius;
 
     Eigen::Vector2d vb;
     rot2d(obstacle_twist.head(2), obstacle_pose[2], vb);

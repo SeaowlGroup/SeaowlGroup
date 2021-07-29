@@ -23,10 +23,12 @@ class VesselNode
                   ros::Publisher *noise_pub,
                   ros::Subscriber *cmd_sub,
                   ros::Subscriber *start_sub,
+                  ros::Subscriber *end_sub,
                   std::string planner,
                   Vessel *vessel);
   void cmdCallback(const geometry_msgs::Twist::ConstPtr& msg);
   void startCallback(const std_msgs::Empty::ConstPtr& msg);
+  void endCallback(const std_msgs::Empty::ConstPtr& msg);
   void publishData();
   void start();
 
@@ -45,6 +47,8 @@ class VesselNode
   ros::Publisher *noise_pub_;
   ros::Subscriber *cmd_sub_;
   ros::Subscriber *start_sub_;
+  ros::Subscriber *end_sub_;
+
 
   double u_d_;
   double psi_d_;

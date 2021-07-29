@@ -75,7 +75,7 @@ class Referee(object) :
             self.cpa.color.b = 0.
             self.cpa.color.a = 1.0
             self.cpa.lifetime = rospy.Duration(0.)
-            self.cpa_publisher = rospy.Publisher("/cpa", Marker, queue_size=10, latch=True)
+            self.cpa_publisher = rospy.Publisher("cpa", Marker, queue_size=10, latch=True)
 
             self.cpa2 = Marker()
             self.cpa2.header.frame_id = "map"
@@ -99,7 +99,7 @@ class Referee(object) :
             self.cpa2.color.b = 0.
             self.cpa2.color.a = 1.0
             self.cpa2.lifetime = rospy.Duration(0.)
-            self.cpa2_publisher = rospy.Publisher("/cpa2", Marker, queue_size=10, latch=True)
+            self.cpa2_publisher = rospy.Publisher("cpa2", Marker, queue_size=10, latch=True)
 
             self.asv_off_marker = Marker()
             self.asv_off_marker.header.frame_id = "map"
@@ -123,7 +123,7 @@ class Referee(object) :
             self.asv_off_marker.color.b = 0.5
             self.asv_off_marker.color.a = 1.0
             self.asv_off_marker.lifetime = rospy.Duration(0.)
-            self.asv_off_publisher = rospy.Publisher("/asv_off", Marker, queue_size=10, latch=True)
+            self.asv_off_publisher = rospy.Publisher("asv_off", Marker, queue_size=10, latch=True)
 
             self.obst_off_marker = Marker()
             self.obst_off_marker.header.frame_id = "map"
@@ -229,7 +229,9 @@ class Referee(object) :
         self.nend = False
         if self.debugBool:
             self.debug.close()
-        tf = rospy.get_time()-self.begin_sim
+        
+        t = rospy.get_time()-self.begin_sim
+        
         for i in range(self.n_obst):
             self.traj = np.array(self.traj)
             w = 11
@@ -254,7 +256,7 @@ class Referee(object) :
             for k in range(3):
                 self.security[i][4+k] = np.linalg.norm(irr[:,k]*weight)
                 self.security[i,7+k] = self.security[i,1]+max(0,self.security[i,1])*self.security[i][4+k]
-            self.security[i,0] = tf
+            self.security[i,0] = t
             self.security[i,10] = self.dcpa[i]
             self.security[i,11] = self.cross[i]
             weight = irr[:,0]**2/np.sum(irr[:,0]**2)
@@ -264,7 +266,7 @@ class Referee(object) :
         f = open(f'{self.output}','a')
         print("---------------------END OF THE SIMULATION---------------------")
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
-        print(f'Duration of the simulation: {tf} s')
+        print(f'Duration of the simulation: {t} s')
         print(f'Number of ships : {self.n_obst}')
         for i in range(self.n_obst) :
             print(f'Ship {i+1}')
@@ -333,7 +335,7 @@ class Referee(object) :
 
         for i in range(self.n_obst) :
             rvel[i] = np.linalg.norm(self.obst_states[i,2:4]-self.odom[2:4])
-            cpa = rot((self.obst_states[i,2:4]-self.odom[2:4])/rvel,np.pi/2)
+            cpa = rot((self.obst_states[i,2:4]-self.odom[2:4])/rvel[i],np.pi/2)
             self.r_offset = dist[i]/4
             if np.dot(cpa,rot(self.odom[2:4],np.pi/2))>0 :
                 cpa = -cpa

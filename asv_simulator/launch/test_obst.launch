@@ -22,15 +22,16 @@
       <rosparam command="load" file="$(arg vessel_param_file)" />
       <rosparam param="radius" subst_value="True">$(arg size)</rosparam>
       <rosparam param="global_planner" subst_value="True">$(arg global_planner)</rosparam>
+      <remap from="start_simulation" to="/start_simulation" />
     </node>
 
-    <group if="$(eval global_planner == 'AStar')">
+    <!-- <group if="$(eval global_planner == 'AStar')">
       <node pkg="asv_global_planner"
             name="global_planner_node"
             type="asv_global_planner_node"
             respawn="false"
             output="screen" />
-    </group>
+    </group> -->
 
     <node pkg="asv_path_trackers"
           name="LOSNode"
@@ -42,7 +43,7 @@
       <!-- <rosparam command="load" file="$(arg waypoint_file)" /> -->
       <!-- <rosparam command="load" file="$(arg waypoint_file)" unless="$(eval global_planner == 'None')"/> -->
 
-
+      <remap from="end_simulation" to="/end_simulation" />
       <remap from="cmd_vel" to="LOS/cmd_vel" if="$(arg use_vo)"/>
     </node>
 

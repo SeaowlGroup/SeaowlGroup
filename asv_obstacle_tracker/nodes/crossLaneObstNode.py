@@ -15,14 +15,14 @@ class Obstacles(object):
     def __init__(self):
         
         self.op = rospy.get_param("opus",-1)
-        self.nOb = rospy.get_param("~nOb",20)                          #number of obstacles
+        self.density = rospy.get_param("~density",.01)                  #width of right lane
+        self.rlw = rospy.get_param("~rlw",300.)                         #width of right lane
+        self.llw = rospy.get_param("~llw",300.)                         #width of left lane
+        self.ld = rospy.get_param("~ld",150.)                           #distance between lanes
+        self.nOb = rospy.get_param("~nOb",20)                           #number of obstacles
         self.dDetect = rospy.get_param("~d_detection", self.nOb*[500.]) #distance of detection of obstacles
         self.prior = rospy.get_param("~prior", self.nOb*["n"])          #priority satus of obstacles
         self.size = rospy.get_param("~size", self.nOb*[8.])             #size of obstacles
-        #self.nl = rospy.get_param("nl",2)                              #number of lanes
-        self.rlw = rospy.get_param("~rlw",300.)                          #width of right lane
-        self.llw = rospy.get_param("~llw",300.)                          #width of left lane
-        self.ld = rospy.get_param("~ld",150.)                            #distance between lanes
         self.ll = self.rlw+self.llw+self.ld                             #length of lane
         #print(f' nOb = {self.nOb}\n rlw = {self.rlw}\n llw = {self.llw}\n ld = {self.ld}')
         #print(f'this opus: {self.op}')
@@ -115,6 +115,9 @@ class Obstacles(object):
     def initObs(self):
         self.obStates = StateArray()
 
+        perm = (np.random.permutation(self.nOb//2)+.5)/(self.nOb//2)
+        x = (np.random.random(self.nOb)-.5)*self.ll
+
         for i in range(self.nOb) :
             s = State()
             s.header.id = i
@@ -124,17 +127,15 @@ class Obstacles(object):
             s.u = .5*(5.+i%5)     #speed distribution
             s.v = 0.
             s.r = 0.
+            s.x = x[i]
 
             if i%2 == 0:
                 s.psi = 0.   
-                s.x = (rdm.random()-.5)*self.ll         #((i//2)/(self.nOb//2)-.5)*self.ll
-                s.y = self.ld/2+rdm.random()*self.rlw   #self.ld/2+((i//2)/(self.nOb//2))*self.rlw
-
+                s.y = self.ld/2+perm[i//2]*self.rlw   #self.ld/2+((i//2)/(self.nOb//2))*self.rlw
 
             else:
                 s.psi = np.pi
-                s.x = (rdm.random()-.5)*self.ll         #((i//2)/(self.nOb//2)-.5)*self.ll
-                s.y = -self.ld/2-rdm.random()*self.rlw  #-self.ld/2-((i//2)/(self.nOb//2))*self.llw
+                s.y = -self.ld/2-perm[i//2]*self.llw  #-self.ld/2-((i//2)/(self.nOb//2))*self.llw
 
             self.obStates.states.append(s)
         

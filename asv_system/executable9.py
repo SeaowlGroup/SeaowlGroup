@@ -7,8 +7,11 @@ import datetime
 import rospkg
 import yaml
 import sys
+import os
 
 NB_PROCESS = 6
+OPUS_START = 373
+SERIAL_TO_UPDATE = ''
 
 def run(serial, params, uuid) :
 
@@ -116,8 +119,11 @@ if __name__ == "__main__":
     uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
     roslaunch.configure_logging(uuid)
     # Output parameters
-    now = datetime.datetime.now()
-    serial = now.strftime("%Y%m%d%H%M%S")[2:]
+    if len(SERIAL_TO_UPDATE) == 0: 
+        now = datetime.datetime.now()
+        serial = now.strftime("%Y%m%d%H%M%S")[2:]
+    else:
+        serial = SERIAL_TO_UPDATE
 
     # Write Input
     rospack = rospkg.RosPack()
@@ -135,10 +141,13 @@ if __name__ == "__main__":
                     for dcpa in yaml_content['dcpa']:
                         for d_detec in yaml_content['d_detection_jb']: ############################################
                             if (h<340 and h>20 or np.abs(u_d-u_d_asv)>2.57) and (d_detec > np.abs(dcpa)):
-                                params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])
+                                if opus > OPUS_START:
+                                    params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])
                                 opus += 1
                                 if len(params) == NB_PROCESS:
                                     #try:
+                                    if os.path.exists('nohup.out'):
+                                        os.remove('nohup.out')
                                     run(serial, params, uuid)
                                     params = []
                                     # except:

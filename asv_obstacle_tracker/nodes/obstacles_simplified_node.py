@@ -17,6 +17,8 @@ class Obstacles(object):
         self.t_collision = rospy.get_param("~t_collision", [])
         self.d_detection = rospy.get_param("~d_detection", [])
         self.dcpa = rospy.get_param("~dcpa", [])
+        self.op = rospy.get_param("opusob",-1)
+        print(f'this opus: {self.op}')
 
         self.initial_state_asv = rospy.get_param("~initial_state_asv")
 
@@ -25,6 +27,8 @@ class Obstacles(object):
         self.start = False
 
         self.asv_state = []
+
+        self.br = tf.TransformBroadcaster()
 
         self.states_pub = rospy.Publisher("obstacle_states", StateArray, queue_size=1)
 
@@ -108,12 +112,12 @@ class Obstacles(object):
             for i in range(N) :
                 if (len(self.asv_state)>0 and statearray.states[i].x-self.asv_state[0])**2 + (statearray.states[i].y-self.asv_state[1])**2 < (self.d_detection[i]+self.size[i]/2)**2 :
                     self.states_pub.publish(statearray) # NE MARCHE QUE SI UN SEUL OBSTACLE
-                    br = tf.TransformBroadcaster()
-                    br.sendTransform((statearray.states[i].x,statearray.states[i].y,0),
-                                    tf.transformations.quaternion_from_euler(0,0,statearray.states[i].psi),
-                                    rospy.Time.now(),
-                                    statearray.states[i].header.name,
-                                    "map")
+
+                self.br.sendTransform((statearray.states[i].x,statearray.states[i].y,0),
+                                tf.transformations.quaternion_from_euler(0,0,statearray.states[i].psi),
+                                rospy.Time.now(),
+                                str(self.op)+statearray.states[i].header.name,
+                                "map")
 
                 statearray.states[i].x += self.u_d[i]*np.cos(calc_heading[i])*self.dt
                 statearray.states[i].y += self.u_d[i]*np.sin(calc_heading[i])*self.dt

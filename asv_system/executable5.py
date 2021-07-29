@@ -147,6 +147,11 @@ class Scenario(object):
             self.prior = prior.get()
             self.d_detec = d_detec.get()
 
+            if (np.abs(self.heading)<=20):
+                self.t_collision = 15
+            else:
+                self.t_collision = 45
+                
             #fenetre.destroy()
             self.opus += 1
 

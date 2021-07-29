@@ -88,9 +88,9 @@ Visualization Manager:
       Frames:
         1:
           Value: true
-        All Enabled: true
-        Ship 0:
+        1Ship 0:
           Value: true
+        All Enabled: true
         map:
           Value: true
       Marker Alpha: 1
@@ -103,7 +103,7 @@ Visualization Manager:
         map:
           1:
             {}
-          Ship 0:
+          1Ship 0:
             {}
       Update Interval: 0
       Value: true
@@ -193,7 +193,7 @@ Visualization Manager:
       Marker Topic: /1/asv_off
       Name: ASV_OFF
       Namespaces:
-        asv_off_marker: true
+        {}
       Queue Size: 10
       Value: true
     - Class: rviz/Marker
@@ -201,7 +201,7 @@ Visualization Manager:
       Marker Topic: /1/obst_off
       Name: OBST_OFF
       Namespaces:
-        obst_off_marker: true
+        {}
       Queue Size: 10
       Value: true
     - Class: rviz/Marker
@@ -209,7 +209,7 @@ Visualization Manager:
       Marker Topic: /1/cpa
       Name: CPA
       Namespaces:
-        cpa: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -217,7 +217,7 @@ Visualization Manager:
       Marker Topic: /1/cpa2
       Name: CPA2
       Namespaces:
-        cpa2: true
+        {}
       Queue Size: 100
       Value: true
   Enabled: true
@@ -248,7 +248,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 198.24993896484375
+      Distance: 320.1463317871094
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1

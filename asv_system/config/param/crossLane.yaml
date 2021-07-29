@@ -1,0 +1,6 @@
+angle : [60., 90., 120.] #in degrees 
+u_d : [5., 10., 15., 20., 25., 30.] #in knots
+nOb : [20, 30, 40]
+llw : [2.] #in nautical miles
+rlw : [2.] #in nautical miles
+ld : [1.] #in nautical miles

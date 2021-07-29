@@ -10,6 +10,7 @@
   <arg name="opus" default="0" />
 
   <group ns="$(arg opus)">
+    <param name="opusob" value="$(arg opus)" />
     <node pkg="asv_obstacle_tracker"
           name="obstacles_node"
           type="obstacles_simplified_node.py"

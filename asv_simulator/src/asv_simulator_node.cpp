@@ -41,12 +41,13 @@ int main(int argc, char* argv[])
 
   ros::Subscriber cmd_sub = nh.subscribe("cmd_vel", 1, &VesselNode::cmdCallback, &my_vessel_node);
   ros::Subscriber start_sub = nh.subscribe("start_simulation", 1, &VesselNode::startCallback, &my_vessel_node);
+  ros::Subscriber end_sub = nh.subscribe("end_simulation", 1, &VesselNode::endCallback, &my_vessel_node);
 
   std::string planner;
   if (!priv_nh.getParam("global_planner", planner))
     planner = "None";
 
-  my_vessel_node.initialize(&tf, &pose_pub, &odom_pub,  &noise_pub, &cmd_sub, &start_sub, planner, &my_vessel);
+  my_vessel_node.initialize(&tf, &pose_pub, &odom_pub,  &noise_pub, &cmd_sub, &start_sub, &end_sub, planner, &my_vessel);
   my_vessel_node.start();
 
   ros::shutdown();
@@ -74,6 +75,7 @@ void VesselNode::initialize(tf::TransformBroadcaster* tf,
                             ros::Publisher *noise_pub,
                             ros::Subscriber *cmd_sub,
                             ros::Subscriber *start_sub,
+                            ros::Subscriber *end_sub,
                             std::string planner,
                             Vessel *vessel)
 {
@@ -86,6 +88,7 @@ void VesselNode::initialize(tf::TransformBroadcaster* tf,
       noise_pub_ = noise_pub;
       cmd_sub_ = cmd_sub;
       start_sub_ = start_sub;
+      end_sub_ = end_sub;
 
       //if (planner == "None")
       //  inNav_ = true;
@@ -188,4 +191,10 @@ void VesselNode::startCallback(const std_msgs::Empty::ConstPtr& msg)
 {
   ROS_INFO_ONCE("Engine Started");
   inNav_ = true;
+}
+
+void VesselNode::endCallback(const std_msgs::Empty::ConstPtr& msg)
+{
+  ROS_INFO_ONCE("Engine Stopped");
+  inNav_ = false;
 }

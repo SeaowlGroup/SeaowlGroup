@@ -64,7 +64,7 @@ class PurePursuitROS(object):
                 mk.pose.orientation.w = 1
 
                 mk.lifetime = rospy.Duration()
-                mk.color.a = .3
+                mk.color.a = 1.
                 mk.color.r = 0.
                 mk.color.g = 0.
                 mk.color.b = 0.

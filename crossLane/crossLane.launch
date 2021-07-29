@@ -10,8 +10,7 @@
   <arg name="Fy_current" default="0.0" />
   <arg name="there_are_waves" default="false" />
   <!-- ASV parameters -->
-  <arg name="initial_state" default="[0.0, -475., 0.0, 0.0, 0.0, 0.0]" />
-
+  <arg name="initial_state" default="[0.0, -475., 1.571, 0.0, 0.0, 0.0]" />
   <arg name="waypoints" default="[[0.0, -475.], [0.0, 475.]]" />
   <arg name="u_d" default="5." />
   <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes.yaml" if="$(arg there_are_waves)"/>
@@ -20,21 +19,16 @@
   <arg name="use_vo" default="True" />
   <arg name="rviz" default="True" />
   <!-- Output -->
-  <arg name="opus" default="0" />
-  <arg name="output_file" default="$(find asv_system)/output/test.txt" />
+  <arg name="opus" default="1" />
+  <arg name="output_file" default="$(find crossLane)/output/test.txt" />
   <arg name="t_sim" default="75" />
   <arg name="pos_end_waypoint" default="[0.,0.]" />
-  <!-- Obstacles parameters 
-  <arg name="prior" default="[]" />
-  <arg name="size" default="[]" />
-  <arg name="heading" default="[]" />
-  <arg name="u_d" default="[]" />
-  <arg name="t_collision" default="[]" />
-  <arg name="d_detection" default="[]" />
-  <arg name="dcpa" default="[]" />
-  <arg name="initial_state_asv" default="[0.,0.,0., 0.,0.,0.]" />
-  <arg name="opus" default="0" />
-  -->
+  <!-- Obstacles parameters -->
+  <arg name="rld" default=".01" />
+  <arg name="lld" default=".01" />
+  <arg name="rlw" default="300" />
+  <arg name="llw" default="300" />
+  <arg name="ld" default="150" />
 
   <rosparam param="/use_sim_time" subst_value="True">$(arg use_sim_time)</rosparam>
 
@@ -50,7 +44,7 @@
 
     <node pkg="asv_referee"
           name="referee_node"
-          type="asv_referee_node2.py"
+          type="asv_referee_node.py"
           respawn="false"
           output="screen">
       <rosparam param="shutdown" subst_value="True">$(arg trigger_shutdown)</rosparam>
@@ -93,7 +87,7 @@
       <node pkg="rviz"
             type="rviz"
             name="rviz"
-            args="-d $(find asv_simulator)/config/rviz/crossLane.rviz" />
+            args="-d $(find crossLane)/config/rviz/crossLane.rviz" />
     </group>
 
     <node pkg="asv_obstacle_tracker"
@@ -101,22 +95,12 @@
           type="crossLaneObstNode.py"
           respawn="false"
           output="screen">
-      <!--
-      <rosparam param="prior" subst_value="True">$(arg prior)</rosparam>
-      <rosparam param="size" subst_value="True">$(arg size)</rosparam>
-      <rosparam param="heading" subst_value="True">$(arg heading)</rosparam>
-      <rosparam param="u_d" subst_value="True">$(arg u_d)</rosparam>
-      <rosparam param="t_collision" subst_value="True">$(arg t_collision)</rosparam>
-      <rosparam param="d_detection" subst_value="True">$(arg d_detection)</rosparam>
-      <rosparam param="dcpa" subst_value="True">$(arg dcpa)</rosparam>
-      <rosparam param="initial_state_asv" subst_value="True">$(arg initial_state_asv)</rosparam>
-      -->
+      <rosparam param="rld" subst_value="True">$(arg rlw)</rosparam>
+      <rosparam param="lld" subst_value="True">$(arg rlw)</rosparam>
+      <rosparam param="rlw" subst_value="True">$(arg rlw)</rosparam>
+      <rosparam param="llw" subst_value="True">$(arg llw)</rosparam>
+      <rosparam param="ld" subst_value="True">$(arg ld)</rosparam>
     </node>
   </group>
 
-    <!-- <node pkg="rosbag"
-          type="record"
-          name="rosbag_record"
-          args="-O /home/soubi/Documents/SEAOWL//home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/bagfiles/mozambique.bag /asv/state /obstacles/ship1/state /obstacles/ship2/state /obstacle_states"
-          /> -->
 </launch>

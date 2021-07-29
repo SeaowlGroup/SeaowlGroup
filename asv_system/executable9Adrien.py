@@ -137,7 +137,7 @@ if __name__ == "__main__":
             for u_d in yaml_content['u_d']:
                 for u_d_asv in yaml_content['u_d_asv']:
                     for dcpa in yaml_content['dcpa']:
-                        for d_detec in yaml_content['d_detection_jb']: ############################################
+                        for d_detec in yaml_content['d_detection_adrien']: ############################################
                             if (h<340 and h>20 or np.abs(u_d-u_d_asv)>2.57) and (d_detec > np.abs(dcpa)):
                                 if opus > OPUS_START:
                                     params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])

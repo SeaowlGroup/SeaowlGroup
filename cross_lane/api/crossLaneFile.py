@@ -116,7 +116,7 @@ if __name__ == "__main__":
                                         params = []
                                         # except:
                                         #     print("Unexpected error:", sys.exc_info()[0])
-                                        #     output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
+                                        #     output = f"{rospack.get_path('cross_lane')}/output/{serial}.txt"
                                         #     g = open(input,'a')
                                         #     g.write(f'{opus+1} nan nan nan nan nan nan nan nan nan nan nan nan nan\n')
                                         #     g.close()

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+#work in progress
+
 import roslaunch
 import yaml
 import numpy as np
@@ -33,8 +35,8 @@ class Scenario(object):
         self.t_collision = 15
         # Output
         rospack = rospkg.RosPack()
-        self.input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
-        self.output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
+        self.input = f"{rospack.get_path('cross_lane')}/input/{serial}.txt"
+        self.output = f"{rospack.get_path('cross_lane')}/output/{serial}.txt"
         self.opus = opus
 
     def graphic_interface(self):

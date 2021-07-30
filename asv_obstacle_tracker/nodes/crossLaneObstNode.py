@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import numpy as np
-import random as rdm
 import rospy
 import tf
 from nav_msgs.msg import Odometry
@@ -15,8 +14,8 @@ class Obstacles(object):
     def __init__(self):
         
         self.op = rospy.get_param("opus",-1)
-        self.rld = rospy.get_param("~rld",.01)                          #right lane boat density (in 1/m²)
-        self.lld = rospy.get_param("~rld",.01)                          #left lane average boat density (in 1/m²)
+        self.rld = rospy.get_param("~rld",1/40000)                      #right lane boat density (in 1/m²)
+        self.lld = rospy.get_param("~rld",1/40000)                      #left lane average boat density (in 1/m²)
         self.rlw = rospy.get_param("~rlw",300.)                         #width of right lane
         self.llw = rospy.get_param("~llw",300.)                         #width of left lane
         self.ld = rospy.get_param("~ld",150.)                           #distance between lanes
@@ -114,13 +113,15 @@ class Obstacles(object):
         self._end_subscriber = rospy.Subscriber("end_simulation", Empty,
                                                 self._end_callback,
                                                 queue_size=10)
-
+        print(f'nOb : {self.nOb}')
+        
     def initObs(self):
         self.obStates = StateArray()
 
-        rlp = (np.random.permutation(self.rln)+.5)*self.rlw/self.rln
-        llp = (np.random.permutation(self.lln)+.5)*self.llw/self.lln
-        x = (np.random.permutation(self.nOb)+.5)*self.ll/self.nOb
+        rly = (np.random.permutation(self.rln)+.5)*self.rlw/self.rln
+        lly = (np.random.permutation(self.lln)+.5)*self.llw/self.lln
+        rlx = (np.random.permutation(self.rln)+.5)*self.ll/self.rln
+        llx = (np.random.permutation(self.lln)+.5)*self.ll/self.lln
 
         for i in range(self.nOb) :
             s = State()
@@ -131,15 +132,16 @@ class Obstacles(object):
             s.u = .5*(5.+i%5)     #speed distribution
             s.v = 0.
             s.r = 0.
-            s.x = x[i]
 
             if i<self.rln:       #right lane
-                s.psi = 0.   
-                s.y = self.ld/2+rlp[i]
+                s.psi = 0.
+                s.x = rlx[i]   
+                s.y = self.ld/2+rly[i]
 
             else:                #left lane
                 s.psi = np.pi
-                s.y = -self.ld/2-llp[i-self.rln]
+                s.x = llx[i-self.rln]
+                s.y = -self.ld/2-lly[i-self.rln]
 
             self.obStates.states.append(s)
         
@@ -177,7 +179,7 @@ class Obstacles(object):
             pOb[0] = self.obStates.states[i].x
             pOb[1] = self.obStates.states[i].y
 
-            if np.linalg.norm(self.asvPose-pOb) < self.dDetect[i]:
+            if len(self.asvPose) > 0 and np.linalg.norm(self.asvPose-pOb) < self.dDetect[i]:
                 msg.states.append(self.obStates.states[i])
                 self.detect.points.append(Point(pOb[0],pOb[1],10.))
             

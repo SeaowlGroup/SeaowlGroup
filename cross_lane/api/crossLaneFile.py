@@ -40,10 +40,10 @@ def run(serial, params, uuid) :
 
         # ASV parameters
         dAsv = 100. #initial and final distance to lanes
-        initial_state_asv = [(ld/2+llw+dAsv)/np.tan(angle)/2,-ld/2-llw-dAsv,-angle, u_d,0.,0.]
+        initial_state_asv = [-(ld/2+llw+dAsv)/np.tan(angle),-(ld/2+llw+dAsv),angle, u_d,0.,0.]
         #Trajectory
-        waypoints_asv = [[(ld/2+llw+dAsv)/np.tan(angle)/2,-ld/2-llw-dAsv],
-                         [(ld/2+rlw+dAsv)/np.tan(angle)/2,ld/2+rlw+dAsv]]
+        waypoints_asv = [[-(ld/2+llw+dAsv)/np.tan(angle),-(ld/2+llw+dAsv)],
+                         [(ld/2+rlw+dAsv)/np.tan(angle),ld/2+rlw+dAsv]]
 
         input = f"{rospack.get_path('cross_lane')}/input/{serial}.txt"
         f = open(input,'a')

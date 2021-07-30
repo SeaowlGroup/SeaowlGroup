@@ -24,11 +24,12 @@
   <arg name="t_sim" default="75" />
   <arg name="pos_end_waypoint" default="[0.,0.]" />
   <!-- Obstacles parameters -->
-  <arg name="rld" default="0.00005" />
-  <arg name="lld" default="0.00005" />
+  <arg name="rld" default=".6" />
+  <arg name="lld" default=".6" />
   <arg name="rlw" default="300" />
   <arg name="llw" default="300" />
   <arg name="ld" default="150" />
+  <arg name="ll" default="750" />
 
   <rosparam param="/use_sim_time" subst_value="True">$(arg use_sim_time)</rosparam>
 
@@ -100,6 +101,7 @@
       <rosparam param="rlw" subst_value="True">$(arg rlw)</rosparam>
       <rosparam param="llw" subst_value="True">$(arg llw)</rosparam>
       <rosparam param="ld" subst_value="True">$(arg ld)</rosparam>
+      <rosparam param="ll" subst_value="True">$(arg ll)</rosparam>
     </node>
   </group>
 

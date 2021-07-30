@@ -14,12 +14,12 @@ class Obstacles(object):
     def __init__(self):
         
         self.op = rospy.get_param("opus",-1)
-        self.rld = rospy.get_param("~rld",1/40000)                      #right lane boat density (in 1/m²)
-        self.lld = rospy.get_param("~rld",1/40000)                      #left lane average boat density (in 1/m²)
+        self.rld = rospy.get_param("~rld",.7)/10000                     #right lane boat density (in 1/m²)
+        self.lld = rospy.get_param("~rld",.7)/10000                     #left lane average boat density (in 1/m²)
         self.rlw = rospy.get_param("~rlw",300.)                         #width of right lane
         self.llw = rospy.get_param("~llw",300.)                         #width of left lane
         self.ld = rospy.get_param("~ld",150.)                           #distance between lanes
-        self.ll = self.rlw+self.llw+self.ld                             #length of lane
+        self.ll = rospy.get_param("~ll",self.rlw+self.llw+self.ld)      #length of lane
         self.rln = int(self.ll*self.rlw*self.rld)                       #number of obstacles in right lane
         self.lln = int(self.ll*self.llw*self.lld)                       #number of obstacles in left lane
         self.nOb = self.rln+self.lln                                    #total number of obstacles

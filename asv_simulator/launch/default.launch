@@ -35,11 +35,17 @@
           name="tf_broadcaster" />
   </group>
 
+  <remap from="/map" to="/pasdechenal/map" if="$(arg use_vo)"/>
+  <include file="$(find asv_system)/launch/mapserver.launch">
+    <arg name="mapfile" value="$(find asv_system)/config/maps/rade_toulon.yaml" />
+  </include>
+
   <group if="$(arg use_vo)">
     <node pkg="asv_ctrl_vo"
           name="vo_node"
           type="asv_ctrl_vo_node"
           respawn="false"
-          output="screen" />
+          output="screen" >
+    </node>
   </group>
 </launch>

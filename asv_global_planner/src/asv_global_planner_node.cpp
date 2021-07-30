@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
   GlobalPlannerNode gp_node;
   //GlobalPlanner *gp = new GlobalPlanner;
-  AStarPlanner *gp = new AStarPlanner(10, 10);
+  AStarPlanner *gp = new AStarPlanner(5, 5);
 
 
   ros::Publisher wp_pub = n.advertise<asv_msgs::Path>("asv_waypoints", 1, true);
@@ -87,7 +87,7 @@ void GlobalPlannerNode::start()
           ROS_INFO("Global planner initialized");
 	        // waypt = gp_->calculate_waypoints(start_x, start_y, 770.0, 580.0);  // --> mozambique
           // waypt = gp_->calculate_waypoints(start_x, start_y, 1374.0, 95.0);  // --> rade toulon
-          waypt = gp_->calculate_waypoints(start_x, start_y, 1275.0, 15.0);
+          waypt = gp_->calculate_waypoints(start_x, start_y, 683.0, 357.0);
 	        map_init = 2;
           wp_pub_->publish(waypt);
           start_pub_->publish(startMsg);

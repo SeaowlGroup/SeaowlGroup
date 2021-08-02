@@ -25,7 +25,7 @@
 
 
   <include file="$(find asv_simulator)/launch/test.launch">
-    <arg name="u_d" value="5.0" />
+    <arg name="u_d" value="4.1" />
     <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/mozambique.yaml" />
     <arg name="initial_state" value="[661.0, 791.0, -2.34, 0.,0.,0.]" />
   </include>
@@ -48,26 +48,29 @@
   <include file="$(find asv_simulator)/launch/test_obst.launch">
         <!-- <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/test.yaml" /> -->
         <arg name="u_d" value="2.0" />
-        <arg name="waypoints" value="[[1325.0, 15.0], [1075.0, 345.0], [705.0, 420.0]]" />
+        <!-- <arg name="waypoints" value="[[1325.0, 15.0], [1075.0, 345.0], [705.0, 420.0]]" /> -->
+        <arg name="waypoints" value="[[957,363], [704,400], [603,352], [523,397], [531, 675]]" />
         <arg name="global_planner" value="None" />
         <arg name="use_vo" value="False" />
         <arg name="vessel_model_file" value="$(find asv_simulator)/config/models/ship1.urdf" />
         <arg name="namespace" value="obstacles/ship1" />
         <arg name="shipname" value="ship1" />
-        <arg name="initial_state" value="[1325.0, 15.0, 1.56, 0.,0.,0.]" />
+        <arg name="initial_state" value="[957, 363, 3.14, 0.,0.,0.]" />
       </include>
 
   <!-- Obstacle ship -->
-  <!-- <include file="$(find asv_simulator)/launch/test_obst.launch">
-        <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/test2.yaml" />
-        <arg name="waypoints" value="[[590.0, 400.0], [1200.0, 110.0]]" />
+  <include file="$(find asv_simulator)/launch/test_obst.launch">
+        <!-- <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/test.yaml" /> -->
+        <arg name="u_d" value="2.0" />
+        <!-- <arg name="waypoints" value="[[1325.0, 15.0], [1075.0, 345.0], [705.0, 420.0]]" /> -->
+        <arg name="waypoints" value="[[1200,363], [704,400], [603,352], [523,397], [531, 675]]" />
         <arg name="global_planner" value="None" />
         <arg name="use_vo" value="False" />
         <arg name="vessel_model_file" value="$(find asv_simulator)/config/models/ship1.urdf" />
         <arg name="namespace" value="obstacles/ship2" />
         <arg name="shipname" value="ship2" />
-        <arg name="initial_state" value="[590.0, 400.0, 0, 0.,0.,0.]" />
-      </include> -->
+        <arg name="initial_state" value="[1200, 363, 3.14, 0.,0.,0.]" />
+      </include>
 
   <node pkg="rviz"
         type="rviz"

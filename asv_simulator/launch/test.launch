@@ -6,6 +6,7 @@
   <arg name="initial_state" default="[0.0, 0.0, 1.56, 0.,0.,0.]" />
   <!-- global_planner = AStar or global_planner = None -->
   <arg name="global_planner" default="AStar" />
+  <arg name="arrival" default="[0., 0.]" />
   <arg name="use_vo" default="True" />
   <arg name="namespace" default="asv" />
   <arg name="shipname" default="asv" />
@@ -27,7 +28,9 @@
             name="global_planner_node"
             type="asv_global_planner_node"
             respawn="false"
-            output="screen" />
+            output="screen">
+        <rosparam param="arrival" subst_value="True">$(arg arrival)</rosparam>
+      </node>
     </group>
 
     <node pkg="asv_path_trackers"

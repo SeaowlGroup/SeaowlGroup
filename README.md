@@ -2,6 +2,7 @@
 ## Installation
 This package was coded on Ubuntu 20.04 LTS with ROS Noetic. It wouldn't work on previous versions of ROS because it uses Python 3.
 Here are the steps to take to install it from scratch, starting from a plain Ubuntu 20.04 distribution.
+
 ### ROS Installation
 The first step is to enable access to the repositories universe, multiverse and restricted if it not already. This needs to be typed in the terminal :
 ```
@@ -145,9 +146,6 @@ The topics are often included in diverse namespaces indicating the opus and/or v
 - `/end_simulation`, `/start_simulation` (type _Empty_): when a message is published, signal respectively the end or the beginning of the simulation (used to synchronize the nodes and automate the execution of the successive opuses)
 - `/map`, `/processed_map`, `/localmap` (optionnal, type _Occupancy Grid_): if a static map is set in the parameters, `/map` is its conversion into an occupancy grid, `/processed_map` is the implementation of the inflated static obstacles and `/local_map` is a short-ranged non-static version of the map used by the local planner  
 
-
-
-
 ### Additional Message Types
 
 All the message types specific to this package are detailed in the sub-package`/asv_msgs`.
@@ -179,46 +177,31 @@ Here is another where there is a map, a local planner, a global planner and an o
 ```
 .
 ├── asv_ctrl_vo
-│   ├── CMakeLists.txt
 │   ├── include
-│   │   └── asv_ctrl_vo
-│   │       ├── asv_ctrl_vo.h
-│   │       └── asv_ctrl_vo_node.h
-│   ├── package.xml
+│   │   └── ...
 │   └── src
 │       ├── asv_ctrl_vo.cpp
 │       └── asv_ctrl_vo_node.cpp
 ├── asv_global_planner
-│   ├── CMakeLists.txt
 │   ├── include
-│   │   └── asv_global_planner
-│   │       ├── asv_a_star.h
-│   │       ├── asv_global_planner.h
-│   │       └── asv_global_planner_node.h
-│   ├── package.xml
+│   │   └── ...
 │   └── src
 │       ├── asv_a_star.cpp
 │       ├── asv_global_planner.cpp
 │       └── asv_global_planner_node.cpp
 ├── asv_map_processing
-│   ├── CMakeLists.txt
 │   ├── include
-│   │   └── asv_map_processing
-│   │       └── asv_map_processing_node.h
-│   ├── package.xml
+│   │   └── ...
 │   └── src
 │       └── asv_map_processing_node.cpp
 ├── asv_msgs
-│   ├── CMakeLists.txt
 │   ├── msg
 │   │   ├── Path.msg
 │   │   ├── ShipMetaData.msg
 │   │   ├── StateArray.msg
 │   │   ├── State.msg
 │   │   └── Waypoint2D.msg
-│   └── package.xml
 ├── asv_obstacle_tracker
-│   ├── CMakeLists.txt
 │   ├── launch
 │   │   ├── default.launch
 │   │   ├── nema.launch
@@ -230,96 +213,34 @@ Here is another where there is a map, a local planner, a global planner and an o
 │   │   ├── obstacles_simplified_node.py
 │   │   ├── obstacle_tracker_nema_node.py
 │   │   └── obstacle_tracker_node.py
-│   └── package.xml
 ├── asv_path_trackers
-│   ├── CMakeLists.txt
 │   ├── nodes
 │   │   ├── asv_ctrl_los_node_obstacles.py
 │   │   ├── asv_ctrl_los_node.py
 │   │   ├── asv_ctrl_pp_node.py
-│   │   ├── __pycache__
-│   │   │   └── utils.cpython-38.pyc
 │   │   ├── utils.py
 │   │   └── utils.pyc
-│   └── package.xml
 ├── asv_referee
-│   ├── CMakeLists.txt
 │   ├── nodes
 │   │   ├── asv_clock_node.py
 │   │   ├── asv_reaper_node.py
 │   │   ├── asv_referee_node2.py
 │   │   └── asv_referee_node.py
-│   └── package.xml
 ├── asv_simulator
-│   ├── CMakeLists.txt
 │   ├── config
-│   │   ├── models
-│   │   │   ├── revolt.urdf
-│   │   │   ├── ship1.urdf
-│   │   │   ├── ship2.urdf
-│   │   │   ├── simple.urdf
-│   │   │   └── viknes.urdf
 │   │   ├── parameters
 │   │   │   ├── viknes2.yaml
 │   │   │   └── viknes.yaml
-│   │   ├── rosdoc.yaml
-│   │   ├── rviz
-│   │   │   ├── config.rviz
-│   │   │   ├── exec9.rviz
-│   │   │   ├── map_and_proc_map.rviz
-│   │   │   ├── one_vessel_with_map.rviz
-│   │   │   ├── three_vessels.rviz
-│   │   │   ├── toulon.rviz
-│   │   │   └── two_vessels.rviz
 │   │   └── waypoints
 │   │       ├── asv_head_on_and_crossing.yaml
-│   │       ├── asv_overtaking_and_crossing.yaml
-│   │       ├── asv_overtaking.yaml
-│   │       ├── asv_waypoint_list.yaml
-│   │       ├── clockwise_rectangle.yaml
-│   │       ├── east_to_west.yaml
-│   │       ├── in_between_rules.yaml
-│   │       ├── left_to_right.yaml
-│   │       ├── mozambique.yaml
-│   │       ├── north_to_south.yaml
-│   │       ├── overtaking_headon_crossing_asv.yaml
-│   │       ├── overtaking_headon_crossing_ship1.yaml
-│   │       ├── overtaking_headon_crossing_ship2.yaml
-│   │       ├── ship1_head_on_and_crossing.yaml
-│   │       ├── ship1_overtaking_and_crossing.yaml
-│   │       ├── ship1_overtaking.yaml
-│   │       ├── ship1_waypoint_list.yaml
-│   │       ├── ship2_head_on_and_crossing.yaml
-│   │       ├── ship2_overtaking_and_crossing.yaml
-│   │       ├── ship2_waypoint_list.yaml
-│   │       ├── slow_south_to_north.yaml
-│   │       ├── south_to_north.yaml
-│   │       ├── test2.yaml
-│   │       ├── test.yaml
-│   │       ├── waypoint_test_list.yaml
-│   │       └── west_to_east.yaml
+│   │       └── ...
 │   ├── include
-│   │   ├── asv_simulator.h
-│   │   ├── asv_simulator_node.h
-│   │   └── wave_filter.h
+│   │   └── ...
 │   ├── launch
 │   │   ├── default.launch
 │   │   ├── test2.launch
 │   │   ├── test.launch
 │   │   └── test_obst.launch
-│   ├── LICENSE
-│   ├── mainpage.dox
-│   ├── meshes
-│   │   ├── boat2.blend
-│   │   ├── boat2.dae
-│   │   ├── boat2.stl
-│   │   ├── boat3.stl
-│   │   ├── boat.dae
-│   │   ├── boat.stl
-│   │   ├── hovik.STL
-│   │   ├── Revolt.STL
-│   │   ├── testmap.stl
-│   │   └── viknes.STL
 │   ├── nodes
 │   │   ├── data_publisher.py
 │   │   ├── fake_asv.py
@@ -328,56 +249,24 @@ Here is another where there is a map, a local planner, a global planner and an o
 │   │   ├── teleop_joy.py
 │   │   ├── utils.py
 │   │   └── vessel.py
-│   ├── package.xml
-│   ├── README.md
 │   └── src
 │       ├── asv_simulator.cpp
 │       ├── asv_simulator_node.cpp
 │       └── wave_filter.cpp
 ├── asv_state_estimator
-│   ├── CMakeLists.txt
 │   ├── nodes
 │   │   ├── asv_state_estimator.py
 │   │   └── convert_stuff.py
-│   └── package.xml
 ├── asv_system
-│   ├── bato.ico
-│   ├── bato.png
-│   ├── CMakeLists.txt
 │   ├── config
 │   │   ├── maps
 │   │   │   ├── big_block.png
 │   │   │   ├── big_block.yaml
-│   │   │   ├── carte_-anadarko_uk_v4resize.webp
-│   │   │   ├── center_dot.png
-│   │   │   ├── center_dot.yaml
-│   │   │   ├── chenal_toulon.png
-│   │   │   ├── chenal_toulon.yaml
-│   │   │   ├── hovik.png
-│   │   │   ├── hovik.yaml
-│   │   │   ├── island.png
-│   │   │   ├── island.yaml
-│   │   │   ├── map1.png
-│   │   │   ├── map1.yaml
-│   │   │   ├── mozambique.png
-│   │   │   ├── mozambique.yaml
-│   │   │   ├── petit_chenal.png
-│   │   │   ├── rade_toulon.png
-│   │   │   ├── rade_toulon.yaml
-│   │   │   ├── test_color_map.png
-│   │   │   ├── test_color_map.yaml
-│   │   │   ├── test.png
-│   │   │   └── test.yaml
+│   │   │   └── ...
 │   │   ├── param
-│   │   │   ├── param1.yaml
-│   │   │   ├── param2.xlsx
-│   │   │   ├── param2.yaml
-│   │   │   ├── param3.xlsx
-│   │   │   ├── param3.yaml
-│   │   │   ├── param4.xlsx
-│   │   │   ├── param4.yaml
-│   │   │   └── param.xlsx
-│   │   └── param3.yaml
+│   │   │   ├── param.yaml
+│   │   │   ├── param.xlsx
+│   │   │   └── ...
 │   ├── debug.py
 │   ├── debug.txt
 │   ├── étalon.py
@@ -391,83 +280,34 @@ Here is another where there is a map, a local planner, a global planner and an o
 │   ├── executable9Adrien.py
 │   ├── executable9.py
 │   ├── graph_drawer.py
-│   ├── icon.png
 │   ├── input
 │   │   ├── 210801230453.txt
-│   │   ├── first_373.txt
-│   │   ├── left_and_rosace_vo1.txt
-│   │   ├── left_and_rosace_vo2.txt
-│   │   ├── rattrape_rattrapant.txt
-│   │   ├── rosace_rattrape.txt
-│   │   ├── survivor2.txt
-│   │   ├── survivor3.txt
-│   │   ├── survivor4.txt
-│   │   ├── survivor5.txt
-│   │   ├── survivor6.txt
-│   │   ├── survivor7.txt
-│   │   └── survivor.txt
+│   │   └── ...
 │   ├── launch
 │   │   ├── chenal.launch
-│   │   ├── chenal_toulon.launch
-│   │   ├── default.launch
-│   │   ├── main_launch2.launch
-│   │   ├── main_launch3.launch
-│   │   ├── main_launch.launch
-│   │   ├── mapserver.launch
-│   │   ├── mozambique_fast.launch
-│   │   ├── mozambique.launch
-│   │   ├── mozambique_nema.launch
-│   │   ├── mozambique_simplified.launch
-│   │   ├── new_moz.launch
-│   │   ├── obstacles2.launch
-│   │   ├── obstacles.launch
-│   │   ├── play_bagfile.launch
-│   │   ├── reaper.launch
-│   │   ├── test2.launch
-│   │   ├── tester.launch
-│   │   ├── test.launch
-│   │   ├── test_static_obstacle.launch
-│   │   └── toulon.launch
+│   │   └── ...
 │   ├── launch_backgroundAdrien.sh
 │   ├── log
+│   │   ├── nohup.out
 │   │   └── nohup.err
 │   ├── output
 │   │   ├── 210801230453.txt
-│   │   ├── dataAdrien.txt
-│   │   ├── first_373.txt
-│   │   ├── left_and_rosace_vo1.txt
-│   │   ├── left_and_rosace_vo2.txt
-│   │   ├── rattrape_rattrapant.txt
-│   │   ├── rosace_rattrape.txt
-│   │   ├── survivor2.txt
-│   │   ├── survivor3.txt
-│   │   ├── survivor4.txt
-│   │   ├── survivor5.txt
-│   │   ├── survivor6.txt
-│   │   ├── survivor7.txt
-│   │   └── survivor.txt
-│   ├── output.xlsx
-│   ├── package.xml
-│   ├── scripts
-│   │   ├── clear.sh
-│   │   ├── concatenate.py
-│   │   ├── config.sh
-│   │   ├── current_opus.sh
-│   │   ├── graph_drawer.py
-│   │   ├── is_running.sh
-│   │   ├── kill.sh
-│   │   ├── launch_background.sh
-│   │   ├── rename.sh
-│   │   └── watch_cpu.py
-│   ├── Seagull-USV.png
-│   ├── simu.xlsx
-│   ├── survivor.xls
-│   └── test.py
+│   │   └── ...
+│   └── scripts
+│       ├── clear.sh
+│       ├── concatenate.py
+│       ├── config.sh
+│       ├── current_opus.sh
+│       ├── graph_drawer.py
+│       ├── is_running.sh
+│       ├── kill.sh
+│       ├── launch_background.sh
+│       ├── rename.sh
+│       └── watch_cpu.py
 ├── cross_lane
 │   ├── api
 │   │   ├── crossLaneExec.py
 │   │   └── crossLaneFile.py
-│   ├── CMakeLists.txt
 │   ├── config
 │   │   ├── param
 │   │   │   └── crossLane.yaml
@@ -475,8 +315,6 @@ Here is another where there is a map, a local planner, a global planner and an o
 │   │       └── crossLane.rviz
 │   ├── launch
 │   │   └── crossLane.launch
-│   └── package.xml
-├── original_readme.md
 └── README.md
 ```
 

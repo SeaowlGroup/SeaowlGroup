@@ -109,6 +109,7 @@ def run(serial, params, uuid) :
     launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
     launch.start()
     launch.spin()
+    launch.shutdown()
 
 
 if __name__ == "__main__":

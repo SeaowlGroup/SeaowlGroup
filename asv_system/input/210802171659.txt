@@ -1,0 +1,7 @@
+OPUS    CLASS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC    GROUP
+374    OVERTAKEN   4.115552    True    0    7.71666    10    8.0    None    100    2
+375    OVERTAKEN   4.115552    True    0    7.71666    20    8.0    None    50    2
+376    OVERTAKEN   4.115552    True    0    7.71666    20    8.0    None    100    2
+377    OVERTAKEN   4.115552    True    0    7.71666    50    8.0    None    100    2
+378    OVERTAKEN   4.115552    True    0    7.71666    80    8.0    None    100    2
+379    OVERTAKEN   5.14444    True    0    7.71666    -80    8.0    None    100    2

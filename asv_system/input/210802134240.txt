@@ -1,2 +1,1 @@
 408    OVERTAKING   12.8611    True    0    7.71666    -50    8.0    None    100    1
-409    OVERTAKING   12.8611    True    0    7.71666    -20    8.0    None    50    1

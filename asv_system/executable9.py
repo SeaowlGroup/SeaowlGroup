@@ -9,8 +9,8 @@ import yaml
 import sys
 import os
 
-NB_PROCESS = 6
-OPUS_START = 373
+NB_PROCESS = 1
+OPUS_START = 0
 SERIAL_TO_UPDATE = ''
 
 def run(serial, params, uuid) :

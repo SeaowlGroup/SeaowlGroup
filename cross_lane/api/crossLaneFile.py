@@ -40,10 +40,10 @@ def run(serial, params, uuid) :
 
         # ASV parameters
         dAsv = 100. #initial and final distance to lanes
-        initial_state_asv = [(ld/2+llw+dAsv)/np.tan(angle)/2,-ld/2-llw-dAsv,-angle, u_d,0.,0.]
+        initial_state_asv = [-(ld/2+llw+dAsv)/np.tan(angle),-(ld/2+llw+dAsv),angle, u_d,0.,0.]
         #Trajectory
-        waypoints_asv = [[(ld/2+llw+dAsv)/np.tan(angle)/2,-ld/2-llw-dAsv],
-                         [(ld/2+rlw+dAsv)/np.tan(angle)/2,ld/2+rlw+dAsv]]
+        waypoints_asv = [[-(ld/2+llw+dAsv)/np.tan(angle),-(ld/2+llw+dAsv)],
+                         [(ld/2+rlw+dAsv)/np.tan(angle),ld/2+rlw+dAsv]]
 
         input = f"{rospack.get_path('cross_lane')}/input/{serial}.txt"
         f = open(input,'a')
@@ -116,7 +116,7 @@ if __name__ == "__main__":
                                         params = []
                                         # except:
                                         #     print("Unexpected error:", sys.exc_info()[0])
-                                        #     output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
+                                        #     output = f"{rospack.get_path('cross_lane')}/output/{serial}.txt"
                                         #     g = open(input,'a')
                                         #     g.write(f'{opus+1} nan nan nan nan nan nan nan nan nan nan nan nan nan\n')
                                         #     g.close()

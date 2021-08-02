@@ -7,13 +7,13 @@ project(cross_lane)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  asv_ctrl_vo
-  asv_global_planner
-  asv_msgs
-  asv_obstacle_tracker
-  asv_referee
-  asv_simulator
+find_package(catkin REQUIRED #COMPONENTS
+  #asv_ctrl_vo
+  #asv_global_planner
+  #asv_msgs
+  #asv_obstacle_tracker
+  #asv_referee
+  #asv_simulator
 )
 
 ## System dependencies are found with CMake's conventions

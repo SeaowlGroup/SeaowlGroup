@@ -44,9 +44,8 @@ int main(int argc, char *argv[])
                                         1,
                                         &VelocityObstacleNode::cmdCallback,
                                         &vo_node);
-  int op;
-  if (n.getParam("opus", op))
-    vo_node.initialize(&cmd_pub, &mk_pub, &obstacle_sub, &og_sub, &asv_sub, &cmd_sub, vo,op);
+
+  vo_node.initialize(&cmd_pub, &mk_pub, &obstacle_sub, &og_sub, &asv_sub, &cmd_sub, vo);
   vo_node.start();
 
   ros::shutdown();
@@ -70,8 +69,7 @@ void VelocityObstacleNode::initialize(ros::Publisher *cmd_pub,
                                       ros::Subscriber *og_sub,
                                       ros::Subscriber *asv_sub,
                                       ros::Subscriber *cmd_sub,
-                                      VelocityObstacle *vo,
-                                      int op)
+                                      VelocityObstacle *vo)
 {
   cmd_pub_ = cmd_pub;
   mk_pub_ = mk_pub;
@@ -84,7 +82,7 @@ void VelocityObstacleNode::initialize(ros::Publisher *cmd_pub,
 
   vo_->initialize(&obstacles_, &map_);
 
-  initializeMarker(op);
+  initializeMarker();
 }
 
 void VelocityObstacleNode::start()
@@ -154,12 +152,12 @@ void VelocityObstacleNode::clearMarkers()
 {
 }
 
-void VelocityObstacleNode::initializeMarker(int op)
+void VelocityObstacleNode::initializeMarker()
 {
   // Setup marker message
   marker_.header.stamp = ros::Time::now();
-  marker_.header.frame_id = std::string(std::to_string(op)); //attention
-  marker_.ns = std::string(std::to_string(op));              //attention
+  marker_.header.frame_id = std::string("asv");
+  marker_.ns = std::string("asv");
   marker_.type = visualization_msgs::Marker::POINTS;
   marker_.action = visualization_msgs::Marker::ADD;
   marker_.pose = geometry_msgs::Pose();

@@ -1,3 +1,0 @@
-#!/bin/sh
-
-nohup python3 .executable9.py &> /dev/null &

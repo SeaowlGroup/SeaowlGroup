@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
+#work in progress
+
 import roslaunch
-import yaml
 import numpy as np
-import time
 import datetime
 from tkinter import *
 import rospkg
@@ -19,22 +19,19 @@ class Scenario(object):
     def __init__(self, serial='000000', opus=0, uuid='0'):
         self.uuid = uuid
         # ASV related attributes
-        self.u_d_asv = None
-        self.lp = None
-        self.true_heading_asv = 0.0
-        self.t_sim = 75
-        # Obstacle related attributes
-        self.heading = None
+        self.angle = None
         self.u_d = None
-        self.dcpa = None
-        self.size = None
-        self.prior = None
-        self.d_detec = None
-        self.t_collision = 15
+        self.lp = None
+        # Lane related attributes
+        self.rld = None
+        self.lld = None
+        self.rlw = None
+        self.llw = None
+        self.ld = None
         # Output
-        rospack = rospkg.RosPack()
-        self.input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
-        self.output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
+        self.rospack = rospkg.RosPack()
+        self.input = f"{self.rospack.get_path('cross_lane')}/input/{serial}.txt"
+        self.output = f"{self.rospack.get_path('cross_lane')}/output/{serial}.txt"
         self.opus = opus
 
     def graphic_interface(self):
@@ -49,7 +46,7 @@ class Scenario(object):
         h_unit = int(screen_height/3)
         fenetre.geometry(f"{screen_width}x{screen_height}")
         fenetre.title("Bench Test")
-        fenetre.iconphoto(False, PhotoImage(file='icon.png'))
+        fenetre.iconphoto(False, PhotoImage(file=f"{self.rospack.get_path('asv_system')}/icon.png"))
         fenetre.configure(bg='gainsboro')
 
         ###################
@@ -70,8 +67,7 @@ class Scenario(object):
 
         ###################
         ###################
-
-        seagull = PhotoImage(file="Seagull-USV.png")
+        seagull = PhotoImage(file=f"{self.rospack.get_path('asv_system')}/Seagull-USV.png")
 
         canvas = Canvas(first_frame, width=w_big, height=2*h_unit)
         canvas.create_image(w_big/2, 2*h_unit/3, anchor=CENTER, image=seagull)
@@ -88,7 +84,7 @@ class Scenario(object):
         Entry(l0, textvariable=u_d_asv, width=5, bg='whitesmoke').grid(row=0, column=1)
 
         lp = IntVar()
-        lp.set(0)
+        lp.set(1)
         Label(l0, text="Local Planner : ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
         l01 = Frame(l0, bg='white')
         l01.grid(row=1, column=1)
@@ -100,52 +96,53 @@ class Scenario(object):
         l1 = LabelFrame(first_frame, text='Obstacle ship', padx=80, pady=30, bg='white')
         l1.grid(row=1, column=1)
 
-        heading = DoubleVar()
-        heading.set(180.0)
-        Label(l1, text="Heading : ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
-        Entry(l1, textvariable=heading, width=5, bg='whitesmoke').grid(row=0, column=1)
+        angle = DoubleVar()
+        angle.set(90.0)
+        Label(l1, text="angle : ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
+        Entry(l1, textvariable=angle, width=5, bg='whitesmoke').grid(row=0, column=1)
 
         u_d = DoubleVar()
         u_d.set(5.0)
         Label(l1, text="Speed : ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
         Entry(l1, textvariable=u_d, width=5, bg='whitesmoke').grid(row=1, column=1)
 
-        dcpa = DoubleVar()
-        dcpa.set(0.0)
-        Label(l1, text="dCPA : ", bg='white', anchor=E).grid(row=2, column=0, sticky="nsew")
-        Entry(l1, textvariable=dcpa, width=5, bg='whitesmoke').grid(row=2, column=1)
+        rld = DoubleVar()
+        rld.set(.5)
+        Label(l1, text="right lane density : ", bg='white', anchor=E).grid(row=2, column=0, sticky="nsew")
+        Entry(l1, textvariable=rld, width=5, bg='whitesmoke').grid(row=2, column=1)
 
-        size = DoubleVar()
-        size.set(8.0)
-        Label(l1, text="Size : ", bg='white', anchor=E).grid(row=3, column=0, sticky="nsew")
-        Entry(l1, textvariable=size, width=5, bg='whitesmoke').grid(row=3, column=1)
+        lld = DoubleVar()
+        lld.set(.5)
+        Label(l1, text="left lane density : ", bg='white', anchor=E).grid(row=3, column=0, sticky="nsew")
+        Entry(l1, textvariable=lld, width=5, bg='whitesmoke').grid(row=3, column=1)
 
-        prior = StringVar()
-        prior.set("none")
-        Label(l1, text="Priority status : ", bg='white', anchor=E).grid(row=4, column=0, sticky="nsew")
-        l11 = Frame(l1, bg='white')
-        l11.grid(row=4, column=1)
-        Radiobutton(l11, variable=prior, text="None", value="none", bg='white', anchor=W, highlightthickness=0).pack(fill='both')
-        Radiobutton(l11, variable=prior, text="Stand On", value="stand_on", bg='white', anchor=W, highlightthickness=0).pack(fill='both')
-        Radiobutton(l11, variable=prior, text="Give Way", value="give_way", bg='white', anchor=W, highlightthickness=0).pack(fill='both')
+        rlw = DoubleVar()
+        rlw.set(300.)
+        Label(l1, text="right lane width : ", bg='white', anchor=E).grid(row=4, column=0, sticky="nsew")
+        Entry(l1, textvariable=rlw, width=5, bg='whitesmoke').grid(row=4, column=1)
 
-        d_detec = DoubleVar()
-        d_detec.set(100.0)
-        Label(l1, text="Distance of detection : ", bg='white', anchor=E).grid(row=5, column=0, sticky="nsew")
-        Entry(l1, textvariable=d_detec, width=5, bg='whitesmoke').grid(row=5, column=1)
+        llw = DoubleVar()
+        llw.set(300.)
+        Label(l1, text="left lane width : ", bg='white', anchor=E).grid(row=5, column=0, sticky="nsew")
+        Entry(l1, textvariable=llw, width=5, bg='whitesmoke').grid(row=5, column=1)
+
+        ld = DoubleVar()
+        ld.set(150.)
+        Label(l1, text="distance between lane : ", bg='white', anchor=E).grid(row=6, column=0, sticky="nsew")
+        Entry(l1, textvariable=ld, width=5, bg='whitesmoke').grid(row=6, column=1)
 
         ########################
 
         def register():
 
-            self.u_d_asv = u_d_asv.get()
             self.lp = (lp.get() == 1)
-            self.heading = heading.get()
+            self.angle = angle.get()*np.pi/180 #degrees to angles
             self.u_d = u_d.get()
-            self.dcpa = dcpa.get()
-            self.size = size.get()
-            self.prior = prior.get()
-            self.d_detec = d_detec.get()
+            self.rld = rld.get()
+            self.lld = lld.get()
+            self.rlw = rlw.get()
+            self.llw = llw.get()
+            self.ld = ld.get()
 
             #fenetre.destroy()
             self.opus += 1
@@ -226,19 +223,18 @@ class Scenario(object):
 
     def write_input(self):
 
-        param = [self.u_d_asv,
-                 self.lp,
-                 self.heading,
+        param = [self.angle,
                  self.u_d,
-                 self.dcpa,
-                 self.size,
-                 self.prior,
-                 self.d_detec]
+                 self.rld,
+                 self.lld,
+                 self.rlw,
+                 self.llw,
+                 self.ld]
 
         f = open(self.input,'a')
 
         if self.opus == 1:
-            f.write(f'OPUS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC\n')
+            f.write(f'OPUS     ANGLE    U_D    RLD    LLD    RLW    LLW    LD\n')
         f.write(f'{self.opus}')
         for p in param:
             f.write(f'    {p}')
@@ -247,48 +243,38 @@ class Scenario(object):
 
         print('=====================================')
         print('local planner : ', self.lp)
-        print('size : ', self.size)
-        print('heading : ', self.heading)
+        print('angle : ', self.angle)
         print('u_d : ', self.u_d)
-        print('dcpa : ', self.dcpa)
-        print('prior : ', self.prior)
-        print('d_detec : ', self.d_detec)
+        print('right lane density : ', self.rld)
+        print('left lane density : ', self.lld)
         print('=====================================')
 
     def run(self):
         # ASV parameters
-        calc_heading_asv = (90-self.true_heading_asv)*np.pi/180
-        initial_state_asv = [0.,0.,calc_heading_asv, self.u_d_asv,0.,0.]
+        dAsv = 10. #initial and final distance to lanes
+        initial_state_asv = [-(self.ld/2+self.llw+dAsv)/np.tan(self.angle),-(self.ld/2+self.llw+dAsv),self.angle, self.u_d,0.,0.]
         #Trajectory
-        waypoints_asv = [[0.,0.],
-                         [self.t_sim*self.u_d_asv*np.cos(calc_heading_asv),
-                          self.t_sim*self.u_d_asv*np.sin(calc_heading_asv)]]
+        waypoints_asv = [[-(self.ld/2+self.llw+dAsv)/np.tan(self.angle),-(self.ld/2+self.llw+dAsv)],
+                         [(self.ld/2+self.rlw+dAsv)/np.tan(self.angle),self.ld/2+self.rlw+dAsv]]
 
+        ll = max(self.rlw+self.llw+self.ld, 200+(self.ld+self.llw+self.llw+dAsv)/np.tan(self.angle))
         # Creation of the launch files
-        cli_args0 = ['asv_system', 'main_launch3.launch',
+        cli_args0 = ['cross_lane', 'crossLane.launch',
                      f'initial_state:={initial_state_asv}',
-        #             f'use_sim_time:=True',
                      f'waypoints:={waypoints_asv}',
-                     f'u_d:={self.u_d_asv}',
+                     f'u_d:={self.u_d}',
                      f'use_vo:={self.lp}',
                      f'output_file:={self.output}',
-                     f'opus:={self.opus}']
+                     f'opus:={self.opus}',
+                     f'rld:={self.rld}',
+                     f'lld:={self.lld}'
+                     f'rlw:={self.rlw}',
+                     f'llw:={self.llw}',
+                     f'ld:={self.ld}',
+                     f'll:={ll}']
         roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
         roslaunch_args0 = cli_args0[2:]
-
-        cli_args1 = ['asv_system', 'crossLaneLaunch.launch',
-                     f'prior:=[{self.prior}]',
-                     f'size:=[{self.size}]',
-                     f'heading:=[{self.heading}]',
-                     f'u_d:=[{self.u_d}]',
-                     f't_collision:=[{self.t_collision}]',
-                     f'd_detection:=[{self.d_detec}]',
-                     f'dcpa:=[{self.dcpa}]',
-                     f'initial_state_asv:={initial_state_asv}',
-                     f'opus:={self.opus}']
-        roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
-        roslaunch_args1 = cli_args1[2:]
-        launch_files = [(roslaunch_file0, roslaunch_args0), (roslaunch_file1, roslaunch_args1)]
+        launch_files = [(roslaunch_file0, roslaunch_args0)]
 
         launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
         launch.start()
@@ -298,7 +284,7 @@ class Scenario(object):
 
         x = []
         y = []
-        xlab = ['OPUS', 'U_D_ASV', 'LOC_PLAN', 'HEADING', 'U_D', 'DCPA', 'SIZE', 'PRIOR', 'D_DETEC']
+        xlab = ['OPUS', 'ANGLE', 'U_D', 'RLD', 'LLD', 'RLW', 'LLW', 'LD']
         ylab = ['LOG_COL', 'NAT_COL', 'OFFSET_LOG', 'ANTICIPATION']
         labels = []
         colors = []

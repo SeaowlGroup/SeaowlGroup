@@ -4,6 +4,7 @@
 #include "asv_msgs/StateArray.h"
 #include "nav_msgs/Odometry.h"
 #include "visualization_msgs/Marker.h"
+#include "std_msgs/String.h"
 
 #include <vector>
 
@@ -32,6 +33,7 @@ class VelocityObstacleNode
                   ros::Subscriber *og_sub,
                   ros::Subscriber *asv_sub,
                   ros::Subscriber *cmd_sub,
+                  ros::Subscriber *tfName_sub,
                   VelocityObstacle *vo);
   /**
    * Start the node. Enters a "never ending" while loop.
@@ -42,6 +44,7 @@ class VelocityObstacleNode
   void asvCallback(const nav_msgs::Odometry::ConstPtr &msg);
   void obstacleCallback(const asv_msgs::StateArray::ConstPtr &msg);
   void cmdCallback(const geometry_msgs::Twist::ConstPtr &msg);
+  void tfNameCallback(const std_msgs::String &msg);
   void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr &msg);
  private:
 
@@ -61,6 +64,7 @@ class VelocityObstacleNode
 
   double u_d_;
   double psi_d_;
+  std::string tf_name;
 
   // ROS API
   ros::Publisher *cmd_pub_;
@@ -71,6 +75,7 @@ class VelocityObstacleNode
   ros::Subscriber *og_sub_;
   ros::Subscriber *asv_sub_;
   ros::Subscriber *cmd_sub_; // Subscribe to LOS commands.
+  ros::Subscriber *tfName_sub_; // Subscribe to LOS commands.
 };
 
 

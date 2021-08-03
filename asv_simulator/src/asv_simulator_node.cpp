@@ -146,6 +146,7 @@ void VesselNode::publishData()
   q.setRPY(0,0,eta[2]);
   transform.setRotation(q);
 
+  //ROS_INFO_STREAM("simulator tf_name " << tf_name);
   tf_->sendTransform(tf::StampedTransform(transform,
                                           ros::Time::now(),
                                           "map",

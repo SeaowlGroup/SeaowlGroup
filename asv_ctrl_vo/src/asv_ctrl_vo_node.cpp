@@ -6,6 +6,7 @@
 #include "nav_msgs/OccupancyGrid.h"
 #include "asv_msgs/StateArray.h"
 #include "visualization_msgs/Marker.h"
+#include "std_msgs/String.h"
 
 #include "asv_ctrl_vo/asv_ctrl_vo.h"
 #include "asv_ctrl_vo/asv_ctrl_vo_node.h"
@@ -22,7 +23,11 @@ int main(int argc, char *argv[])
   VelocityObstacleNode vo_node;
   VelocityObstacle *vo = new VelocityObstacle;
 
-
+  int op;
+  if (!n.getParam("opus", op))
+  {
+    op = -1;
+  }
   ros::Publisher mk_pub = n.advertise<visualization_msgs::Marker>("vo_markers", 1);
   ros::Publisher cmd_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 10);
 
@@ -45,7 +50,12 @@ int main(int argc, char *argv[])
                                         &VelocityObstacleNode::cmdCallback,
                                         &vo_node);
 
-  vo_node.initialize(&cmd_pub, &mk_pub, &obstacle_sub, &og_sub, &asv_sub, &cmd_sub, vo);
+  ros::Subscriber tfName_sub = n.subscribe("tf_name",
+                                        1,
+                                        &VelocityObstacleNode::tfNameCallback,
+                                        &vo_node);
+
+  vo_node.initialize(&cmd_pub, &mk_pub, &obstacle_sub, &og_sub, &asv_sub, &cmd_sub, &tfName_sub, vo);
   vo_node.start();
 
   ros::shutdown();
@@ -59,7 +69,8 @@ VelocityObstacleNode::VelocityObstacleNode() : vo_(NULL),
                                                obstacle_sub_(NULL),
                                                og_sub_(NULL),
                                                asv_sub_(NULL),
-                                               cmd_sub_(NULL) {};
+                                               cmd_sub_(NULL),
+                                               tfName_sub_(NULL) {};
 
 VelocityObstacleNode::~VelocityObstacleNode() {}
 
@@ -69,6 +80,7 @@ void VelocityObstacleNode::initialize(ros::Publisher *cmd_pub,
                                       ros::Subscriber *og_sub,
                                       ros::Subscriber *asv_sub,
                                       ros::Subscriber *cmd_sub,
+                                      ros::Subscriber *tfName_sub,
                                       VelocityObstacle *vo)
 {
   cmd_pub_ = cmd_pub;
@@ -77,6 +89,7 @@ void VelocityObstacleNode::initialize(ros::Publisher *cmd_pub,
   og_sub_ = og_sub;
   asv_sub_ = asv_sub;
   cmd_sub_ = cmd_sub;
+  tfName_sub_ = tfName_sub;
 
   vo_ = vo;
 
@@ -127,6 +140,15 @@ void VelocityObstacleNode::cmdCallback(const geometry_msgs::Twist::ConstPtr &msg
   psi_d_ = msg->angular.y;
 }
 
+void VelocityObstacleNode::tfNameCallback(const std_msgs::String &msg)
+{
+  tf_name = msg.data;
+  tf_name.erase(0,1);
+  marker_.header.frame_id = tf_name;
+  marker_.ns = tf_name;
+  vo_->initializeMarker(&marker_);  
+  //ROS_INFO_STREAM("tf_name callback " << tf_name);
+}
 
 void VelocityObstacleNode::mapCallback(const nav_msgs::OccupancyGrid::ConstPtr &msg)
 {
@@ -156,8 +178,8 @@ void VelocityObstacleNode::initializeMarker()
 {
   // Setup marker message
   marker_.header.stamp = ros::Time::now();
-  marker_.header.frame_id = std::string("asv");
-  marker_.ns = std::string("asv");
+  marker_.header.frame_id = tf_name;
+  marker_.ns = tf_name;
   marker_.type = visualization_msgs::Marker::POINTS;
   marker_.action = visualization_msgs::Marker::ADD;
   marker_.pose = geometry_msgs::Pose();
@@ -165,5 +187,5 @@ void VelocityObstacleNode::initializeMarker()
   marker_.scale.y = 0.5;
 
 
-  vo_->initializeMarker(&marker_);
+  //vo_->initializeMarker(&marker_);
 }

@@ -3,7 +3,7 @@
 import roslaunch
 import rospy
 #import rospkg
-N = 10
+N = 100
 
 def run(op,uuid):
     cli_args = ['test','test.launch',f'opus:={op}']
@@ -28,6 +28,7 @@ def run(op,uuid):
     launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
     launch.start()
     launch.spin()
+    launch.shutdown()
     
 
 
@@ -37,8 +38,5 @@ if __name__ == "__main__":
     try:
         for k in range(N):
             run(k,uuid)
-            print("sleep")
-            rospy.sleep(1)
-            print("wake")
     except KeyboardInterrupt:
         print("done")

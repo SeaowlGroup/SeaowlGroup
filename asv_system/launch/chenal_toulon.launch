@@ -3,8 +3,10 @@
   <arg name="use_sim_time" value="false" />
   <arg name="trigger_shutdown" value="0" />
   <arg name="coast_margin" value="0" />
+  <arg name="opus" value="0" />
 
   <rosparam param="/use_sim_time" subst_value="True">$(arg use_sim_time)</rosparam>
+  <rosparam param="opus" subst_value="True">$(arg opus)</rosparam>
 
   <!-- <group if="$(arg use_sim_time)">
     <node pkg="asv_referee"

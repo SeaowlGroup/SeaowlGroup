@@ -20,8 +20,8 @@ class Obstacles(object):
         self.llw = rospy.get_param("~llw",300.)                         #width of left lane
         self.ld = rospy.get_param("~ld",150.)                           #distance between lanes
         self.ll = rospy.get_param("~ll",self.rlw+self.llw+self.ld)      #length of lane
-        self.rln = int(self.ll*self.rlw*self.rld)                       #number of obstacles in right lane
-        self.lln = int(self.ll*self.llw*self.lld)                       #number of obstacles in left lane
+        self.rln = int(self.rlw*self.ll*self.rld) #int(rospy.get_param("~lnOb",0))                       #number of obstacles in right lane
+        self.lln = int(self.llw*self.ll*self.lld) #int(rospy.get_param("~lnOb",0))                      #number of obstacles in left lane
         self.nOb = self.rln+self.lln                                    #total number of obstacles
         self.dDetect = rospy.get_param("~d_detection", self.nOb*[500.]) #distance of detection of obstacles
         self.prior = rospy.get_param("~prior", self.nOb*["n"])          #priority satus of obstacles

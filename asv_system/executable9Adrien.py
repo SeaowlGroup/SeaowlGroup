@@ -8,8 +8,8 @@ import yaml
 import os, signal
 from subprocess import check_output
 
-NB_PROCESS = 6
-OPUS_START = 2013
+NB_PROCESS = 1
+OPUS_START = 1
 SERIAL_TO_UPDATE = ''
 
 def run(serial, params, uuid) :

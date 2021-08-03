@@ -77,13 +77,13 @@
         <!-- <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/test.yaml" /> -->
         <arg name="u_d" value="3.0" />
         <!-- <arg name="waypoints" value="[[1325.0, 15.0], [1075.0, 345.0], [705.0, 420.0]]" /> -->
-        <arg name="waypoints" value="[[1000,1170], [1000,-300]]" />
+        <arg name="waypoints" value="[[1000,1050], [1000,-300]]" />
         <arg name="global_planner" value="None" />
         <arg name="use_vo" value="False" />
         <arg name="vessel_model_file" value="$(find asv_simulator)/config/models/ship1.urdf" />
         <arg name="namespace" value="obstacles/ship3" />
         <arg name="shipname" value="ship3" />
-        <arg name="initial_state" value="[1000,1200, -1.56, 0.,0.,0.]" />
+        <arg name="initial_state" value="[1000,1050, -1.56, 0.,0.,0.]" />
       </include>
 
   <!-- Obstacle ship -->
@@ -91,7 +91,7 @@
         <!-- <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/test.yaml" /> -->
         <arg name="u_d" value="3.0" />
         <!-- <arg name="waypoints" value="[[1325.0, 15.0], [1075.0, 345.0], [705.0, 420.0]]" /> -->
-        <arg name="waypoints" value="[[1200,-600], [1200,300]]" />
+        <arg name="waypoints" value="[[1200,-600], [1200,241]]" />
         <arg name="global_planner" value="None" />
         <arg name="use_vo" value="False" />
         <arg name="vessel_model_file" value="$(find asv_simulator)/config/models/ship1.urdf" />

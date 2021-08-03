@@ -1,6 +1,8 @@
+# The Planner Tester Package
 ## Installation
-This package was coded on Ubuntu 20.04 LTS with ROS Noetic. It wouldn't work on previous versions of ROS because it uses python3.
+This package was coded on Ubuntu 20.04 LTS with ROS Noetic. It wouldn't work on previous versions of ROS because it uses Python 3.
 Here are the steps to take to install it from scratch, starting from a plain Ubuntu 20.04 distribution.
+
 ### ROS Installation
 The first step is to enable access to the repositories universe, multiverse and restricted if it not already. This needs to be typed in the terminal :
 ```
@@ -50,12 +52,38 @@ You will need to source the package before starting to use it and **everytime yo
 ```
 source devel/setup.bash
 ```
+## Use
 
-## Usage
+### Get Started
+To launch a graphic user interface allowing to set easily the parameters, type in the terminal :
+```
+roscd asv_system
+python3 executable5.py
+```
+### Launch Simulations
+There are two ways of properly using the package : with launchfiles or with python APIs.
 
-***
+- Launchfiles are located in `asv_system/launch` and can be launched with
+```
+roslaunch asv_system name_of_the_launchfile.launch
+```
+- APIs are the python files located in `asv_system` and need to be executed by Python 3
+```
+roscd asv_system
+python3 executable_file.py
+```
+
+The parameters can either be set manually in the launch files if the simulation is launched that way, either be entered in a graphic interface for `executable5.py`, or be set in an Excel or YAML file put in `asv_system/param/` and executed respectively with `executable6.py` or `executable9.py`.
+
+### Output
+When a simulation is over, an input file and an output file (both plain text files) are respectively created in `asv_system/input/` and `asv_system/output/`, named after a serial number concatenating the year, month, day, hour, minute and second the simulation was launched. These informations can be plotted using `asv_system/graph_drawer.py`
+
 
 ## Content
+
+### Launch Files and Executables
+
+***
 
 ### Packages
 This package contains:
@@ -91,8 +119,8 @@ and IMU data
 
 #### Main Nodes (required)
 + `simulator_node`: simulates the vessel
-+ `LOS_node / PP_node`: implement a path tracker algorithm (either _Line Of Sight_ or _Pure Pursuit_) over an array of waypoints (the difference between the two algorithms can be found in  [Thomas Stenersen's thesis](https://ntnuopen.ntnu.no/ntnu-xmlui/bitstream/handle/11250/2352498/12747_FULLTEXT.pdf?sequence=1&isAllowed=y))
-+ `obstacle_tracker_node / obstacle_simplified_node`: transmits the positions and velocities of the other ships to the ASV, _`obstacle_simplified_node`_ also simulates the obstacles if their trajectories are straight and their velocities constant (otherwise _`obstacle_tracker_node`_ needs them to be independantly simulated with a _`simulator_node`_ for each)
++ `LOS_node` / `PP_node`: implement a path tracker algorithm (either _Line Of Sight_ or _Pure Pursuit_) over an array of waypoints (the difference between the two algorithms can be found in  [Thomas Stenersen's thesis](https://ntnuopen.ntnu.no/ntnu-xmlui/bitstream/handle/11250/2352498/12747_FULLTEXT.pdf?sequence=1&isAllowed=y))
++ `obstacle_tracker_node` / `obstacle_simplified_node`: transmits the positions and velocities of the other ships to the ASV, _`obstacle_simplified_node`_ also simulates the obstacles if their trajectories are straight and their velocities constant (otherwise _`obstacle_tracker_node`_ needs them to be independantly simulated with a _`simulator_node`_ for each)
 
 #### Additional Important Nodes
 + `referee_node`: calculates all the performance indicators and etablish the times of beginning and end of the simulation. Can be set to _required_ in the launch file to automatically close the program at the end of the simulation (only for single processing)
@@ -108,19 +136,186 @@ and IMU data
 + `obstacle_tracker_nema_node`: can simulate and track the obstacles simulated by the emission of AIS signals via an UDP port. Was meant to be used with the software _Nema Studio_ but this possibility was left out
 
 ### Main Topics
+_The **Architecture** part describes where each node publish and subscribe._
+
+The topics are often included in diverse namespaces indicating the opus and/or vessel related to the specific topic.
+
+- `/state` (type ): real pose and twist of a vessel
+- `/LOS/cmd_vel / /PP/cmd_vel`, `/cmd_vel` (type ): twist of a vesset respectively calculated by the path tracker and the local planner  
+- `/obstacle_states` (type StateArray):
+- `/end_simulation`, `/start_simulation` (type _Empty_): when a message is published, signal respectively the end or the beginning of the simulation (used to synchronize the nodes and automate the execution of the successive opuses)
+- `/map`, `/processed_map`, `/localmap` (optionnal, type _Occupancy Grid_): if a static map is set in the parameters, `/map` is its conversion into an occupancy grid, `/processed_map` is the implementation of the inflated static obstacles and `/local_map` is a short-ranged non-static version of the map used by the local planner  
 
 ### Additional Message Types
 
-***
+All the message types specific to this package are detailed in the sub-package`/asv_msgs`.
+
+### Utility Scripts
+
+- `clear.sh`: removes the input and output or either a specific simulation or all the scripts
+- `current_opus.sh`: indicates the maximum opus of the latest simulation  
+- `kill.sh`: kills all processes related to the package (to use when a simulation or several are running in the background)               
+- `concatenate.sh`: (**NOT YET WRITTEN**) concatenates two output and remove all the duplicate opuses  
+- `graph_drawer.py`: opens a graphical interface allowing to plot data from the results of a specific simulation
+- `launch_background.sh`: launches `executable9.py` / `executable9Adrien.py` in the backgound and write the output and errors in the directory `log/` (**the parameters are in executable9**)
+- `watch_cpu.py`: gives information about the CPUs and memory activity over a certain periiod of time (meant to determine how many processes can be launched simultaneously)
+- `config.sh`: configures a new machine to be able to use the package (**not meant to be executed as a whole script but line by line**)      
+- `is_running.sh`: indicates if the process is still running (**not very trustworthy**)    
+- `rename.sh`: renames the input and output of a specific simulation (by default the latest)
+
 
 ## Architecture
-### File architecture
 ### Nodes and Topics
 
+Here is the node graph of a case where there is a local planner but no global planner and `obstacle_simplified_node` is used :
+![Graph 1](asv_system/rosgraph.png)
 ***
-
-## Launch Files and Executables
-
+Here is another where there is a map, a local planner, a global planner and an obstacle ship simulated with `asv_simulator_node` :
+![Graph 2](asv_system/rosgraph2.png)
 ***
+### File architecture
+```
+.
+├── asv_ctrl_vo
+│   ├── include
+│   │   └── ...
+│   └── src
+│       ├── asv_ctrl_vo.cpp
+│       └── asv_ctrl_vo_node.cpp
+├── asv_global_planner
+│   ├── include
+│   │   └── ...
+│   └── src
+│       ├── asv_a_star.cpp
+│       ├── asv_global_planner.cpp
+│       └── asv_global_planner_node.cpp
+├── asv_map_processing
+│   ├── include
+│   │   └── ...
+│   └── src
+│       └── asv_map_processing_node.cpp
+├── asv_msgs
+│   ├── msg
+│   │   ├── Path.msg
+│   │   ├── ShipMetaData.msg
+│   │   ├── StateArray.msg
+│   │   ├── State.msg
+│   │   └── Waypoint2D.msg
+├── asv_obstacle_tracker
+│   ├── launch
+│   │   ├── default.launch
+│   │   ├── nema.launch
+│   │   ├── obst_simplified2.launch
+│   │   ├── obst_simplified.launch
+│   │   └── simple.launch
+│   ├── nodes
+│   │   ├── crossLaneObstNode.py
+│   │   ├── obstacles_simplified_node.py
+│   │   ├── obstacle_tracker_nema_node.py
+│   │   └── obstacle_tracker_node.py
+├── asv_path_trackers
+│   ├── nodes
+│   │   ├── asv_ctrl_los_node_obstacles.py
+│   │   ├── asv_ctrl_los_node.py
+│   │   ├── asv_ctrl_pp_node.py
+│   │   ├── utils.py
+│   │   └── utils.pyc
+├── asv_referee
+│   ├── nodes
+│   │   ├── asv_clock_node.py
+│   │   ├── asv_reaper_node.py
+│   │   ├── asv_referee_node2.py
+│   │   └── asv_referee_node.py
+├── asv_simulator
+│   ├── config
+│   │   ├── parameters
+│   │   │   ├── viknes2.yaml
+│   │   │   └── viknes.yaml
+│   │   └── waypoints
+│   │       ├── asv_head_on_and_crossing.yaml
+│   │       └── ...
+│   ├── include
+│   │   └── ...
+│   ├── launch
+│   │   ├── default.launch
+│   │   ├── test2.launch
+│   │   ├── test.launch
+│   │   └── test_obst.launch
+│   ├── nodes
+│   │   ├── data_publisher.py
+│   │   ├── fake_asv.py
+│   │   ├── meshpublisher.py
+│   │   ├── rlog011.csv
+│   │   ├── teleop_joy.py
+│   │   ├── utils.py
+│   │   └── vessel.py
+│   └── src
+│       ├── asv_simulator.cpp
+│       ├── asv_simulator_node.cpp
+│       └── wave_filter.cpp
+├── asv_state_estimator
+│   ├── nodes
+│   │   ├── asv_state_estimator.py
+│   │   └── convert_stuff.py
+├── asv_system
+│   ├── config
+│   │   ├── maps
+│   │   │   ├── big_block.png
+│   │   │   ├── big_block.yaml
+│   │   │   └── ...
+│   │   ├── param
+│   │   │   ├── param.yaml
+│   │   │   ├── param.xlsx
+│   │   │   └── ...
+│   ├── debug.py
+│   ├── debug.txt
+│   ├── étalon.py
+│   ├── executable1.py
+│   ├── executable2.py
+│   ├── executable3.py
+│   ├── executable4.py
+│   ├── executable5.py
+│   ├── executable6.py
+│   ├── executable8.py
+│   ├── executable9Adrien.py
+│   ├── executable9.py
+│   ├── graph_drawer.py
+│   ├── input
+│   │   ├── 210801230453.txt
+│   │   └── ...
+│   ├── launch
+│   │   ├── chenal.launch
+│   │   └── ...
+│   ├── launch_backgroundAdrien.sh
+│   ├── log
+│   │   ├── nohup.out
+│   │   └── nohup.err
+│   ├── output
+│   │   ├── 210801230453.txt
+│   │   └── ...
+│   └── scripts
+│       ├── clear.sh
+│       ├── concatenate.py
+│       ├── config.sh
+│       ├── current_opus.sh
+│       ├── graph_drawer.py
+│       ├── is_running.sh
+│       ├── kill.sh
+│       ├── launch_background.sh
+│       ├── rename.sh
+│       └── watch_cpu.py
+├── cross_lane
+│   ├── api
+│   │   ├── crossLaneExec.py
+│   │   └── crossLaneFile.py
+│   ├── config
+│   │   ├── param
+│   │   │   └── crossLane.yaml
+│   │   └── rviz
+│   │       └── crossLane.rviz
+│   ├── launch
+│   │   └── crossLane.launch
+└── README.md
+```
 
 ## Issues and improvements to be made

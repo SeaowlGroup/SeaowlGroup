@@ -7,10 +7,11 @@ import datetime
 import rospkg
 import yaml
 import sys
-import os
+import os, signal
+from subprocess import check_output
 
-NB_PROCESS = 6
-OPUS_START = 373
+NB_PROCESS = 1
+OPUS_START = 0
 SERIAL_TO_UPDATE = ''
 
 def run(serial, params, uuid) :
@@ -108,6 +109,7 @@ def run(serial, params, uuid) :
     launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
     launch.start()
     launch.spin()
+    launch.shutdown()
 
 
 if __name__ == "__main__":
@@ -115,11 +117,13 @@ if __name__ == "__main__":
     yaml_file = open("config/param/param4.yaml", 'r')
     yaml_content = yaml.safe_load(yaml_file)
 
+    main_pid = os.getpid()
+
     # UUID
     uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
     roslaunch.configure_logging(uuid)
     # Output parameters
-    if len(SERIAL_TO_UPDATE) == 0: 
+    if len(SERIAL_TO_UPDATE) == 0:
         now = datetime.datetime.now()
         serial = now.strftime("%Y%m%d%H%M%S")[2:]
     else:
@@ -148,7 +152,16 @@ if __name__ == "__main__":
                                     #try:
                                     if os.path.exists('nohup.out'):
                                         os.remove('nohup.out')
+                                    if os.path.exists('nohup.err'):
+                                        os.remove('nohup.err')
                                     run(serial, params, uuid)
+                                    processes = map(int,check_output(["pidof","python3"]).split())
+                                    for pid in processes:
+                                        if pid != main_pid:
+                                            try:
+                                                os.kill(pid, signal.SIGTERM)
+                                            except PermissionError:
+                                                print("SIGTERM exception for :", pid)
                                     params = []
                                     # except:
                                     #     print("Unexpected error:", sys.exc_info()[0])

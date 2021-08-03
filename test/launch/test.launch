@@ -1,0 +1,13 @@
+<launch>
+  <arg name="opus" default="1" />
+
+  <group ns="$(arg opus)">
+    <param name="opus" value="$(arg opus)" />
+      <node pkg="test"
+            name="test_node"
+            type="test_node.py"
+            respawn="false"
+            output="screen"
+            required="true"/>
+  </group>
+</launch>

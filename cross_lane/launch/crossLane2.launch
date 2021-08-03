@@ -1,0 +1,106 @@
+<launch>
+
+  <!-- Global parameters -->
+  <arg name="use_sim_time" default="false" />
+  <arg name="trigger_shutdown" default="1" />
+  <arg name="coast_margin" default="10" />
+  <arg name="mapfile" default="None" />
+  <!-- Environment parameters -->
+  <arg name="Fx_current" default="0.0" />
+  <arg name="Fy_current" default="0.0" />
+  <arg name="there_are_waves" default="false" />
+  <!-- ASV parameters -->
+  <arg name="initial_state" default="[0.0, -475., 1.571, 0.0, 0.0, 0.0]" />
+  <arg name="waypoints" default="[[0.0, -475.], [0.0, 475.]]" />
+  <arg name="u_d" default="5." />
+  <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes.yaml" if="$(arg there_are_waves)"/>
+  <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes2.yaml" unless="$(arg there_are_waves)"/>
+  <arg name="vessel_model_file" default="$(find asv_simulator)/config/models/viknes.urdf" />
+  <arg name="use_vo" default="True" />
+  <arg name="rviz" default="True" />
+  <!-- Output -->
+  <arg name="opus" default="1" />
+  <arg name="output_file" default="$(find cross_lane)/output/test.txt" />
+  <arg name="t_sim" default="75" />
+  <arg name="pos_end_waypoint" default="[0.,0.]" />
+  <!-- Obstacles parameters -->
+  <arg name="lnOb" default="0" />
+  <arg name="rlw" default="300" />
+  <arg name="llw" default="300" />
+  <arg name="ld" default="150" />
+  <arg name="ll" default="750" />
+
+  <rosparam param="/use_sim_time" subst_value="True">$(arg use_sim_time)</rosparam>
+
+  <group ns="$(arg opus)">
+    <param name="opus" value="$(arg opus)" />
+    <group if="$(arg use_sim_time)">
+      <node pkg="asv_referee"
+            name="chronos_node"
+            type="asv_clock_node.py"
+            respawn="false"
+            output="screen" />
+    </group>
+
+    <node pkg="asv_referee"
+          name="referee_node"
+          type="asv_referee_node.py"
+          respawn="false"
+          output="screen">
+      <rosparam param="shutdown" subst_value="True">$(arg trigger_shutdown)</rosparam>
+      <rosparam param="output_file" subst_value="True">$(arg output_file)</rosparam>
+      <rosparam param="opus" subst_value="True">$(arg opus)</rosparam>
+    </node>
+
+    <node pkg="asv_simulator"
+          name="asv"
+          type="asv_simulator_node"
+          respawn="false"
+          output="screen">
+      <rosparam param="initial_state" subst_value="True">$(arg initial_state)</rosparam>
+      <rosparam command="load" file="$(arg vessel_param_file)" />
+      <rosparam param="Fx_current" subst_value="True">$(arg Fx_current)</rosparam>
+      <rosparam param="Fy_current" subst_value="True">$(arg Fy_current)</rosparam>
+    </node>
+
+    <node pkg="asv_path_trackers"
+          name="PPNode"
+          type="asv_ctrl_pp_node.py"
+          respawn="false"
+          output="screen">
+      <rosparam param="u_d" subst_value="True">$(arg u_d)</rosparam>
+      <rosparam param="waypoints" subst_value="True">$(arg waypoints)</rosparam>
+
+      <remap from="cmd_vel" to="LOS/cmd_vel" if="$(arg use_vo)"/>
+    </node>
+
+
+    <group if="$(arg use_vo)">
+      <node pkg="asv_ctrl_vo"
+            name="vo_node"
+            type="asv_ctrl_vo_node"
+            respawn="false"
+            output="screen" />
+    </group>
+
+    <group if="$(arg rviz)">
+      <node pkg="rviz"
+            type="rviz"
+            name="rviz"
+            args="-d $(find cross_lane)/config/rviz/crossLane.rviz" />
+    </group>
+
+    <node pkg="asv_obstacle_tracker"
+          name="obstacles_node"
+          type="crossLaneObstNode.py"
+          respawn="false"
+          output="screen">
+      <rosparam param="lnOb" subst_value="True">$(arg lnOb)</rosparam>
+      <rosparam param="rlw" subst_value="True">$(arg rlw)</rosparam>
+      <rosparam param="llw" subst_value="True">$(arg llw)</rosparam>
+      <rosparam param="ld" subst_value="True">$(arg ld)</rosparam>
+      <rosparam param="ll" subst_value="True">$(arg ll)</rosparam>
+    </node>
+  </group>
+
+</launch>

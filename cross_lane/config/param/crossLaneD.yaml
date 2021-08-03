@@ -1,0 +1,7 @@
+angle : [90.]            #incoming angle (in degrees)
+u_d : [10.] #control velocity (in knots)
+#rld : [.05,.1,.2,.3,.4,.5,.6,.7,.8,.9,1.,1.1]                         #right lane obstacle density (in 1/m²)
+#lld : [.05,.1,.2,.3,.4,.5,.6,.7,.8,.9,1.,1.1]                         #left lane obstacle density (in 1/m²)
+llw : [300.]                          #right lane width (in meters)
+rlw : [300.]                          #left lane width (in meters)
+ld : [150.]                           #distance between lanes (in meters)

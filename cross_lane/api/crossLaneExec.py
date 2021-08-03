@@ -29,15 +29,15 @@ def run(serial, params, uuid) :
     for scenar in params:
 
         opus = scenar[0]
-        angle = scenar[1]/180*np.pi #degrees ro radians
-        u_d = scenar[2]*0.514444    #knots to m/s
-        rld = scenar[3]             #right lane obstacle density in 1/m²
-        lld = scenar[4]             #left lane obstacle density in 1/m²
-        rlw = scenar[5]       #m
-        llw = scenar[6]       #m
-        ld = scenar[7]        #m
-        gp = 0
-
+        lnOb = scenar[1]
+        angle = np.pi/2 #degrees ro radians
+        u_d = 10.*0.514444    #knots to m/s
+        rlw = 300.       #m
+        llw = 300.       #m
+        ld = 150.        #m
+        ll = rlw+llw+ld
+        rld = lnOb/rlw/ll
+        lld = lnOb/rlw/ll
         # ASV parameters
         dAsv = 100. #initial and final distance to lanes
         initial_state_asv = [-(ld/2+llw+dAsv)/np.tan(angle),-(ld/2+llw+dAsv),angle, u_d,0.,0.]
@@ -47,13 +47,12 @@ def run(serial, params, uuid) :
 
         input = f"{rospack.get_path('cross_lane')}/input/{serial}.txt"
         f = open(input,'a')
-        f.write(f'{opus}    {angle}    {u_d}    {rld}    {lld}    {rlw}    {llw}    {ld}   {gp}\n')
+        f.write(f'{opus}    {angle}    {u_d}    {rld}    {lld}    {rlw}    {llw}    {ld}    {0}\n')
         f.close()
 
         # Creation of the launch files
-        cli_args1 = ['cross_lane', 'crossLane.launch',
-                     f'rld:={rld}',
-                     f'lld:={lld}',
+        cli_args1 = ['cross_lane', 'crossLane2.launch',
+                     f'lnOb:={lnOb}',
                      f'rlw:={rlw}',
                      f'llw:={llw}',
                      f'ld:={ld}',
@@ -69,7 +68,7 @@ def run(serial, params, uuid) :
         roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
         roslaunch_args1 = cli_args1[2:]
         launch_files.append((roslaunch_file1, roslaunch_args1))
-        #print([opus, angle, u_d, nOb, rlw, llw, ld])
+        #print([opus, angle, u_d, lnOb, rlw, llw, ld])
     launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
     launch.start()
     launch.spin()
@@ -99,25 +98,18 @@ if __name__ == "__main__":
 
     opus = 1
     try:
-        for angle in yaml_content['angle']:
-            for u_d in yaml_content['u_d']:
-                for rld in yaml_content['rld']:
-                    for lld in yaml_content['rld']:
-                        for rlw in yaml_content['rlw']:
-                            for llw in yaml_content['llw']:
-                                for ld in yaml_content['ld']:
-                                    if rld == lld:
-                                        params = []
-                                        for k in range(NB_PROCESS):
-                                            params.append([opus, angle, u_d, rld, lld, rlw, llw, ld])
-                                            opus += 1
-                                        run(serial, params, uuid)
-                                        # except:
-                                        #     print("Unexpected error:", sys.exc_info()[0])
-                                        #     output = f"{rospack.get_path('cross_lane')}/output/{serial}.txt"
-                                        #     g = open(input,'a')
-                                        #     g.write(f'{opus+1} nan nan nan nan nan nan nan nan nan nan nan nan nan\n')
-                                        #     g.close()
-                                        #     params = []
+        for lnOb in range(30):
+            params = []
+            for k in range(NB_PROCESS):
+                params.append([opus, lnOb])
+                opus += 1
+            run(serial, params, uuid)
+            # except:
+            #     print("Unexpected error:", sys.exc_info()[0])
+            #     output = f"{rospack.get_path('cross_lane')}/output/{serial}.txt"
+            #     g = open(input,'a')
+            #     g.write(f'{opus+1} nan nan nan nan nan nan nan nan nan nan nan nan nan\n')
+            #     g.close()
+            #     params = []
     except KeyboardInterrupt:
         pass

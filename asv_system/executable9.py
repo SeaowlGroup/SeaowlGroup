@@ -10,8 +10,8 @@ import sys
 import os, signal
 from subprocess import check_output
 
-NB_PROCESS = 6
-OPUS_START = 373
+NB_PROCESS = 1
+OPUS_START = 0
 SERIAL_TO_UPDATE = ''
 
 def run(serial, params, uuid) :

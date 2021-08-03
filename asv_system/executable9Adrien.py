@@ -2,22 +2,22 @@
 
 import roslaunch
 import numpy as np
+import time
 import datetime
 import rospkg
 import yaml
+import sys
 import os, signal
 from subprocess import check_output
 
-NB_PROCESS = 1
-OPUS_START = 1
+NB_PROCESS = 4
+OPUS_START = 9177
 SERIAL_TO_UPDATE = ''
 
 def run(serial, params, uuid) :
 
     rospack = rospkg.RosPack()
     first_opus = params[0][5]
-
-    main_pid = os.getpid()
 
     cli_args0 = ['asv_system', 'reaper.launch',
                  f'nb_processes:={NB_PROCESS}',
@@ -109,12 +109,15 @@ def run(serial, params, uuid) :
     launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
     launch.start()
     launch.spin()
+    launch.shutdown()
 
 
 if __name__ == "__main__":
 
     yaml_file = open("config/param/param4.yaml", 'r')
     yaml_content = yaml.safe_load(yaml_file)
+
+    main_pid = os.getpid()
 
     # UUID
     uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)

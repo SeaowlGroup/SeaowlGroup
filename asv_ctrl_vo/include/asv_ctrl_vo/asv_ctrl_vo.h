@@ -36,7 +36,7 @@ class VelocityObstacle
    * wrapper (by subscribing to an obstacle tracker node).
    * @param map A pointer to the occupancy grid published by the map_server.
    */
-  void initialize(std::vector<asv_msgs::State> *obstacles, nav_msgs::OccupancyGrid *map);
+  void initialize(std::vector<asv_msgs::State> *obstacles, nav_msgs::OccupancyGrid *map, ros::NodeHandle nh);
   /**
    * @brief Updates the Velocity Obstacle.
    */
@@ -94,12 +94,12 @@ class VelocityObstacle
 
   std::vector<colregs_t> state_list_;
 
-  const double RADIUS_;
-  const double MAX_VEL_;
+  double RADIUS_; //const
+  double MAX_VEL_; //const
   const double MAX_ANG_;
   const double MIN_DIST_;
 
-  const double D_CPA_MIN_;
+  double D_CPA_MIN_; //const
   const double T_CPA_MAX_;
 
   const int EDGE_SAMPLES_;

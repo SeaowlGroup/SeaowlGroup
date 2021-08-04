@@ -22,7 +22,7 @@ class Fig(object):
         self.i = 0
         self.j = 1
 
-        self.xlab = ['OPUS', 'ANGLE', 'U_D', 'RLD', 'LLD', 'RLW', 'LLW', 'LD', 'GROUP']
+        self.xlab = ['OPUS','ANGLE','U_D','RLNOB','LLNOB','RLW','LLW','LD','LL',' RLD','LLD','GP']
         self.ylab = ['TIME', 'LOG_COL', 'NAT_COL', 'OFFSET_LOG', 'ANTICIPATION_ACC', 'ANTICIPATION_OMEGA',
                      'ANTICIPATION_R', 'AGG_ACC', 'AGG_OMEGA', 'AGG_R', 'DCPA', 'CROSSING_DIST', 'ANT_TIME', 'AGG_TIME']
 
@@ -35,10 +35,10 @@ class Fig(object):
 
         for line in f1:
             content = line.split()
-            print(content)
-            self.groups.append(int(content[8]))
-            print(int(content[8]))
-            self.colors.append(COLOR[int(content[8])])
+            #print(content)
+            self.groups.append(int(content[-1]))
+            #print(int(content[8]))
+            self.colors.append(COLOR[int(content[-1])])
             #if content[3] == "True":
             self.labels.append('Velocity Obstacles')
             self.markers.append('v')
@@ -171,7 +171,9 @@ def gui(name):
         chart_type.get_tk_widget().pack()
         cutoff.set(1000000)
 
-    x_list = [["Opus",0], ["Angle",1], ["Speed of the ASV",2], ["Right lane density",3], ["Left lane density",4],["Right lane width",5],["Left lane width",5],["Distance between lanes",3]]
+    x_list = [['Opus',0],['Angle',1],['Speed',2],['Right lane #ob',3],['Left lane #ob',4],
+                ['Right Lane width',5],['Left lane width',6],['Distance between lanes',7],
+                ['Lane length',8],['Right lane density',9],['Left lane density',10],['Group',11]]
     y_list = [["Time",1], ["Natural Collision Indic.",3], ["Logarithmic Collision Indic.",2],
               ["Offset Collision Indic.",4], ["Anticipation Acc Indic.",5], ["Anticipation Omega Indic.",6],
               ["Anticipation R Indic.",7], ["Agglutination Acc Indic.",8], ["Agglutination Omega Indic.",9],

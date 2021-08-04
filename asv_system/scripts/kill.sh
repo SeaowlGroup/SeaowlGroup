@@ -1,4 +1,4 @@
 #!/bin/sh
 
-killall python3
-killall rosmaster
+killall -SIGKILL python3
+killall -SIGKILL rosmaster

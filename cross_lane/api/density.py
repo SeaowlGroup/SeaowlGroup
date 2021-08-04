@@ -8,7 +8,7 @@ import yaml
 
 NB_PROCESS = 4
 OPUS_START = 1
-NOBMAX = 20
+NOBMAX = 15
 SERIAL_TO_UPDATE = ''
 
 def run(serial, params, uuid) :

@@ -2367,7 +2367,3 @@ OPUS    CLASS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR 
 11543    HEAD_ON   2.57222    True    200    5.14444    -20    8.0    None    200    4
 11544    HEAD_ON   2.57222    True    200    5.14444    -20    8.0    None    500    4
 11545    HEAD_ON   2.57222    True    200    5.14444    -10    8.0    None    200    4
-11546    HEAD_ON   2.57222    True    200    5.14444    -10    8.0    None    500    4
-11547    HEAD_ON   2.57222    True    200    5.14444    0    8.0    None    200    4
-11548    HEAD_ON   2.57222    True    200    5.14444    0    8.0    None    500    4
-11549    HEAD_ON   2.57222    True    200    5.14444    10    8.0    None    200    4

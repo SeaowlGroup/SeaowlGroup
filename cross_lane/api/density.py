@@ -4,11 +4,12 @@ import roslaunch
 import numpy as np
 import datetime
 import rospkg
-import yaml
 
-NB_PROCESS = 4
+NB_PROCESS = 5
 OPUS_START = 1
-NOBMAX = 15
+NOBMIN = 5
+NOBMAX = 9
+NB_REP = 10
 SERIAL_TO_UPDATE = ''
 
 def run(serial, params, uuid) :
@@ -113,13 +114,17 @@ if __name__ == "__main__":
     f.close()
 
     opus = 1
+    count = 0
+    params = []
+
     try:
-        for lnOb in range(1,NOBMAX):
-            params = []
-            for k in range(NB_PROCESS):
+        for lnOb in range(NOBMIN,NOBMAX):
+            for rep in range(NB_REP):
                 params.append([opus, lnOb])
+                if len(params) == NB_PROCESS:
+                    run(serial, params, uuid)
+                    params = [] 
                 opus += 1
-            run(serial, params, uuid)
             # except:
             #     print("Unexpected error:", sys.exc_info()[0])
             #     output = f"{rospack.get_path('cross_lane')}/output/{serial}.txt"

@@ -11,7 +11,7 @@ import os
 import time
 import sys
 
-T_MAX_SIM = 3600.0
+T_MAX_SIM = 600.0
 
 class Referee(object) :
 

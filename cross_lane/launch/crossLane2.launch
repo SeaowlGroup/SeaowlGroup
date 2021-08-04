@@ -17,6 +17,9 @@
   <arg name="vessel_param_file" default="$(find asv_simulator)/config/parameters/viknes2.yaml" unless="$(arg there_are_waves)"/>
   <arg name="vessel_model_file" default="$(find asv_simulator)/config/models/viknes.urdf" />
   <arg name="use_vo" default="True" />
+  <arg name="RADIUS" default="150." />
+  <arg name="MAX_VEL" default="15." />
+  <arg name="D_CPA_MIN" default="200." />
   <arg name="rviz" default="True" />
   <!-- Output -->
   <arg name="opus" default="1" />
@@ -81,6 +84,9 @@
             type="asv_ctrl_vo_node"
             respawn="false"
             output="screen" />
+      <rosparam param="MAX_VEL" subst_value="True">$(arg MAX_VEL)</rosparam>
+      <rosparam param="RADIUS" subst_value="True">$(arg RADIUS)</rosparam>
+      <rosparam param="D_CPA_MIN" subst_value="True">$(arg D_CPA_MIN)</rosparam>
     </group>
 
     <group if="$(arg rviz)">

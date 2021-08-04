@@ -34,7 +34,8 @@ class VelocityObstacleNode
                   ros::Subscriber *asv_sub,
                   ros::Subscriber *cmd_sub,
                   ros::Subscriber *tfName_sub,
-                  VelocityObstacle *vo);
+                  VelocityObstacle *vo,
+                  ros::NodeHandle nh);
   /**
    * Start the node. Enters a "never ending" while loop.
    */

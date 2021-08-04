@@ -23,11 +23,6 @@ int main(int argc, char *argv[])
   VelocityObstacleNode vo_node;
   VelocityObstacle *vo = new VelocityObstacle;
 
-  int op;
-  if (!n.getParam("opus", op))
-  {
-    op = -1;
-  }
   ros::Publisher mk_pub = n.advertise<visualization_msgs::Marker>("vo_markers", 1);
   ros::Publisher cmd_pub = n.advertise<geometry_msgs::Twist>("cmd_vel", 10);
 
@@ -55,7 +50,7 @@ int main(int argc, char *argv[])
                                         &VelocityObstacleNode::tfNameCallback,
                                         &vo_node);
 
-  vo_node.initialize(&cmd_pub, &mk_pub, &obstacle_sub, &og_sub, &asv_sub, &cmd_sub, &tfName_sub, vo);
+  vo_node.initialize(&cmd_pub, &mk_pub, &obstacle_sub, &og_sub, &asv_sub, &cmd_sub, &tfName_sub, vo, n);
   vo_node.start();
 
   ros::shutdown();
@@ -81,7 +76,8 @@ void VelocityObstacleNode::initialize(ros::Publisher *cmd_pub,
                                       ros::Subscriber *asv_sub,
                                       ros::Subscriber *cmd_sub,
                                       ros::Subscriber *tfName_sub,
-                                      VelocityObstacle *vo)
+                                      VelocityObstacle *vo,
+                                      ros::NodeHandle nh)
 {
   cmd_pub_ = cmd_pub;
   mk_pub_ = mk_pub;
@@ -93,7 +89,7 @@ void VelocityObstacleNode::initialize(ros::Publisher *cmd_pub,
 
   vo_ = vo;
 
-  vo_->initialize(&obstacles_, &map_);
+  vo_->initialize(&obstacles_, &map_, nh);
 
   initializeMarker();
 }

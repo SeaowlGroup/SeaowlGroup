@@ -82,13 +82,13 @@ def run(serial, params, uuid) :
         waypoints_asv = [[0.,0.],
                          [t_sim*u_d_asv*np.cos(calc_heading_asv), t_sim*u_d_asv*np.sin(calc_heading_asv)]]
 
-        input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
+        input = f"{rospack.get_path('open_seas_bench')}/input/{serial}.txt"
         f = open(input,'a')
         f.write(f'{opus}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}    {group}\n')
         f.close()
 
         # Creation of the launch files
-        cli_args1 = ['asv_system', 'main_launch3.launch',
+        cli_args1 = ['open_seas_bench', 'main_launch3.launch',
                      f'trigger_shutdown:=0',
                      f'initial_state:={initial_state_asv}',
                      f'waypoints:={waypoints_asv}',
@@ -96,7 +96,7 @@ def run(serial, params, uuid) :
                      f'use_vo:={lp}',
                      f'rviz:=False',
                      f'opus:={opus}',
-                     f'output_file:=$(find asv_system)/output/{serial}.txt',
+                     f'output_file:=$(find open_seas_bench)/output/{serial}.txt',
                      f't_sim:={t_sim}',
                      f'pos_end_waypoint:={waypoints_asv[0]}']
         roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
@@ -124,7 +124,9 @@ def run(serial, params, uuid) :
 
 if __name__ == "__main__":
 
-    yaml_file = open("config/param/param4.yaml", 'r')
+    rospack = rospkg.RosPack()
+
+    yaml_file = open(f"{rospack.get_path('open_seas_bench')}/config/param/param4.yaml", 'r')
     yaml_content = yaml.safe_load(yaml_file)
 
     # UUID
@@ -138,8 +140,8 @@ if __name__ == "__main__":
         serial = SERIAL_TO_UPDATE
 
     # Write Input
-    rospack = rospkg.RosPack()
-    input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
+
+    input = f"{rospack.get_path('open_seas_bench')}/input/{serial}.txt"
     f = open(input,'a')
     f.write(f'OPUS    CLASS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC    GROUP\n')
     f.close()
@@ -176,7 +178,7 @@ if __name__ == "__main__":
                                     params = []
                                     # except:
                                     #     print("Unexpected error:", sys.exc_info()[0])
-                                    #     output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
+                                    #     output = f"{rospack.get_path('open_seas_bench')}/output/{serial}.txt"
                                     #     g = open(input,'a')
                                     #     g.write(f'{opus+1} nan nan nan nan nan nan nan nan nan nan nan nan nan\n')
                                     #     g.close()

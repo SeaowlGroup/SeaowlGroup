@@ -1,3 +1,23 @@
+- Contexte du stage
+
+- Problème ?
+-  Etat de l'art du sujet
+- Description détaillée de la problématique fonctionnelle
+- Approche solution
+- Implémentation:
+	- Choix technologique
+	- Plateforme technique
+	- Installation / configuration / run
+- Restitution des résultats / Phase Analytics
+- Quels sont les objectifs atteints ? ceux qui ne sont pas atteints
+- Annexe: scriptes / programmes avec commentaires
+
+
+
+
+
+
+
 # The Planner Tester Package
 ## Installation
 This package was coded on Ubuntu 20.04 LTS with ROS Noetic. It wouldn't work on previous versions of ROS because it uses Python 3.

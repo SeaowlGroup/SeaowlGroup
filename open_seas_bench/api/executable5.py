@@ -33,8 +33,8 @@ class Scenario(object):
         self.t_collision = 15
         # Output
         rospack = rospkg.RosPack()
-        self.input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
-        self.output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
+        self.input = f"{rospack.get_path('open_seas_bench')}/input/{serial}.txt"
+        self.output = f"{rospack.get_path('open_seas_bench')}/output/{serial}.txt"
         self.opus = opus
 
     def graphic_interface(self):
@@ -49,7 +49,7 @@ class Scenario(object):
         h_unit = int(screen_height/3)
         fenetre.geometry(f"{screen_width}x{screen_height}")
         fenetre.title("Bench Test")
-        fenetre.iconphoto(False, PhotoImage(file='icon.png'))
+        fenetre.iconphoto(False, PhotoImage(file='images/icon.png'))
         fenetre.configure(bg='gainsboro')
 
         ###################
@@ -71,7 +71,7 @@ class Scenario(object):
         ###################
         ###################
 
-        seagull = PhotoImage(file="Seagull-USV.png")
+        seagull = PhotoImage(file="images/Seagull-USV.png")
 
         canvas = Canvas(first_frame, width=w_big, height=2*h_unit)
         canvas.create_image(w_big/2, 2*h_unit/3, anchor=CENTER, image=seagull)
@@ -151,7 +151,7 @@ class Scenario(object):
                 self.t_collision = 15
             else:
                 self.t_collision = 45
-                
+
             #fenetre.destroy()
             self.opus += 1
 
@@ -270,7 +270,7 @@ class Scenario(object):
                           self.t_sim*self.u_d_asv*np.sin(calc_heading_asv)]]
 
         # Creation of the launch files
-        cli_args0 = ['asv_system', 'main_launch3.launch',
+        cli_args0 = ['open_seas_bench', 'main_launch3.launch',
                      f'initial_state:={initial_state_asv}',
         #             f'use_sim_time:=True',
                      f'waypoints:={waypoints_asv}',

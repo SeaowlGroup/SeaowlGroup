@@ -14,20 +14,16 @@ class Obstacles(object):
     def __init__(self):
         
         self.op = rospy.get_param("opus",-1)
-        self.rld = rospy.get_param("~rld",.7)/10000                     #right lane boat density (in 1/m²)
-        self.lld = rospy.get_param("~rld",.7)/10000                     #left lane average boat density (in 1/m²)
+        self.rlnOb = int(rospy.get_param("~rlnOb",0))                   #number of obstacles in right lane
+        self.llnOb = int(rospy.get_param("~llnOb",0))                   #number of obstacles in left lane
         self.rlw = rospy.get_param("~rlw",300.)                         #width of right lane
         self.llw = rospy.get_param("~llw",300.)                         #width of left lane
         self.ld = rospy.get_param("~ld",150.)                           #distance between lanes
         self.ll = rospy.get_param("~ll",self.rlw+self.llw+self.ld)      #length of lane
-        self.rln = int(self.rlw*self.ll*self.rld) #int(rospy.get_param("~lnOb",0))                       #number of obstacles in right lane
-        self.lln = int(self.llw*self.ll*self.lld) #int(rospy.get_param("~lnOb",0))                      #number of obstacles in left lane
-        self.nOb = self.rln+self.lln                                    #total number of obstacles
+        self.nOb = self.rlnOb+self.llnOb                                #total number of obstacles
         self.dDetect = rospy.get_param("~d_detection", self.nOb*[500.]) #distance of detection of obstacles
         self.prior = rospy.get_param("~prior", self.nOb*["n"])          #priority satus of obstacles
         self.size = rospy.get_param("~size", self.nOb*[8.])             #size of obstacles
-        #print(f' nOb = {self.nOb}\n rlw = {self.rlw}\n llw = {self.llw}\n ld = {self.ld}')
-        #print(f'this opus: {self.op}')
 
         self.dt = rospy.get_param("~update_rate", .1)
 
@@ -113,15 +109,15 @@ class Obstacles(object):
         self._end_subscriber = rospy.Subscriber("end_simulation", Empty,
                                                 self._end_callback,
                                                 queue_size=10)
-        print(f'nOb : {self.nOb}')
+        #print(f'nOb : {self.nOb}')
         
     def initObs(self):
         self.obStates = StateArray()
 
-        rly = (np.random.permutation(self.rln)+.5)*self.rlw/self.rln
-        lly = (np.random.permutation(self.lln)+.5)*self.llw/self.lln
-        rlx = (np.random.permutation(self.rln)+.5)*self.ll/self.rln
-        llx = (np.random.permutation(self.lln)+.5)*self.ll/self.lln
+        rly = ((np.random.permutation(self.rlnOb)+.5)/self.rlnOb)*self.rlw
+        lly = ((np.random.permutation(self.llnOb)+.5)/self.llnOb)*self.llw
+        rlx = ((np.random.permutation(self.rlnOb)+.5)/self.rlnOb-.5)*self.ll
+        llx = ((np.random.permutation(self.llnOb)+.5)/self.llnOb-.5)*self.ll
 
         for i in range(self.nOb) :
             s = State()
@@ -129,19 +125,19 @@ class Obstacles(object):
             s.header.name = "Obst " + str(i)
             s.header.radius = self.size[i]
             s.header.prior = self.prior[i]
-            s.u = .5*(5.+i%5)     #speed distribution
+            s.u = 0.514444*5.*(1+i%5)     #speed distribution
             s.v = 0.
             s.r = 0.
 
-            if i<self.rln:       #right lane
+            if i<self.rlnOb:       #right lane
                 s.psi = 0.
                 s.x = rlx[i]   
                 s.y = self.ld/2+rly[i]
 
-            else:                #left lane
+            else:                  #left lane
                 s.psi = np.pi
-                s.x = llx[i-self.rln]
-                s.y = -self.ld/2-lly[i-self.rln]
+                s.x = llx[i-self.rlnOb]
+                s.y = -self.ld/2-lly[i-self.rlnOb]
 
             self.obStates.states.append(s)
         

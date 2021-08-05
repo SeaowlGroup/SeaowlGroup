@@ -8,7 +8,7 @@ if [ $# -le 1 ]; then
 else
   start_opus=$1
   serial=$2
-  n_process=3
+  n_process=6
   end_opus=$((${start_opus}+${n_process}-1))
 
   while [ ${start_opus} -le 50000 ]

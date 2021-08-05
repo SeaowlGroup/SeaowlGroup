@@ -1207,7 +1207,3 @@ OPUS    CLASS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR 
 12751    CROSSING_RIGHT   7.71666    True    220    5.14444    -10    8.0    None    200    5
 12752    CROSSING_RIGHT   7.71666    True    220    5.14444    -10    8.0    None    500    5
 12753    CROSSING_RIGHT   7.71666    True    220    5.14444    0    8.0    None    200    5
-12754    CROSSING_RIGHT   7.71666    True    220    5.14444    0    8.0    None    500    5
-12755    CROSSING_RIGHT   7.71666    True    220    5.14444    10    8.0    None    200    5
-12756    CROSSING_RIGHT   7.71666    True    220    5.14444    10    8.0    None    500    5
-12757    CROSSING_RIGHT   7.71666    True    220    5.14444    20    8.0    None    200    5

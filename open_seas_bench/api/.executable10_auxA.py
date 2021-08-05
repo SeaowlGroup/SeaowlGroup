@@ -94,6 +94,7 @@ def run(serial, params, uuid) :
         launch_files.append((roslaunch_file1, roslaunch_args1))
 
         cli_args2 = ['asv_obstacle_tracker', 'obst_simplified2.launch',
+                    f'nOb:=1',
                     f'prior:=[{type}]',
                     f'size:=[{size}]',
                     f'heading:=[{h}]',
@@ -153,7 +154,7 @@ if __name__ == "__main__":
         for u_d in yaml_content['u_d']:
             for u_d_asv in yaml_content['u_d_asv']:
                 for dcpa in yaml_content['dcpa']:
-                    for d_detec in yaml_content['d_detection_jb']: ############################################
+                    for d_detec in yaml_content['d_detection_adrien']: ############################################
 
                         if opus > op_end:
                             sys.exit(0)

@@ -41,7 +41,8 @@ class Scenario(object):
         self.opus = opus
 
     def graphic_interface(self):
-
+        
+        rospack = rospkg.RosPack()
         fenetre = Tk()
         screen_width = fenetre.winfo_screenwidth()
         screen_height = fenetre.winfo_screenheight()
@@ -52,7 +53,7 @@ class Scenario(object):
         h_unit = int(screen_height/3)
         fenetre.geometry(f"{screen_width}x{screen_height}")
         fenetre.title("Bench Test")
-        fenetre.iconphoto(False, PhotoImage(file='images/icon.png'))
+        fenetre.iconphoto(False, PhotoImage(file=f'{rospack.get_path("asv_system")}/images/icon.png'))
         fenetre.configure(bg='gainsboro')
 
         ###################
@@ -74,7 +75,7 @@ class Scenario(object):
         ###################
         ###################
 
-        seagull = PhotoImage(file="images/Seagull-USV.png")
+        seagull = PhotoImage(file=f'{rospack.get_path("asv_system")}/images/Seagull-USV.png')
 
         canvas = Canvas(first_frame, width=w_big, height=2*h_unit)
         canvas.create_image(w_big/2, 2*h_unit/3, anchor=CENTER, image=seagull)
@@ -307,6 +308,7 @@ class Scenario(object):
         roslaunch_args0 = cli_args0[2:]
 
         cli_args1 = ['asv_obstacle_tracker', 'obst_simplified2.launch',
+                     f'nOb:=1',
                      f'prior:=[{self.prior}]',
                      f'size:=[{self.size}]',
                      f'heading:=[{self.heading}]',

@@ -1,4 +1,5 @@
 <launch>
+  <arg name="nOb" default="0" />
   <arg name="prior" default="[]" />
   <arg name="size" default="[]" />
   <arg name="heading" default="[]" />
@@ -10,12 +11,13 @@
   <arg name="opus" default="0" />
 
   <group ns="$(arg opus)">
-    <param name="opusob" value="$(arg opus)" />
+    <param name="opus" value="$(arg opus)" />
     <node pkg="asv_obstacle_tracker"
           name="obstacles_node"
           type="obstacles_simplified_node.py"
           respawn="false"
           output="screen">
+      <rosparam param="nOb" subst_value="True">$(arg nOb)</rosparam>
       <rosparam param="prior" subst_value="True">$(arg prior)</rosparam>
       <rosparam param="size" subst_value="True">$(arg size)</rosparam>
       <rosparam param="heading" subst_value="True">$(arg heading)</rosparam>

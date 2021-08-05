@@ -8,7 +8,7 @@ if [ $# -le 1 ]; then
 else
   start_opus=$1
   n_process=$2
-  serial=${$3:$(date '+%Y%m%d%H%M%S')}
+  serial=$3
   end_opus=$((${start_opus}+${n_process}-1))
 
   while [ ${start_opus} -le 50000 ]

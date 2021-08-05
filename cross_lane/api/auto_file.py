@@ -31,11 +31,11 @@ def run(serial, params, uuid) :
         opus = scenar[0]
         angle = scenar[1]/180*np.pi #degrees ro radians
         u_d = scenar[2]*0.514444    #knots to m/s
-        rld = scenar[3]             #right lane obstacle density in 1/m²
-        lld = scenar[4]             #left lane obstacle density in 1/m²
-        rlw = scenar[5]       #m
-        llw = scenar[6]       #m
-        ld = scenar[7]        #m
+        rld = scenar[3]/10000       #1/hm² to 1/m²
+        lld = scenar[4]/10000       #1/hm² to 1/m²
+        rlw = scenar[5]*1852        #nm to m
+        llw = scenar[6]*1852        #nm to m
+        ld = scenar[7]*1852         #nm to m
         gp = 0
 
         # ASV parameters

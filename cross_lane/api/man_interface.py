@@ -50,7 +50,7 @@ class Scenario(object):
         h_unit = int(screen_height/3)
         fenetre.geometry(f"{screen_width}x{screen_height}")
         fenetre.title("Bench Test")
-        fenetre.iconphoto(False, PhotoImage(file=f"{self.rospack.get_path('asv_system')}/icon.png"))
+        fenetre.iconphoto(False, PhotoImage(file=f"{self.rospack.get_path('asv_system')}/images/icon.png"))
         fenetre.configure(bg='gainsboro')
 
         ###################
@@ -71,7 +71,7 @@ class Scenario(object):
 
         ###################
         ###################
-        seagull = PhotoImage(file=f"{self.rospack.get_path('asv_system')}/Seagull-USV.png")
+        seagull = PhotoImage(file=f"{self.rospack.get_path('asv_system')}/images/Seagull-USV.png")
 
         canvas = Canvas(first_frame, width=w_big, height=2*h_unit)
         canvas.create_image(w_big/2, 2*h_unit/3, anchor=CENTER, image=seagull)
@@ -84,69 +84,81 @@ class Scenario(object):
         
         angle = DoubleVar()
         angle.set(90.0)
-        Label(l0, text="angle : ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
+        Label(l0, text="angle (°): ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
         Entry(l0, textvariable=angle, width=5, bg='whitesmoke').grid(row=0, column=1)
 
         u_d = DoubleVar()
         u_d.set(15.0)
-        Label(l0, text="speed (knots): ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
+        Label(l0, text="speed (kn): ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
         Entry(l0, textvariable=u_d, width=5, bg='whitesmoke').grid(row=1, column=1)
 
         lp = IntVar()
         lp.set(1)
-        Label(l0, text="Local Planner : ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
-        l01 = Frame(l0, bg='white')
-        l01.grid(row=2, column=1)
-        Radiobutton(l01, variable=lp, text="None", value=0, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
-        Radiobutton(l01, variable=lp, text="Velocity Obstacles", value=1, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
+        Label(l0, text="Local Planner : ", bg='white', anchor=E).grid(row=2, column=0, sticky="nsew")
+        l00 = Frame(l0, bg='white')
+        l00.grid(row=2, column=1)
+        Radiobutton(l00, variable=lp, text="None", value=0, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
+        Radiobutton(l00, variable=lp, text="Velocity Obstacles", value=1, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
 
         ########################
 
         l1 = LabelFrame(first_frame, text='Obstacle ship', padx=80, pady=30, bg='white')
         l1.grid(row=1, column=1)
+        
+        ld = DoubleVar()
+        ld.set(200.)
+        Label(l1, text="distance between lane (m): ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
+        Entry(l1, textvariable=ld, width=5, bg='whitesmoke').grid(row=0, column=1)
+        
+        dORn = IntVar()
+        dORn.set(1)
+        Label(l1, text="density or number: ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
+        l11 = Frame(l1, bg='white')
+        l11.grid(row=1, column=1)
+        Radiobutton(l11, variable=dORn, text="density", value=0, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
+        Radiobutton(l11, variable=dORn, text="number", value=1, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
 
-        rld = DoubleVar()
-        rld.set(.5)
-        Label(l1, text="right lane density : ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
-        Entry(l1, textvariable=rld, width=5, bg='whitesmoke').grid(row=0, column=1)
-
-        lld = DoubleVar()
-        lld.set(.5)
-        Label(l1, text="left lane density : ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
-        Entry(l1, textvariable=lld, width=5, bg='whitesmoke').grid(row=1, column=1)
+        Label(l1, text="width (m): ", bg='white', anchor=E).grid(row=2, column=0, sticky="nsew")
+        l10 = Frame(l1, bg='white')
+        l10.grid(row=2, column=1)
 
         rlw = DoubleVar()
         rlw.set(400.)
-        Label(l1, text="right lane width : ", bg='white', anchor=E).grid(row=2, column=0, sticky="nsew")
-        Entry(l1, textvariable=rlw, width=5, bg='whitesmoke').grid(row=2, column=1)
+        Label(l10, text="right lane: ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
+        Entry(l10, textvariable=rlw, width=5, bg='whitesmoke').grid(row=0, column=1)
 
         llw = DoubleVar()
         llw.set(400.)
-        Label(l1, text="left lane width : ", bg='white', anchor=E).grid(row=3, column=0, sticky="nsew")
-        Entry(l1, textvariable=llw, width=5, bg='whitesmoke').grid(row=3, column=1)
+        Label(l10, text="left lane: ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
+        Entry(l10, textvariable=llw, width=5, bg='whitesmoke').grid(row=1, column=1)
+        
+        Label(l1, text="density (1/hm²): ", bg='white', anchor=E).grid(row=3, column=0, sticky="nsew")
+        l12 = Frame(l1, bg='white')
+        l12.grid(row=3, column=1)
+        rld = DoubleVar()
+        rld.set(.5)
+        Label(l12, text="right lane : ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
+        Entry(l12, textvariable=rld, width=5, bg='whitesmoke').grid(row=0, column=1)
 
-        ld = DoubleVar()
-        ld.set(200.)
-        Label(l1, text="distance between lane : ", bg='white', anchor=E).grid(row=4, column=0, sticky="nsew")
-        Entry(l1, textvariable=ld, width=5, bg='whitesmoke').grid(row=4, column=1)
+        lld = DoubleVar()
+        lld.set(.5)
+        Label(l12, text="left lane : ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
+        Entry(l12, textvariable=lld, width=5, bg='whitesmoke').grid(row=1, column=1)
+
+        Label(l1, text="number of obstacles : ", bg='white', anchor=E).grid(row=4, column=0, sticky="nsew")
+        l13 = Frame(l1, bg='white')
+        l13.grid(row=4, column=1)
 
         rlnOb = DoubleVar()
         rlnOb.set(5)
-        Label(l1, text="# of ob in rl : ", bg='white', anchor=E).grid(row=5, column=0, sticky="nsew")
-        Entry(l1, textvariable=rlnOb, width=5, bg='whitesmoke').grid(row=5, column=1)
+        Label(l13, text="right lane : ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
+        Entry(l13, textvariable=rlnOb, width=5, bg='whitesmoke').grid(row=0, column=1)
 
         llnOb = DoubleVar()
         llnOb.set(5)
-        Label(l1, text="# of ob in ll : ", bg='white', anchor=E).grid(row=6, column=0, sticky="nsew")
-        Entry(l1, textvariable=llnOb, width=5, bg='whitesmoke').grid(row=6, column=1)
+        Label(l13, text="left lane : ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
+        Entry(l13, textvariable=llnOb, width=5, bg='whitesmoke').grid(row=1, column=1)
 
-        dORn = IntVar()
-        dORn.set(1)
-        Label(l1, text="density or number : ", bg='white', anchor=E).grid(row=7, column=0, sticky="nsew")
-        l02 = Frame(l1, bg='white')
-        l02.grid(row=7, column=1)
-        Radiobutton(l02, variable=dORn, text="density", value=0, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
-        Radiobutton(l02, variable=dORn, text="number", value=1, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
         ########################
 
         def register():

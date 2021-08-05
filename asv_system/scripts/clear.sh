@@ -8,16 +8,24 @@ while [ -z "$file" ]; do
   read file
 done
 
+cd ..
+
 if [ "$file" = "all" ]; then
-  rm -f ../output/21*
-  rm -f ../input/21*
+  rm -f output/21*
+  rm -f input/21*
+  rm -f log/nohup.out
+  rm -f log/nohup.err
 elif [ "$file" = "last" ]; then
-  cd ../output
+  cd output
   rm -f "$(ls 21* | tail -1)"
   cd ../input
   rm -f "$(ls 21* | tail -1)"
   cd ../scripts
+  rm -f ../log/nohup.out
+  rm -f ../log/nohup.err
 else
-  rm -f ../output/"$file"*
-  rm -f ../input/"$file"*
+  rm -f output/"$file"*
+  rm -f input/"$file"*
 fi
+
+rm -rf __pycache__

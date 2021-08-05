@@ -267,18 +267,8 @@ Here is another where there is a map, a local planner, a global planner and an o
 │   │   │   ├── param.yaml
 │   │   │   ├── param.xlsx
 │   │   │   └── ...
-│   ├── debug.py
-│   ├── debug.txt
-│   ├── étalon.py
 │   ├── executable1.py
-│   ├── executable2.py
-│   ├── executable3.py
-│   ├── executable4.py
-│   ├── executable5.py
-│   ├── executable6.py
-│   ├── executable8.py
-│   ├── executable9Adrien.py
-│   ├── executable9.py
+│   ├── ...
 │   ├── graph_drawer.py
 │   ├── input
 │   │   ├── 210801230453.txt
@@ -286,7 +276,6 @@ Here is another where there is a map, a local planner, a global planner and an o
 │   ├── launch
 │   │   ├── chenal.launch
 │   │   └── ...
-│   ├── launch_backgroundAdrien.sh
 │   ├── log
 │   │   ├── nohup.out
 │   │   └── nohup.err
@@ -294,16 +283,7 @@ Here is another where there is a map, a local planner, a global planner and an o
 │   │   ├── 210801230453.txt
 │   │   └── ...
 │   └── scripts
-│       ├── clear.sh
-│       ├── concatenate.py
-│       ├── config.sh
-│       ├── current_opus.sh
-│       ├── graph_drawer.py
-│       ├── is_running.sh
-│       ├── kill.sh
-│       ├── launch_background.sh
-│       ├── rename.sh
-│       └── watch_cpu.py
+│       └── ...
 ├── cross_lane
 │   ├── api
 │   │   ├── crossLaneExec.py
@@ -318,4 +298,49 @@ Here is another where there is a map, a local planner, a global planner and an o
 └── README.md
 ```
 
-## Issues and improvements to be made
+## Functional Description
+### Test Benches
+#### 1-to-1 Opens seas
+This bench aims at evaluating the behavior of the ASV when encountering another ship in open seas, with a local planner and no global planner. In this case, the set of scenarios is meant to be as exhaustive as possible, in the purpose of detecting any weakness of the local planner that could happen in a precise maritime situation. The parameters (for now) are the following :
+
+- **Heading** : every 20°
+-  **Theoretical dCPA** : -80m, -50m, -20m, -10m, 0m, 10m, 20m, 50m, 80m
+-  **Speed of the ASV** : 3kns, 5kts, 8kts, 10kts, 15kts, 20kts, 25kts, 30kts
+-  **Speed of the obstacle ship** : 3kts, 5kts, 8kts, 10kts, 15kts, 20kts, 25kts, 30kts with at least 5kts of difference for overtaking scenarios (heading of 0°, -20° or +20°)
+-  **Detection distance** : 50m, 100m, 200m, 500m
+
+The total number of scenarios is a bit less than 41 472.
+
+#### Cross Lane
+This bench aims at evaluating the behavior of the ASV when crossing a lane, with a local planner and no global planner. The ASV encounters different ships coming from both the left and the right. We use a certain amount of randomness and some deterministic variables.
+
+#### Channeling
+This bench aims at evaluating the behavior of the ASV when leaving a harbor by a channel, with a local planner and a global planner. The ASV can encounter ships using the channel in the other way as well as ships crossing the channel.
+
+### Incorporated Planners
+#### Global Planner (A Star)
+The implemented global planner is a basic A Star algorithm, with just a post processing algorithm to reduce the number of waypoints. If the waypoints are not calculated by the planner they must be set as parameters in the launch file. It is meant to be used on the processed map with inflated obstacles to guarantee a security margin. To add another global planner, one just needs to put the source file and the header in the package, update the `CMakeLists.txt` and change `asv_global_planner_node.cpp` at line **19** :
+```
+GlobalPlanner *gp = new GlobalPlanner;
+```
+by changing `GlobalPlanner` with a class inheriting from the former and corresponding to the planner implemented.
+
+#### Local Planner (Velocity Obstacle)
+The local planner already implemented is a Velocity Obstacle (VO) taking account of the COLREGS. The algorithm is detailled in Stenersen's thesis. It considers the static obstacles but hardly, and without any security margin. It can be more convenient to feed two different maps to the local and the global planner (when in a channel for example). When it comes to the obstacle ships, the VO considers a security distance defined in `asv_ctrl_vo/asv_ctrl_vo_node.cpp` line **149** :
+```
+double combined_radius = RADIUS_ + it->header.radius;
+```
+By default, `RADIUS_` is 10m but the size af the ASV is 8m, so it allows a secrity distance of only 2m, which is very close and quite dangerous. That is why we worked a lot with a modified version of the planner where we just commented this line and uncommented the previous one (**do not forget to call `catkin_make` in the main directory of the workspace to compile the changes on a .cpp or .h file**) :
+```
+double combined_radius = RADIUS_*std::max((v_ret+0.5),1.0) + it->header.radius;
+```
+This distance increases with the relative speed between the two ships, thus resulting in safer and more reasonable security margins. However, it was meant for open seas and this version of the planner might encounter hardships in restricted spaces. It is possible to integrate another local planner, but it would need to modify more in depth the package.
+
+
+### APIs and .launch files
+The .launch files are launched by the _roslaunch_ package, which has very limited features. In particular, it is meant to launch a single simulation, and allows very little automation. That is why we worked mostly with pythons APIs, which are python scripts that can call roslaunch to execute .launch files, with different parameters and allowing the automation of a whole list of scenarios. These parameters can either be entered by hand (`executable5.py`), be entered in an Excel file in `asv_system/config/param` (`executable6.py`), or for larger sets, be entered as lists in a YAML file (same path) and then be executed by `executable9.py`.
+
+#### Multiprocessing
+For now only `executable9.py` uses multiprocessing to launch several simulations simultaneously. It has several parameters set as global variables : `NB_PROCESS`, `OPUS_START` and `SERIAL_TO_UPDATE`. The first one is the number of simulations that will be simultaneously launched. It depends on the capacities of the processor of the computer executing the program, and on the computing power needed by the simulations (especially the local planner). The script `watch_cpu.sh` can help to determine the best number of processes by testing with several values (launch the script before the simulation and end it afterwards). `OPUS_START` and `SERIAL_TO_UPDATE` need to be changed if the executable needs to start but from a specific opus and needs to append the output to a previous file.
+
+## Issues and Improvements to be Made

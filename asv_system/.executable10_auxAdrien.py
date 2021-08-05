@@ -11,19 +11,9 @@ import os, signal
 from subprocess import check_output
 import psutil
 
-NB_PROCESS = 1
-OPUS_START = 0
-SERIAL_TO_UPDATE = ''
-
-def kill_child_processes(parent_pid, sig=signal.SIGTERM):
-    try:
-        parent = psutil.Process(parent_pid)
-    except psutil.NoSuchProcess:
-        return
-    children = parent.children(recursive=True)
-    for process in children:
-        print("killing machine", process.pid)
-        process.send_signal(sig)
+NB_PROCESS = 6
+# OPUS_START = 0
+# SERIAL_TO_UPDATE = ''
 
 def run(serial, params, uuid) :
 
@@ -122,7 +112,23 @@ def run(serial, params, uuid) :
     launch.spin()
     launch.shutdown()
 
+
 if __name__ == "__main__":
+# def go(op_start, op_end, serial):
+
+    if len(sys.argv) <= 2 :
+        print("At least 2 arguments needed")
+        # return(0)
+        sys.exit(1)
+
+    op_start =  int(sys.argv[1])
+    op_end = int(sys.argv[2])
+
+    if len(sys.argv) <= 3 :
+        now = datetime.datetime.now()
+        serial = now.strftime("%Y%m%d%H%M%S")[2:]
+    else:
+        serial = sys.argv[3]
 
     yaml_file = open("config/param/param4.yaml", 'r')
     yaml_content = yaml.safe_load(yaml_file)
@@ -130,12 +136,8 @@ if __name__ == "__main__":
     # UUID
     uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
     roslaunch.configure_logging(uuid)
-    # Output parameters
-    if len(SERIAL_TO_UPDATE) == 0:
-        now = datetime.datetime.now()
-        serial = now.strftime("%Y%m%d%H%M%S")[2:]
-    else:
-        serial = SERIAL_TO_UPDATE
+
+
 
     # Write Input
     rospack = rospkg.RosPack()
@@ -146,40 +148,25 @@ if __name__ == "__main__":
 
     params = []
     opus = 1
-    try:
-        for h in yaml_content['heading']:
-            for u_d in yaml_content['u_d']:
-                for u_d_asv in yaml_content['u_d_asv']:
-                    for dcpa in yaml_content['dcpa']:
-                        for d_detec in yaml_content['d_detection_jb']: ############################################
-                            if (h<340 and h>20 or np.abs(u_d-u_d_asv)>2.57) and (d_detec > np.abs(dcpa)):
-                                if opus > OPUS_START:
-                                    params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])
-                                opus += 1
-                                if len(params) == NB_PROCESS:
-                                    #try:
-                                    if os.path.exists('nohup.out'):
-                                        os.remove('nohup.out')
-                                    if os.path.exists('nohup.err'):
-                                        os.remove('nohup.err')
-                                    run(serial, params, uuid)
+    for h in yaml_content['heading']:
+        for u_d in yaml_content['u_d']:
+            for u_d_asv in yaml_content['u_d_asv']:
+                for dcpa in yaml_content['dcpa']:
+                    for d_detec in yaml_content['d_detection_adrien']: ############################################
 
-                                    # kill_child_processes(os.getpid())
+                        if opus > op_end:
+                            sys.exit(0)
+                            # return(opus)
 
-                                    # processes = map(int,check_output(["pidof","python3"]).split())
-                                    # for pid in processes:
-                                    #     if pid != main_pid:
-                                    #         try:
-                                    #             os.kill(pid, signal.SIGTERM)
-                                    #         except PermissionError:
-                                    #             print("SIGTERM exception for :", pid)
-                                    params = []
-                                    # except:
-                                    #     print("Unexpected error:", sys.exc_info()[0])
-                                    #     output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
-                                    #     g = open(input,'a')
-                                    #     g.write(f'{opus+1} nan nan nan nan nan nan nan nan nan nan nan nan nan\n')
-                                    #     g.close()
-                                    #     params = []
-    except KeyboardInterrupt:
-        pass
+                        if (h<340 and h>20 or np.abs(u_d-u_d_asv)>2.57) and (d_detec > np.abs(dcpa)):
+                            if opus >= op_start:
+                                params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])
+                            opus += 1
+                            if len(params) == NB_PROCESS or  (len(params) > 0 and opus > op_end):
+                                if os.path.exists('nohup.out'):
+                                    os.remove('nohup.out')
+                                if os.path.exists('nohup.err'):
+                                    os.remove('nohup.err')
+                                run(serial, params, uuid)
+                                params = []
+    # return(-1)

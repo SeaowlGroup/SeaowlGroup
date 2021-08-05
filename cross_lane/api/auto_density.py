@@ -7,10 +7,10 @@ import rospkg
 
 NB_PROCESS = 5
 OPUS_START = 1
-NOBMIN = 5
-NOBMAX = 9
-NB_REP = 10
-SERIAL_TO_UPDATE = ''
+NOBMIN = 4
+NOBMAX = 8
+NB_REP = 15
+SERIAL_TO_UPDATE = 'density6'
 
 def run(serial, params, uuid) :
 
@@ -29,18 +29,18 @@ def run(serial, params, uuid) :
     for scenar in params:
 
         opus = scenar[0]
-        angle = np.pi/2 #degrees ro radians
+        angle = np.pi/2      #degrees to radians
         u_d = 0.514444*15    #knots to m/s
         llnOb = scenar[1]
         rlnOb = scenar[1]
         rlw = 400.       #m
         llw = 400.       #m
-        ld = 200        #m
+        ld = 200         #m
         gp = 0
         ll = rlw+llw+ld
 
         rld = rlnOb/rlw/ll            #right lane obstacle density in 1/m²
-        lld = llnOb/llw/ll             #left lane obstacle density in 1/m²
+        lld = llnOb/llw/ll            #left lane obstacle density in 1/m²
 
         # ASV parameters
         dAsv = 100. #initial and final distance to lanes

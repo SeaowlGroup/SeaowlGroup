@@ -16,14 +16,14 @@ class Obstacles(object):
         self.op = rospy.get_param("opus",-1)
         self.rlnOb = int(rospy.get_param("~rlnOb",0))                   #number of obstacles in right lane
         self.llnOb = int(rospy.get_param("~llnOb",0))                   #number of obstacles in left lane
-        self.rlw = rospy.get_param("~rlw",300.)                         #width of right lane
-        self.llw = rospy.get_param("~llw",300.)                         #width of left lane
-        self.ld = rospy.get_param("~ld",150.)                           #distance between lanes
-        self.ll = rospy.get_param("~ll",self.rlw+self.llw+self.ld)      #length of lane
+        self.rlw = rospy.get_param("~rlw",300.)                         #width of right lane (m)
+        self.llw = rospy.get_param("~llw",300.)                         #width of left lane (m)
+        self.ld = rospy.get_param("~ld",150.)                           #distance between lanes (m)
+        self.ll = rospy.get_param("~ll",self.rlw+self.llw+self.ld)      #length of lane (m)
         self.nOb = self.rlnOb+self.llnOb                                #total number of obstacles
-        self.dDetect = rospy.get_param("~d_detection", self.nOb*[500.]) #distance of detection of obstacles
+        self.dDetect = rospy.get_param("~d_detection", self.nOb*[500.]) #distance of detection of obstacles (m)
         self.prior = rospy.get_param("~prior", self.nOb*["n"])          #priority satus of obstacles
-        self.size = rospy.get_param("~size", self.nOb*[8.])             #size of obstacles
+        self.size = rospy.get_param("~size", self.nOb*[8.])             #size of obstacles (m)
 
         self.dt = rospy.get_param("~update_rate", .1)
 

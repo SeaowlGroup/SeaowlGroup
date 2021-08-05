@@ -8,6 +8,8 @@
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/Twist.h"
 #include "nav_msgs/Odometry.h"
+#include "std_msgs/String.h"
+
 
 #include "asv_simulator.h"
 #include "asv_simulator_node.h"
@@ -33,6 +35,11 @@ int main(int argc, char* argv[])
 
   VesselNode my_vessel_node;
   my_vessel_node.tf_name = name;
+
+  ros::Publisher tfName_pub = nh.advertise<std_msgs::String>("tf_name", 1, true);
+  std_msgs::String msg;
+  msg.data = name;
+  tfName_pub.publish(msg);
 
   tf::TransformBroadcaster tf = tf::TransformBroadcaster();
   ros::Publisher pose_pub = nh.advertise<geometry_msgs::PoseStamped>("pose", 10);
@@ -139,6 +146,7 @@ void VesselNode::publishData()
   q.setRPY(0,0,eta[2]);
   transform.setRotation(q);
 
+  //ROS_INFO_STREAM("simulator tf_name " << tf_name);
   tf_->sendTransform(tf::StampedTransform(transform,
                                           ros::Time::now(),
                                           "map",

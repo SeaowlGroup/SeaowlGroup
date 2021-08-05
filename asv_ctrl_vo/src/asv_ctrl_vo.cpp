@@ -23,11 +23,11 @@ void normalize_angle_diff(double &angle, const double &angle_ref);
 VelocityObstacle::VelocityObstacle() : EDGE_SAMPLES_(10),
                                        VEL_SAMPLES_(41),
                                        ANG_SAMPLES_(101),
-                                       RADIUS_(10.0),
-                                       MAX_VEL_(20.),
+                                       //RADIUS_(10.0),
+                                       //MAX_VEL_(20.),
                                        MAX_ANG_(2.0944),
                                        MIN_DIST_(100.0),
-                                       D_CPA_MIN_(50.0),
+                                       //D_CPA_MIN_(50.0),
                                        T_CPA_MAX_(60.0)
 {
   asv_pose_ = Eigen::Vector3d(0.0, 0.0, 0.0);
@@ -39,7 +39,7 @@ VelocityObstacle::~VelocityObstacle()
 }
 
 void VelocityObstacle::initialize(std::vector<asv_msgs::State> *obstacles,
-                                  nav_msgs::OccupancyGrid *map)
+                                  nav_msgs::OccupancyGrid *map, ros::NodeHandle nh)
 {
 
   ROS_INFO("Initializing VO-node...");
@@ -59,6 +59,18 @@ void VelocityObstacle::initialize(std::vector<asv_msgs::State> *obstacles,
   lm_pub = n.advertise<nav_msgs::OccupancyGrid>("localmap", 5);
   obstacles_ = obstacles;
   map_ = map;
+
+  if (!nh.getParam("MAX_VEL", MAX_VEL_))
+    MAX_VEL_ = 20.;
+  //ROS_INFO_STREAM("MAX_VEL " << MAX_VEL_);
+
+  if (!nh.getParam("RADIUS", RADIUS_))
+    RADIUS_ = 10.;
+  //ROS_INFO_STREAM("RADIUS" << RADIUS_);
+
+  if (!nh.getParam("D_CPA_MIN", D_CPA_MIN_))
+    D_CPA_MIN_ = 50.;
+  //ROS_INFO_STREAM("D_CPA_MIN" << D_CPA_MIN_);
 
   ROS_INFO("Initialization complete!");
 }

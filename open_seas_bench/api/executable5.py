@@ -23,6 +23,9 @@ class Scenario(object):
         self.lp = None
         self.true_heading_asv = 0.0
         self.t_sim = 75
+        self.max_vel = 0.
+        self.d_cpa_min = 0.
+        self.radius = 0.
         # Obstacle related attributes
         self.heading = None
         self.u_d = None
@@ -88,7 +91,7 @@ class Scenario(object):
         Entry(l0, textvariable=u_d_asv, width=5, bg='whitesmoke').grid(row=0, column=1)
 
         lp = IntVar()
-        lp.set(0)
+        lp.set(1)
         Label(l0, text="Local Planner : ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
         l01 = Frame(l0, bg='white')
         l01.grid(row=1, column=1)
@@ -130,9 +133,24 @@ class Scenario(object):
         Radiobutton(l11, variable=prior, text="Give Way", value="give_way", bg='white', anchor=W, highlightthickness=0).pack(fill='both')
 
         d_detec = DoubleVar()
-        d_detec.set(100.0)
+        d_detec.set(500.0)
         Label(l1, text="Distance of detection : ", bg='white', anchor=E).grid(row=5, column=0, sticky="nsew")
         Entry(l1, textvariable=d_detec, width=5, bg='whitesmoke').grid(row=5, column=1)
+
+        radius = DoubleVar()
+        radius.set(10.0)
+        Label(l1, text="radius : ", bg='white', anchor=E).grid(row=6, column=0, sticky="nsew")
+        Entry(l1, textvariable=radius, width=5, bg='whitesmoke').grid(row=6, column=1)
+
+        d_cpa_min = DoubleVar()
+        d_cpa_min.set(50.0)
+        Label(l1, text="d cpa min : ", bg='white', anchor=E).grid(row=7, column=0, sticky="nsew")
+        Entry(l1, textvariable=d_cpa_min, width=5, bg='whitesmoke').grid(row=7, column=1)
+
+        max_vel = DoubleVar()
+        max_vel.set(20.0)
+        Label(l1, text="max vel : ", bg='white', anchor=E).grid(row=8, column=0, sticky="nsew")
+        Entry(l1, textvariable=max_vel, width=5, bg='whitesmoke').grid(row=8, column=1)
 
         ########################
 
@@ -146,6 +164,9 @@ class Scenario(object):
             self.size = size.get()
             self.prior = prior.get()
             self.d_detec = d_detec.get()
+            self.radius = radius.get()
+            self.max_vel = max_vel.get()
+            self.d_cpa_min = d_cpa_min.get()
 
             if (np.abs(self.heading)<=20):
                 self.t_collision = 15
@@ -277,7 +298,11 @@ class Scenario(object):
                      f'u_d:={self.u_d_asv}',
                      f'use_vo:={self.lp}',
                      f'output_file:={self.output}',
-                     f'opus:={self.opus}']
+                     f'opus:={self.opus}',
+                     f'MAX_VEL:={self.max_vel}',
+                     f'D_CPA_MIN:={self.d_cpa_min}',
+                     f'RADIUS:={self.radius}']
+
         roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
         roslaunch_args0 = cli_args0[2:]
 

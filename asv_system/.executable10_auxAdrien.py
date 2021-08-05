@@ -9,10 +9,11 @@ import yaml
 import sys
 import os, signal
 from subprocess import check_output
+import psutil
 
-NB_PROCESS = 4
-OPUS_START = 11545
-SERIAL_TO_UPDATE = ''
+NB_PROCESS = 6
+# OPUS_START = 0
+# SERIAL_TO_UPDATE = ''
 
 def run(serial, params, uuid) :
 
@@ -71,13 +72,13 @@ def run(serial, params, uuid) :
         waypoints_asv = [[0.,0.],
                          [t_sim*u_d_asv*np.cos(calc_heading_asv), t_sim*u_d_asv*np.sin(calc_heading_asv)]]
 
-        input = f"{rospack.get_path('open_seas_bench')}/input/{serial}.txt"
+        input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
         f = open(input,'a')
         f.write(f'{opus}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}    {group}\n')
         f.close()
 
         # Creation of the launch files
-        cli_args1 = ['open_seas_bench', 'main_launch3.launch',
+        cli_args1 = ['asv_system', 'main_launch3.launch',
                      f'trigger_shutdown:=0',
                      f'initial_state:={initial_state_asv}',
                      f'waypoints:={waypoints_asv}',
@@ -85,7 +86,7 @@ def run(serial, params, uuid) :
                      f'use_vo:={lp}',
                      f'rviz:=False',
                      f'opus:={opus}',
-                     f'output_file:=$(find open_seas_bench)/output/{serial}.txt',
+                     f'output_file:=$(find asv_system)/output/{serial}.txt',
                      f't_sim:={t_sim}',
                      f'pos_end_waypoint:={waypoints_asv[0]}']
         roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
@@ -113,62 +114,59 @@ def run(serial, params, uuid) :
 
 
 if __name__ == "__main__":
+# def go(op_start, op_end, serial):
 
-    rospack = rospkg.RosPack()
-    yaml_file = open(f"{rospack.get_path('open_seas_bench')}/config/param/param4.yaml", 'r')
+    if len(sys.argv) <= 2 :
+        print("At least 2 arguments needed")
+        # return(0)
+        sys.exit(1)
+
+    op_start =  int(sys.argv[1])
+    op_end = int(sys.argv[2])
+
+    if len(sys.argv) <= 3 :
+        now = datetime.datetime.now()
+        serial = now.strftime("%Y%m%d%H%M%S")[2:]
+    else:
+        serial = sys.argv[3]
+
+    yaml_file = open("config/param/param4.yaml", 'r')
     yaml_content = yaml.safe_load(yaml_file)
-
-    main_pid = os.getpid()
 
     # UUID
     uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
     roslaunch.configure_logging(uuid)
-    # Output parameters
-    if len(SERIAL_TO_UPDATE) == 0:
-        now = datetime.datetime.now()
-        serial = now.strftime("%Y%m%d%H%M%S")[2:]
-    else:
-        serial = SERIAL_TO_UPDATE
+
+
 
     # Write Input
-    input = f"{rospack.get_path('open_seas_bench')}/input/{serial}.txt"
+    rospack = rospkg.RosPack()
+    input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
     f = open(input,'a')
     f.write(f'OPUS    CLASS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC    GROUP\n')
     f.close()
 
     params = []
     opus = 1
-    try:
-        for h in yaml_content['heading']:
-            for u_d in yaml_content['u_d']:
-                for u_d_asv in yaml_content['u_d_asv']:
-                    for dcpa in yaml_content['dcpa']:
-                        for d_detec in yaml_content['d_detection_adrien']: ############################################
-                            if (h<340 and h>20 or np.abs(u_d-u_d_asv)>2.57) and (d_detec > np.abs(dcpa)):
-                                if opus > OPUS_START:
-                                    params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])
-                                opus += 1
-                                if len(params) == NB_PROCESS:
-                                    #try:
-                                    if os.path.exists('nohup.out'):
-                                        os.remove('nohup.out')
-                                    if os.path.exists('nohup.err'):
-                                        os.remove('nohup.err')
-                                    run(serial, params, uuid)
-                                    processes = map(int,check_output(["pidof","python3"]).split())
-                                    for pid in processes:
-                                        if pid != main_pid:
-                                            try:
-                                                os.kill(pid, signal.SIGTERM)
-                                            except PermissionError:
-                                                print("SIGTERM exception for :", pid)
-                                    params = []
-                                    # except:
-                                    #     print("Unexpected error:", sys.exc_info()[0])
-                                    #     output = f"{rospack.get_path('open_seas_bench')}/output/{serial}.txt"
-                                    #     g = open(input,'a')
-                                    #     g.write(f'{opus+1} nan nan nan nan nan nan nan nan nan nan nan nan nan\n')
-                                    #     g.close()
-                                    #     params = []
-    except KeyboardInterrupt:
-        pass
+    for h in yaml_content['heading']:
+        for u_d in yaml_content['u_d']:
+            for u_d_asv in yaml_content['u_d_asv']:
+                for dcpa in yaml_content['dcpa']:
+                    for d_detec in yaml_content['d_detection_adrien']: ############################################
+
+                        if opus > op_end:
+                            sys.exit(0)
+                            # return(opus)
+
+                        if (h<340 and h>20 or np.abs(u_d-u_d_asv)>2.57) and (d_detec > np.abs(dcpa)):
+                            if opus >= op_start:
+                                params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])
+                            opus += 1
+                            if len(params) == NB_PROCESS or  (len(params) > 0 and opus > op_end):
+                                if os.path.exists('nohup.out'):
+                                    os.remove('nohup.out')
+                                if os.path.exists('nohup.err'):
+                                    os.remove('nohup.err')
+                                run(serial, params, uuid)
+                                params = []
+    # return(-1)

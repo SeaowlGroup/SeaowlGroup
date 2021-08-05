@@ -200,7 +200,7 @@ class Referee(object) :
                 self.n_obst = len(data.states)
                 self.dcpa = np.ones(self.n_obst)*sys.float_info.max
                 self.tcpa = np.zeros((self.n_obst,2))
-                self.cross = np.array(self.n_obst*[-1])
+                self.cross = np.array(self.n_obst*[np.infty])
                 self.obst_states = np.zeros((self.n_obst, 4))
                 self.obst_radii = np.zeros(self.n_obst)
                 self.security = np.zeros((self.n_obst,15))
@@ -268,6 +268,7 @@ class Referee(object) :
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
         print(f'Duration of the simulation: {t} s')
         print(f'Number of ships : {self.n_obst}')
+        print(f'Opus : {self.opus}')
         for i in range(self.n_obst) :
             print(f'Ship {i+1}')
             print(f'     --> dCPA = {self.dcpa[i]} m')

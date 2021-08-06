@@ -44,7 +44,7 @@ def run(serial, input_file, params, uuid) :
         input_file.write(f'{opus+1}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}    {group}\n')
 
         # Creation of the launch files
-        cli_args1 = ['asv_system', 'main_launch3.launch',
+        cli_args1 = ['open_seas_bench', 'main_launch3.launch',
                      f'trigger_shutdown:=0',
                      f'initial_state:={initial_state_asv}',
                      f'waypoints:={waypoints_asv}',
@@ -52,7 +52,7 @@ def run(serial, input_file, params, uuid) :
                      f'use_vo:={lp}',
                      f'rviz:=False',
                      f'opus:={opus+1}',
-                     f'output_file:=$(find asv_system)/output/{serial}.txt']
+                     f'output_file:=$(find open_seas_bench)/output/{serial}.txt']
         roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
         roslaunch_args1 = cli_args1[2:]
         launch_files.append((roslaunch_file1, roslaunch_args1))
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     serial = now.strftime("%Y%m%d%H%M%S")[2:]
 
     rospack = rospkg.RosPack()
-    input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
+    input = f"{rospack.get_path('open_seas_bench')}/input/{serial}.txt"
     f = open(input,'a')
     f.write(f'OPUS    CLASS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC    GROUP\n')
 

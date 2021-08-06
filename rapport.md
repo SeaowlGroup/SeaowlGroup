@@ -72,7 +72,7 @@ You will need to source the package before starting to use it and **everytime yo
 ```
 source devel/setup.bash
 ```
-## Use
+## Run
 
 ### Get Started
 To launch a graphic user interface allowing to set easily the parameters, type in the terminal :

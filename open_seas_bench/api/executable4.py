@@ -67,7 +67,7 @@ def run() :
                             opus += 1
 
                             # Creation of the launch files
-                            cli_args0 = ['asv_system', 'main_launch2.launch',
+                            cli_args0 = ['open_seas_bench', 'main_launch2.launch',
                                          f'use_sim_time:={use_sim_time}',
                                          f'trigger_shutdown:={trigger_shutdown}',
                                          f'coast_margin:={coast_margin}',
@@ -81,7 +81,7 @@ def run() :
                                          f'use_vo:=True',
                                          f'rviz:=False',
                                          f'opus:={opus}',
-                                         f'output_file:=$(find asv_system)/output/{serial}.txt']
+                                         f'output_file:=$(find open_seas_bench)/output/{serial}.txt']
                             roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
                             roslaunch_args0 = cli_args0[2:]
 
@@ -104,7 +104,7 @@ def run() :
                                 # launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
                                 # launch.start()
                                 # time.sleep(10)
-                                # cli_args = ['asv_system', 'obstacles2.launch',
+                                # cli_args = ['open_seas_bench', 'obstacles2.launch',
                                 #             f'initial_state:={initial_state}',
                                 #             f'waypoints:={waypoints}',
                                 #             f'shipname:={shipname}',

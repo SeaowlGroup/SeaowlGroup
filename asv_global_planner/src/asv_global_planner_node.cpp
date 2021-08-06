@@ -14,6 +14,14 @@ int main(int argc, char *argv[])
 
   ros::NodeHandle n;
 
+  ros::NodeHandle pnh("~");
+
+  double goal_x, goal_y;
+  if (!pnh.getParam("goal_x", goal_x))
+    goal_x = 0.;
+  if (!pnh.getParam("goal_y", goal_y))
+    goal_y = 0.;
+
   GlobalPlannerNode gp_node;
   //GlobalPlanner *gp = new GlobalPlanner;
   AStarPlanner *gp = new AStarPlanner(5, 5);
@@ -39,7 +47,7 @@ int main(int argc, char *argv[])
                                          &gp_node);
 
   gp_node.initialize(&wp_pub, &start_pub, &og_sub, &asv_sub, &goal_sub, gp);
-  gp_node.start();
+  gp_node.start(goal_x, goal_y);
 
   ros::shutdown();
   return 0;
@@ -71,7 +79,7 @@ void GlobalPlannerNode::initialize(ros::Publisher *wp_pub,
   gp_ = gp;
 }
 
-void GlobalPlannerNode::start()
+void GlobalPlannerNode::start(double goal_x, double goal_y)
 {
   ros::Rate loop_rate(10.0);
   clock_t tick, tock;
@@ -87,7 +95,7 @@ void GlobalPlannerNode::start()
           ROS_INFO("Global planner initialized");
 	        // waypt = gp_->calculate_waypoints(start_x, start_y, 770.0, 580.0);  // --> mozambique
           // waypt = gp_->calculate_waypoints(start_x, start_y, 1374.0, 95.0);  // --> rade toulon
-          waypt = gp_->calculate_waypoints(start_x, start_y, 1588.0, 350.0);
+          waypt = gp_->calculate_waypoints(start_x, start_y, goal_x, goal_y);
 	        map_init = 2;
           wp_pub_->publish(waypt);
           start_pub_->publish(startMsg);

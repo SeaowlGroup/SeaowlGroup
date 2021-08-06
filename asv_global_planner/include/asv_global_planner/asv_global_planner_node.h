@@ -39,7 +39,7 @@ class GlobalPlannerNode
   /**
    * Start the node. Enters a "never ending" while loop.
    */
-  void start();
+  void start(double goal_x, double goal_y);
 
 
   void asvCallback(const nav_msgs::Odometry::ConstPtr &msg);

@@ -48,7 +48,7 @@ def run(serial, input_file, parameter_file) :
         input_file.write(f'{opus+1}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}    {group}\n')
 
         # Creation of the launch files
-        # cli_args0 = ['asv_system', 'main_launch2.launch',
+        # cli_args0 = ['open_seas_bench', 'main_launch2.launch',
         #              f'trigger_shutdown:=1',
         #              f'initial_state:={initial_state_asv}',
         #              f'waypoints:={waypoints_asv}',
@@ -56,7 +56,7 @@ def run(serial, input_file, parameter_file) :
         #              f'use_vo:={lp}',
         #              f'rviz:=False',
         #              f'opus:={opus+1}',
-        #              f'output_file:=$(find asv_system)/output/{serial}.txt']
+        #              f'output_file:=$(find open_seas_bench)/output/{serial}.txt']
         # roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
         # roslaunch_args0 = cli_args0[2:]
         #
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.wm_withdraw()
     param = askopenfilename(title="Load a file :",filetypes=[('excel files','.xlsx', '.xls'),('all files','.*')],
-                                          initialdir=f"{rospack.get_path('asv_system')}/config/param/")
+                                          initialdir=f"{rospack.get_path('open_seas_bench')}/config/param/")
     root.destroy()
 
     if param:
@@ -95,7 +95,7 @@ if __name__ == "__main__":
         serial = now.strftime("%Y%m%d%H%M%S")[2:]
 
         # Write Input
-        input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
+        input = f"{rospack.get_path('open_seas_bench')}/input/{serial}.txt"
         f = open(input,'a')
 
         try :

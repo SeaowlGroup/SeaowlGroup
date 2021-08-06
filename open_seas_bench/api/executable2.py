@@ -33,7 +33,7 @@ initial_state_asv = [0.,0.,calc_heading_asv, u_d_asv,0.,0.]
 t_sim = asv['t_sim']
 waypoints_asv = [[0.,0.], [t_sim*u_d_asv*np.cos(calc_heading_asv), t_sim*u_d_asv*np.sin(calc_heading_asv)]]
 
-cli_args0 = ['asv_system', 'main_launch2.launch',
+cli_args0 = ['open_seas', 'main_launch2.launch',
              f'use_sim_time:={use_sim_time}',
              f'trigger_shutdown:={trigger_shutdown}',
              f'coast_margin:={coast_margin}',
@@ -85,7 +85,7 @@ for i in range(N) :
     waypoints = [[first_point_x, first_point_y], [last_point_x, last_point_y]]
     shipname = type+f'{i+1}'
 
-    cli_args = ['asv_system', 'obstacles2.launch',
+    cli_args = ['open_seas', 'obstacles2.launch',
                 f'initial_state:={initial_state}',
                 f'waypoints:={waypoints}',
                 f'shipname:={shipname}',

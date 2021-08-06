@@ -15,7 +15,7 @@ def run(serial, params, uuid) :
     rospack = rospkg.RosPack()
     first_opus = params[0][0]
 
-    cli_args0 = ['asv_system', 'reaper.launch',
+    cli_args0 = ['asv_referee', 'reaper.launch',
                  f'nb_processes:={NB_PROCESS}',
                  f'opus:={first_opus}']
     roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
@@ -78,7 +78,7 @@ def run(serial, params, uuid) :
 if __name__ == "__main__":
     rospack = rospkg.RosPack()
 
-    yaml_file = open(f"{rospack.get_path('cross_lane')}/config/param/crossLaneD.yaml", 'r')
+    yaml_file = open(f"{rospack.get_path('cross_lane')}/config/param/crossLane.yaml", 'r')
     yaml_content = yaml.safe_load(yaml_file)
 
     # UUID

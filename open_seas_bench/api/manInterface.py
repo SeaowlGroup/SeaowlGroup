@@ -23,9 +23,9 @@ class Scenario(object):
         self.lp = None
         self.true_heading_asv = 0.0
         self.t_sim = 75
-        self.max_vel = 0.
-        self.d_cpa_min = 0.
-        self.radius = 0.
+        #self.max_vel = 0.
+        #self.d_cpa_min = 0.
+        #self.radius = 0.
         # Obstacle related attributes
         self.heading = None
         self.u_d = None
@@ -138,20 +138,20 @@ class Scenario(object):
         Label(l1, text="Distance of detection : ", bg='white', anchor=E).grid(row=5, column=0, sticky="nsew")
         Entry(l1, textvariable=d_detec, width=5, bg='whitesmoke').grid(row=5, column=1)
 
-        radius = DoubleVar()
-        radius.set(10.0)
-        Label(l1, text="radius : ", bg='white', anchor=E).grid(row=6, column=0, sticky="nsew")
-        Entry(l1, textvariable=radius, width=5, bg='whitesmoke').grid(row=6, column=1)
-
-        d_cpa_min = DoubleVar()
-        d_cpa_min.set(50.0)
-        Label(l1, text="d cpa min : ", bg='white', anchor=E).grid(row=7, column=0, sticky="nsew")
-        Entry(l1, textvariable=d_cpa_min, width=5, bg='whitesmoke').grid(row=7, column=1)
-
-        max_vel = DoubleVar()
-        max_vel.set(20.0)
-        Label(l1, text="max vel : ", bg='white', anchor=E).grid(row=8, column=0, sticky="nsew")
-        Entry(l1, textvariable=max_vel, width=5, bg='whitesmoke').grid(row=8, column=1)
+#        radius = DoubleVar()
+#        radius.set(10.0)
+#        Label(l1, text="radius : ", bg='white', anchor=E).grid(row=6, column=0, sticky="nsew")
+#        Entry(l1, textvariable=radius, width=5, bg='whitesmoke').grid(row=6, column=1)
+#
+#        d_cpa_min = DoubleVar()
+#        d_cpa_min.set(50.0)
+#        Label(l1, text="d cpa min : ", bg='white', anchor=E).grid(row=7, column=0, sticky="nsew")
+#        Entry(l1, textvariable=d_cpa_min, width=5, bg='whitesmoke').grid(row=7, column=1)
+#
+#        max_vel = DoubleVar()
+#        max_vel.set(20.0)
+#        Label(l1, text="max vel : ", bg='white', anchor=E).grid(row=8, column=0, sticky="nsew")
+#        Entry(l1, textvariable=max_vel, width=5, bg='whitesmoke').grid(row=8, column=1)
 
         ########################
 
@@ -165,9 +165,9 @@ class Scenario(object):
             self.size = size.get()
             self.prior = prior.get()
             self.d_detec = d_detec.get()
-            self.radius = radius.get()
-            self.max_vel = max_vel.get()
-            self.d_cpa_min = d_cpa_min.get()
+            #self.radius = radius.get()
+            #self.max_vel = max_vel.get()
+            #self.d_cpa_min = d_cpa_min.get()
 
             if (np.abs(self.heading)<=20):
                 self.t_collision = 15
@@ -292,22 +292,22 @@ class Scenario(object):
                           self.t_sim*self.u_d_asv*np.sin(calc_heading_asv)]]
 
         # Creation of the launch files
-        cli_args0 = ['open_seas_bench', 'main_launch3.launch',
+        cli_args0 = ['open_seas_bench', 'openSeasBench.launch',
                      f'initial_state:={initial_state_asv}',
         #             f'use_sim_time:=True',
                      f'waypoints:={waypoints_asv}',
                      f'u_d:={self.u_d_asv}',
                      f'use_vo:={self.lp}',
                      f'output_file:={self.output}',
-                     f'opus:={self.opus}',
-                     f'MAX_VEL:={self.max_vel}',
-                     f'D_CPA_MIN:={self.d_cpa_min}',
-                     f'RADIUS:={self.radius}']
+                     f'opus:={self.opus}']
+                     #f'MAX_VEL:={self.max_vel}',
+                     #f'D_CPA_MIN:={self.d_cpa_min}',
+                     #f'RADIUS:={self.radius}']
 
         roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
         roslaunch_args0 = cli_args0[2:]
 
-        cli_args1 = ['asv_obstacle_tracker', 'obst_simplified2.launch',
+        cli_args1 = ['asv_obstacle_tracker', 'openSeasObst.launch',
                      f'nOb:=1',
                      f'prior:=[{self.prior}]',
                      f'size:=[{self.size}]',
@@ -317,7 +317,8 @@ class Scenario(object):
                      f'd_detection:=[{self.d_detec}]',
                      f'dcpa:=[{self.dcpa}]',
                      f'initial_state_asv:={initial_state_asv}',
-                     f'opus:={self.opus}']
+                     f'opus:={self.opus}',
+                     'rviz:=false']
         roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
         roslaunch_args1 = cli_args1[2:]
         launch_files = [(roslaunch_file0, roslaunch_args0), (roslaunch_file1, roslaunch_args1)]

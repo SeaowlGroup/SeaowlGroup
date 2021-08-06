@@ -8,14 +8,6 @@
   <rosparam param="/use_sim_time" subst_value="True">$(arg use_sim_time)</rosparam>
   <rosparam param="opus" subst_value="True">$(arg opus)</rosparam>
 
-  <!-- <group if="$(arg use_sim_time)">
-    <node pkg="asv_referee"
-          name="chronos_node"
-          type="asv_clock_node.py"
-          respawn="false"
-          output="screen" />
-  </group> -->
-
   <node pkg="asv_referee"
         name="referee_node"
         type="asv_referee_node.py"
@@ -28,7 +20,7 @@
 
   <include file="$(find asv_simulator)/launch/test.launch">
     <arg name="u_d" value="4.1" />
-    <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/mozambique.yaml" />
+    <arg name="waypoint_file" value="$(find chenalage)/config/param/wps.yaml" />
     <arg name="initial_state" value="[661.0, 791.0, -2.34, 0.,0.,0.]" />
     <arg name="goal_x" value="1432" />
     <arg name="goal_y" value="17" />
@@ -122,12 +114,6 @@
   <node pkg="rviz"
         type="rviz"
         name="rviz"
-        args="-d $(find asv_simulator)/config/rviz/toulon.rviz" />
-
-  <!-- <node pkg="rosbag"
-        type="record"
-        name="rosbag_record"
-        args="-O /home/soubi/Documents/SEAOWL//home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/bagfiles/mozambique.bag /asv/state /obstacles/ship1/state /obstacles/ship2/state /obstacle_states"
-        /> -->
+        args="-d $(find chenalage)/config/rviz/toulon.rviz" />
 
 </launch>

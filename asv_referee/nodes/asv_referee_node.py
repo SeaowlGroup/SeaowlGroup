@@ -2,6 +2,7 @@
 
 import numpy as np
 import rospy
+import rospkg
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Empty
 from asv_msgs.msg import StateArray
@@ -431,9 +432,11 @@ if __name__ == "__main__" :
 
     rospy.init_node("Referee")
 
-    dt = 1/rospy.get_param("~update_rate", 15.)
+    rospack = rospkg.RosPack()
+
+    dt = rospy.get_param("~update_rate", .2)
     finished = rospy.get_param("~shutdown", 0)
-    output = rospy.get_param("~output_file", '/home/adrien/catkin/src/seaowl/asv_system/output/test.txt')
+    output = rospy.get_param("~output_file", f'{rospack.get_path("asv_system")}/output/test.txt')
     op = rospy.get_param("~opus", '0')
 
     print(f'Output : {output}')

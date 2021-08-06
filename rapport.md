@@ -1,12 +1,27 @@
 - Contexte du stage
-
-- Problème ?
--  Etat de l'art du sujet
+Stage de 5 mois
+S'inscrit dans le contexte du drone inspear
+Problématique générale : l'algorithme de path planning du drone
+Problématique du stage : créer un banc de test permettant d'évaluer les compétences d'un algorithme de path planning en fonction des situations
+- Etat de l'art :
+ - [Thomas Stenersen's thesis](https://ntnuopen.ntnu.no/ntnu-xmlui/bitstream/handle/11250/2352498/12747_FULLTEXT.pdf?sequence=1&isAllowed=y)
+ - [Path Planning and collision avoidance for autonomous surface vehicles II: a comparative study of algorithms](https://link.springer.com/article/10.1007/s00773-020-00790-x)
+ - [A Robust Reactive Static Obstacle Avoidance System for Surface Marine Vehicles](https://www.mdpi.com/1424-8220/20/21/6262/pdf)
+ - [Advances in Autonomous Obstacle Avoidance for Unmanned Surface Vehicles](https://www.hsdl.org/?view&did=12804)
+ - [Taming an autonomous surface vehicle for path following and collision avoidance suing deep reinforcement learning](https://arxiv.org/pdf/1912.08578.pdf)
+ - [Collision avoidance planning for unmanned surface vehicle based on eccentric expansion](https://journals.sagepub.com/doi/pdf/10.1177/1729881419851945)
+ - [Optimal path planning for unmanned surface vehicles](http://nopr.niscair.res.in/bitstream/123456789/44622/1/IJMS%2047(7)%201325-1334.pdf)
+ - [A comparison of Local Path Planning Techniques of Autonomous Surface Vehicles](https://www.mdpi.com/1424-8220/20/5/1488/pdf)
+ - [Design and performance analysis of global path planning techniques for autonomous mobile robots in grid environments](https://journals.sagepub.com/doi/pdf/10.1177/1729881416663663)
 - Description détaillée de la problématique fonctionnelle
+L'entreprise étant en recherche d'un algorithme de path planning performant pour le projet du drone inspear, ce faisant au vu de la multitude des algorithmes déjà existant, du contexte de l'approche choisie par chacun d'entre eux et des critères utilisés pour caractériser leurs performances, il faut être capable de pouvoir simuler sur un grand nombre de situations plus ou moins spécifiques mais réelles le comportement de chacun de ces algorithmes et les évaluer selon des critères de performance et de sécurité afin de pouvoir rechercher un algorithme satisfaisant aux mieux ces critères.
 - Approche solution
+Il fallait créer un package capable de lancer une banque de scénarios succesivement et d'évaluer leurs indicateurs de performance et de sécurité après les avoir définis.
 - Implémentation:
 	- Choix technologique
+	En se basant sur les travaux préliminaires effectués par Thomas Stenersen.
 	- Plateforme technique
+	Ubuntu 20.04 LTS ROS noetic
 	- Installation / configuration / run
 - Restitution des résultats / Phase Analytics
 - Quels sont les objectifs atteints ? ceux qui ne sont pas atteints
@@ -321,13 +336,14 @@ Here is another where there is a map, a local planner, a global planner and an o
 ## Functional Description
 ### Test Benches
 #### 1-to-1 Opens seas
+Located in the package `open_seas_bench`.
 This bench aims at evaluating the behavior of the ASV when encountering another ship in open seas, with a local planner and no global planner. In this case, the set of scenarios is meant to be as exhaustive as possible, in the purpose of detecting any weakness of the local planner that could happen in a precise maritime situation. The parameters (for now) are the following :
 
 - **Heading** : every 20°
--  **Theoretical dCPA** : -80m, -50m, -20m, -10m, 0m, 10m, 20m, 50m, 80m
--  **Speed of the ASV** : 3kns, 5kts, 8kts, 10kts, 15kts, 20kts, 25kts, 30kts
--  **Speed of the obstacle ship** : 3kts, 5kts, 8kts, 10kts, 15kts, 20kts, 25kts, 30kts with at least 5kts of difference for overtaking scenarios (heading of 0°, -20° or +20°)
--  **Detection distance** : 50m, 100m, 200m, 500m
+- **Theoretical dCPA** : -80m, -50m, -20m, -10m, 0m, 10m, 20m, 50m, 80m
+- **Speed of the ASV** : 3kns, 5kts, 8kts, 10kts, 15kts, 20kts, 25kts, 30kts
+- **Speed of the obstacle ship** : 3kts, 5kts, 8kts, 10kts, 15kts, 20kts, 25kts, 30kts with at least 5kts of difference for overtaking scenarios (heading of 0°, -20° or +20°)
+- **Detection distance** : 50m, 100m, 200m, 500m
 
 The total number of scenarios is a bit less than 41 472.
 
@@ -335,7 +351,7 @@ The total number of scenarios is a bit less than 41 472.
 This bench aims at evaluating the behavior of the ASV when crossing a lane, with a local planner and no global planner. The ASV encounters different ships coming from both the left and the right. We use a certain amount of randomness and some deterministic variables.
 
 #### Channeling
-This bench aims at evaluating the behavior of the ASV when leaving a harbor by a channel, with a local planner and a global planner. The ASV can encounter ships using the channel in the other way as well as ships crossing the channel.
+This aims at evaluating the behavior of the ASV when leaving a harbor by a channel, with a local planner and a global planner. The ASV can encounter ships using the channel in the other way as well as ships crossing the channel. For the moment it only consists in a specific scenario, `chenal_toulon.launch`, where the ASV is going out of Toulon's harbor by its channel and encounters many ships in the channel. The functionnal parameters and indicators that can lead to the formulation of a test bench are still to be precised.
 
 ### Incorporated Planners
 #### Global Planner (A Star)

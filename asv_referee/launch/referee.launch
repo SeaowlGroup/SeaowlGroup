@@ -1,0 +1,21 @@
+<launch>
+
+  <arg name="opus" default="1" />
+  <arg name="output_file" default="$(find asv_sytem)/output/test.txt" />
+  <arg name="update_rate" default=".2" />
+  <arg name="shutdown" default="0" />
+  <arg name="tMaxSim" default="600" />
+
+  <node pkg="asv_referee"
+          name="referee_node"
+          type="asv_referee_node.py"
+          respawn="false"
+          output="screen">
+    <rosparam param="shutdown" subst_value="True">$(arg trigger_shutdown)</rosparam>
+    <rosparam param="output_file" subst_value="True">$(arg output_file)</rosparam>
+    <rosparam param="opus" subst_value="True">$(arg opus)</rosparam>
+    <rosparam param="update_rate" subst_value="True">$(arg update_rate)</rosparam>
+    <rosparam param="tMaxSim" subst_value="True">$(arg tMaxSim)</rosparam>
+  </node>
+
+</launch>

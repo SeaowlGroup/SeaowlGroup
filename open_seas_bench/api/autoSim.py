@@ -11,16 +11,14 @@ import os, signal
 from subprocess import check_output
 import psutil
 
-NB_PROCESS = 3
-# OPUS_START = 0
-# SERIAL_TO_UPDATE = ''
+NB_PROCESS = 6
 
 def run(serial, params, uuid) :
 
     rospack = rospkg.RosPack()
     first_opus = params[0][5]
 
-    cli_args0 = ['asv_system', 'reaper.launch',
+    cli_args0 = ['asv_referee', 'reaper.launch',
                  f'nb_processes:={NB_PROCESS}',
                  f'opus:={first_opus}']
     roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
@@ -78,7 +76,7 @@ def run(serial, params, uuid) :
         f.close()
 
         # Creation of the launch files
-        cli_args1 = ['open_seas_bench', 'main_launch3.launch',
+        cli_args1 = ['open_seas_bench', 'openSeasBench.launch',
                      f'trigger_shutdown:=0',
                      f'initial_state:={initial_state_asv}',
                      f'waypoints:={waypoints_asv}',
@@ -93,7 +91,8 @@ def run(serial, params, uuid) :
         roslaunch_args1 = cli_args1[2:]
         launch_files.append((roslaunch_file1, roslaunch_args1))
 
-        cli_args2 = ['asv_obstacle_tracker', 'obst_simplified2.launch',
+        cli_args2 = ['asv_obstacle_tracker', 'openSeasObst.launch',
+                    f'nOb:=1',
                     f'prior:=[{type}]',
                     f'size:=[{size}]',
                     f'heading:=[{h}]',
@@ -102,7 +101,8 @@ def run(serial, params, uuid) :
                     f'd_detection:=[{d_detec}]',
                     f'dcpa:=[{dcpa}]',
                     f'initial_state_asv:={initial_state_asv}',
-                    f'opus:={opus}']
+                    f'opus:={opus}',
+                    'rviz:=false']
         roslaunch_file2 = roslaunch.rlutil.resolve_launch_arguments(cli_args2)[0]
         roslaunch_args2 = cli_args2[2:]
         launch_files.append((roslaunch_file2, roslaunch_args2))
@@ -116,29 +116,27 @@ def run(serial, params, uuid) :
 if __name__ == "__main__":
 # def go(op_start, op_end, serial):
 
-    if len(sys.argv) <= 2 :
-        print("At least 2 arguments needed")
+    if len(sys.argv) <= 3 :
+        print(f'Usage: {sys.argv[0]} <bench> <op_start> <op_end> [serial]')
         # return(0)
         sys.exit(1)
 
-    op_start =  int(sys.argv[1])
-    op_end = int(sys.argv[2])
+    op_start =  int(sys.argv[2])
+    op_end = int(sys.argv[3])
 
-    if len(sys.argv) <= 3 :
+    if len(sys.argv) <= 4 :
         now = datetime.datetime.now()
         serial = now.strftime("%Y%m%d%H%M%S")[2:]
     else:
-        serial = sys.argv[3]
+        serial = sys.argv[4]
 
     rospack = rospkg.RosPack()
-    yaml_file = open(f"{rospack.get_path('open_seas_bench')}/config/param/param4.yaml", 'r')
+    yaml_file = open(f"{rospack.get_path('open_seas_bench')}/config/param/{sys.argv[1]}.yaml", 'r')
     yaml_content = yaml.safe_load(yaml_file)
 
     # UUID
     uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
     roslaunch.configure_logging(uuid)
-
-
 
     # Write Input
     if op_start <= 1:
@@ -153,7 +151,7 @@ if __name__ == "__main__":
         for u_d in yaml_content['u_d']:
             for u_d_asv in yaml_content['u_d_asv']:
                 for dcpa in yaml_content['dcpa']:
-                    for d_detec in yaml_content['d_detection_jb']: ############################################
+                    for d_detec in yaml_content['d_detection']:
 
                         if opus > op_end:
                             sys.exit(0)

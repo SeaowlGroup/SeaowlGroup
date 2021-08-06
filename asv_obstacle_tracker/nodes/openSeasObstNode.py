@@ -10,6 +10,7 @@ from std_msgs.msg import Empty
 class Obstacles(object):
 
     def __init__(self):
+        self.op = rospy.get_param("opus",1)
         self.nOb = int(rospy.get_param("~nOb", 3))
         self.prior = np.array(rospy.get_param("~prior", self.nOb*['none']))
         self.size = np.array(rospy.get_param("~size", self.nOb*[8.]))
@@ -18,7 +19,6 @@ class Obstacles(object):
         self.t_collision = np.array(rospy.get_param("~t_collision", self.nOb*[15.]))
         self.d_detection = np.array(rospy.get_param("~d_detection", self.nOb*[500.]))
         self.dcpa = np.array(rospy.get_param("~dcpa", self.nOb*[0.]))
-        self.op = rospy.get_param("opus",1)
         self.stateArray = StateArray()
 
         self.initial_state_asv = rospy.get_param("~initial_state_asv",[0.,0.,0.,0.])

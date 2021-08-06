@@ -1,0 +1,34 @@
+  <!-- Template -->
+
+<launch>
+
+  <arg name="waypoints" default="[[0.0, -100.], [0.0, 100.]]" />
+  <arg name="u_d" default="5." />
+  <arg name="acceptance_radius" default="20." />
+  <arg name="lookahead_distance" default="40." />
+  <arg name="integral_gain" default="0." />
+  <arg name="max_integral_correction" default=".349" />
+  <arg name="update_rate" default=".2" />
+  <arg name="global_planner" default="None" />
+
+  <arg name="rviz" default="true" />
+
+  <node pkg="asv_path_trackers"
+        name="LOS_node"
+        type="asv_ctrl_los_node.py"
+        respawn="false"
+        output="screen">
+    <rosparam param="u_d" subst_value="True">$(arg u_d)</rosparam>
+    <rosparam param="waypoints" subst_value="True">$(arg waypoints)</rosparam>
+    <rosparam param="update_rate" subst_value="True">$(arg update_rate)</rosparam>
+    <rosparam param="global_planner" subst_value="True">$(arg global_planner)</rosparam>
+  </node>
+
+  <group if="$(arg rviz)">
+    <node pkg="rviz"
+          type="rviz"
+          name="rviz"
+          args="-d $(find asv_system)/config/rviz/pathTracker.rviz" />
+  </group>
+
+</launch>

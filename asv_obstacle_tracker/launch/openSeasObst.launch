@@ -1,20 +1,27 @@
+<!-- Template -->
+
 <launch>
-  <arg name="nOb" default="0" />
-  <arg name="prior" default="[]" />
-  <arg name="size" default="[]" />
-  <arg name="heading" default="[]" />
-  <arg name="u_d" default="[]" />
-  <arg name="t_collision" default="[]" />
-  <arg name="d_detection" default="[]" />
-  <arg name="dcpa" default="[]" />
+  <arg name="opus" default="1" />
+  
+  <arg name="nOb" default="1" />
+  <arg name="prior" default="['none']" />
+  <arg name="size" default="[8.]" />
+  <arg name="heading" default="[180.]" />
+  <arg name="u_d" default="[5.]" />
+  <arg name="t_collision" default="[15.]" />
+  <arg name="d_detection" default="[500.]" />
+  <arg name="dcpa" default="[0.]" />
   <arg name="initial_state_asv" default="[0.,0.,0., 0.,0.,0.]" />
-  <arg name="opus" default="0" />
+  <arg name="update_rate" default=".1" />
+
+  <arg name="rviz" default="true" />
 
   <group ns="$(arg opus)">
     <param name="opus" value="$(arg opus)" />
+
     <node pkg="asv_obstacle_tracker"
           name="obstacles_node"
-          type="obstacles_simplified_node.py"
+          type="openSeasObstNode.py"
           respawn="false"
           output="screen">
       <rosparam param="nOb" subst_value="True">$(arg nOb)</rosparam>
@@ -26,6 +33,14 @@
       <rosparam param="d_detection" subst_value="True">$(arg d_detection)</rosparam>
       <rosparam param="dcpa" subst_value="True">$(arg dcpa)</rosparam>
       <rosparam param="initial_state_asv" subst_value="True">$(arg initial_state_asv)</rosparam>
+      <rosparam param="update_rate" subst_value="True">$(arg update_rate)</rosparam>
     </node>
+
+    <group if="$(arg rviz)">
+      <node pkg="rviz"
+            type="rviz"
+            name="rviz"
+            args="-d $(find asv_system)/config/rviz/obTracker.rviz" />
+    </group>
   </group>
 </launch>

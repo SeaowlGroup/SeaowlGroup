@@ -7,7 +7,7 @@ if [ -s process ]; then
 fi
 
 if [ ${n} -ge 1 ]; then
-  echo "yup"
+  echo "yes"
 else
-  echo "nop"
+  echo "no"
 fi

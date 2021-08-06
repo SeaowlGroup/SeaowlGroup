@@ -11,8 +11,6 @@ import os
 import time
 import sys
 
-T_MAX_SIM = 600.0
-
 class Referee(object) :
 
     def __init__(self, dt=0.2, finished=0,
@@ -21,6 +19,7 @@ class Referee(object) :
 
         self.debugBool = False   #if True prints the trajectory (t,x,y) of asv in debug.txt
         self.rvizBool = False
+        self.tMaxSim = rospy.get_param("~tMaxSim",600.)
 
         self.begin_wall = 0.
         self.begin_sim = 0.
@@ -201,7 +200,7 @@ class Referee(object) :
                 self.n_obst = len(data.states)
                 self.dcpa = np.ones(self.n_obst)*sys.float_info.max
                 self.tcpa = np.zeros((self.n_obst,2))
-                self.cross = np.array(self.n_obst*[-1])
+                self.cross = np.array(self.n_obst*[np.infty])
                 self.obst_states = np.zeros((self.n_obst, 4))
                 self.obst_radii = np.zeros(self.n_obst)
                 self.security = np.zeros((self.n_obst,15))
@@ -269,6 +268,7 @@ class Referee(object) :
         print(f'Duration of the simulation (real time) : {time.time() -self.begin_wall} s')
         print(f'Duration of the simulation: {t} s')
         print(f'Number of ships : {self.n_obst}')
+        print(f'Opus : {self.opus}')
         for i in range(self.n_obst) :
             print(f'Ship {i+1}')
             print(f'     --> dCPA = {self.dcpa[i]} m')
@@ -279,8 +279,11 @@ class Referee(object) :
             f.write('OPUS    TIME    LOG_COL    NAT_COL    OFFSET_LOG    ANTICIPATION_ACC    ANTICIPATION_OMEGA    ANTICIPATION_R    AGG_ACC    AGG_OMEGA    AGG_R    DCPA    CROSSING_DIST    ANT_TIME    AGG_TIME    N_CROSS\n')
         f.write(f'{self.opus}')
         try:
-            for sec_indic in range(len(self.security[0])) :
-                f.write(f'    {np.max(self.security[:,sec_indic])}')
+            for k in range(len(self.security[0])) :
+                if k in [10,11]: #dcpa or crossing distance
+                    f.write(f'    {np.min(self.security[:,k])}')
+                else:
+                    f.write(f'    {np.max(self.security[:,k])}')
             f.write(f'\n')
         except IndexError:
             f.write(' nan nan nan nan nan nan nan nan nan nan nan nan nan\n')
@@ -294,7 +297,7 @@ class Referee(object) :
         if (self.n_obst > -1 and len(self.odom) > 0) :
             secu = self.ob_secu()
             for i in range(self.n_obst) :
-                for j in range(1,4):
+                for j in range(1,len(secu[i])):
                     self.security[i, j] = max(self.security[i, j],secu[i,j])
                 if (secu[i,0] <= self.dcpa[i]) :
                     self.dcpa[i] = secu[i,0]
@@ -391,7 +394,7 @@ class Referee(object) :
         while (not rospy.is_shutdown()) and self.finished < 2 :
             if self.begin_sim > 0:
                 t = rospy.get_time()-self.begin_sim
-                if t < T_MAX_SIM or t>3*T_MAX_SIM:
+                if t < self.tMaxSim or t>3*self.tMaxSim:
                     self._update()
                 else:
                     msg = Empty()

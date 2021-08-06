@@ -68,7 +68,7 @@
     </node>
 
     <node pkg="asv_path_trackers"
-          name="PPNode"
+          name="PP_node"
           type="asv_ctrl_pp_node.py"
           respawn="false"
           output="screen">

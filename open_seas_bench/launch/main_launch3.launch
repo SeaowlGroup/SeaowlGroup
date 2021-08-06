@@ -25,6 +25,7 @@
   <arg name="opus" default="0" />
   <arg name="output_file" default="$(find asv_system)/output/test.txt" />
   <arg name="t_sim" default="75" />
+  <arg name="tMaxSim" default="200" />
   <arg name="pos_end_waypoint" default="[0.,0.]" />
 
 
@@ -42,12 +43,13 @@
 
     <node pkg="asv_referee"
           name="referee_node"
-          type="asv_referee_node2.py"
+          type="asv_referee_node.py"
           respawn="false"
           output="screen">
       <rosparam param="shutdown" subst_value="True">$(arg trigger_shutdown)</rosparam>
       <rosparam param="output_file" subst_value="True">$(arg output_file)</rosparam>
       <rosparam param="opus" subst_value="True">$(arg opus)</rosparam>
+      <rosparam param="tMaxSim" subst_value="True">$(arg tMaxSim)</rosparam>
     </node>
 
     <node pkg="asv_simulator"

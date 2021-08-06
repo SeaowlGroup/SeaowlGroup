@@ -1,0 +1,364 @@
+... logging to /home/adrien/.ros/log/82c00618-f6ab-11eb-9822-dfde29925b73/roslaunch-adrien-MacBookPro-50420.log
+[1mstarted roslaunch server http://adrien-MacBookPro:40327/[0m
+
+SUMMARY
+========
+
+PARAMETERS
+ * /1/D_CPA_MIN: 50.0
+ * /1/MAX_VEL: 20.0
+ * /1/PPNode/u_d: 4.115552
+ * /1/PPNode/waypoints: [[0.0, 0.0], [1.8...
+ * /1/RADIUS: 10.0
+ * /1/asv/Fx_current: 0.0
+ * /1/asv/Fx_max: 2310.0
+ * /1/asv/Fx_min: -800.0
+ * /1/asv/Fy_current: 0.0
+ * /1/asv/Fy_max: 28.8
+ * /1/asv/Fy_min: -28.8
+ * /1/asv/Kd_psi: 1.0
+ * /1/asv/Kp_psi: 5.0
+ * /1/asv/Kp_r: 8.0
+ * /1/asv/Kp_u: 0.1
+ * /1/asv/N_r: -330.0
+ * /1/asv/N_rdot: 0.0
+ * /1/asv/N_rr: 0.0
+ * /1/asv/N_rrr: 0.0
+ * /1/asv/N_v: 0.0
+ * /1/asv/N_vdot: 0.0
+ * /1/asv/X_u: 0.0
+ * /1/asv/X_udot: 0.0
+ * /1/asv/X_uu: 0
+ * /1/asv/X_uuu: 0.0
+ * /1/asv/Y_r: 0.0
+ * /1/asv/Y_rdot: 0.0
+ * /1/asv/Y_v: -9900.0
+ * /1/asv/Y_vdot: 0.0
+ * /1/asv/Y_vv: 330.0
+ * /1/asv/Y_vvv: 0.0
+ * /1/asv/dt: 0.05
+ * /1/asv/inertia: 1320.0
+ * /1/asv/initial_state: [0.0, 0.0, 1.5707...
+ * /1/asv/mass: 3300.0
+ * /1/asv/radius: 8.0
+ * /1/asv/rudder_length: 4.0
+ * /1/obstacles_node/d_detection: [200]
+ * /1/obstacles_node/dcpa: [-80]
+ * /1/obstacles_node/heading: [0]
+ * /1/obstacles_node/initial_state_asv: [0.0, 0.0, 1.5707...
+ * /1/obstacles_node/nOb: 1
+ * /1/obstacles_node/prior: ['None']
+ * /1/obstacles_node/size: [8.0]
+ * /1/obstacles_node/t_collision: [15]
+ * /1/obstacles_node/u_d: [1.543332]
+ * /1/obstacles_node/update_rate: 0.1
+ * /1/opus: 1
+ * /1/referee_node/opus: 1
+ * /1/referee_node/output_file: /home/adrien/catk...
+ * /1/referee_node/shutdown: 0
+ * /1/referee_node/tMaxSim: 200
+ * /2/D_CPA_MIN: 50.0
+ * /2/MAX_VEL: 20.0
+ * /2/PPNode/u_d: 4.115552
+ * /2/PPNode/waypoints: [[0.0, 0.0], [1.8...
+ * /2/RADIUS: 10.0
+ * /2/asv/Fx_current: 0.0
+ * /2/asv/Fx_max: 2310.0
+ * /2/asv/Fx_min: -800.0
+ * /2/asv/Fy_current: 0.0
+ * /2/asv/Fy_max: 28.8
+ * /2/asv/Fy_min: -28.8
+ * /2/asv/Kd_psi: 1.0
+ * /2/asv/Kp_psi: 5.0
+ * /2/asv/Kp_r: 8.0
+ * /2/asv/Kp_u: 0.1
+ * /2/asv/N_r: -330.0
+ * /2/asv/N_rdot: 0.0
+ * /2/asv/N_rr: 0.0
+ * /2/asv/N_rrr: 0.0
+ * /2/asv/N_v: 0.0
+ * /2/asv/N_vdot: 0.0
+ * /2/asv/X_u: 0.0
+ * /2/asv/X_udot: 0.0
+ * /2/asv/X_uu: 0
+ * /2/asv/X_uuu: 0.0
+ * /2/asv/Y_r: 0.0
+ * /2/asv/Y_rdot: 0.0
+ * /2/asv/Y_v: -9900.0
+ * /2/asv/Y_vdot: 0.0
+ * /2/asv/Y_vv: 330.0
+ * /2/asv/Y_vvv: 0.0
+ * /2/asv/dt: 0.05
+ * /2/asv/inertia: 1320.0
+ * /2/asv/initial_state: [0.0, 0.0, 1.5707...
+ * /2/asv/mass: 3300.0
+ * /2/asv/radius: 8.0
+ * /2/asv/rudder_length: 4.0
+ * /2/obstacles_node/d_detection: [500]
+ * /2/obstacles_node/dcpa: [-80]
+ * /2/obstacles_node/heading: [0]
+ * /2/obstacles_node/initial_state_asv: [0.0, 0.0, 1.5707...
+ * /2/obstacles_node/nOb: 1
+ * /2/obstacles_node/prior: ['None']
+ * /2/obstacles_node/size: [8.0]
+ * /2/obstacles_node/t_collision: [15]
+ * /2/obstacles_node/u_d: [1.543332]
+ * /2/obstacles_node/update_rate: 0.1
+ * /2/opus: 2
+ * /2/referee_node/opus: 2
+ * /2/referee_node/output_file: /home/adrien/catk...
+ * /2/referee_node/shutdown: 0
+ * /2/referee_node/tMaxSim: 200
+ * /3/D_CPA_MIN: 50.0
+ * /3/MAX_VEL: 20.0
+ * /3/PPNode/u_d: 4.115552
+ * /3/PPNode/waypoints: [[0.0, 0.0], [1.8...
+ * /3/RADIUS: 10.0
+ * /3/asv/Fx_current: 0.0
+ * /3/asv/Fx_max: 2310.0
+ * /3/asv/Fx_min: -800.0
+ * /3/asv/Fy_current: 0.0
+ * /3/asv/Fy_max: 28.8
+ * /3/asv/Fy_min: -28.8
+ * /3/asv/Kd_psi: 1.0
+ * /3/asv/Kp_psi: 5.0
+ * /3/asv/Kp_r: 8.0
+ * /3/asv/Kp_u: 0.1
+ * /3/asv/N_r: -330.0
+ * /3/asv/N_rdot: 0.0
+ * /3/asv/N_rr: 0.0
+ * /3/asv/N_rrr: 0.0
+ * /3/asv/N_v: 0.0
+ * /3/asv/N_vdot: 0.0
+ * /3/asv/X_u: 0.0
+ * /3/asv/X_udot: 0.0
+ * /3/asv/X_uu: 0
+ * /3/asv/X_uuu: 0.0
+ * /3/asv/Y_r: 0.0
+ * /3/asv/Y_rdot: 0.0
+ * /3/asv/Y_v: -9900.0
+ * /3/asv/Y_vdot: 0.0
+ * /3/asv/Y_vv: 330.0
+ * /3/asv/Y_vvv: 0.0
+ * /3/asv/dt: 0.05
+ * /3/asv/inertia: 1320.0
+ * /3/asv/initial_state: [0.0, 0.0, 1.5707...
+ * /3/asv/mass: 3300.0
+ * /3/asv/radius: 8.0
+ * /3/asv/rudder_length: 4.0
+ * /3/obstacles_node/d_detection: [200]
+ * /3/obstacles_node/dcpa: [-50]
+ * /3/obstacles_node/heading: [0]
+ * /3/obstacles_node/initial_state_asv: [0.0, 0.0, 1.5707...
+ * /3/obstacles_node/nOb: 1
+ * /3/obstacles_node/prior: ['None']
+ * /3/obstacles_node/size: [8.0]
+ * /3/obstacles_node/t_collision: [15]
+ * /3/obstacles_node/u_d: [1.543332]
+ * /3/obstacles_node/update_rate: 0.1
+ * /3/opus: 3
+ * /3/referee_node/opus: 3
+ * /3/referee_node/output_file: /home/adrien/catk...
+ * /3/referee_node/shutdown: 0
+ * /3/referee_node/tMaxSim: 200
+ * /4/D_CPA_MIN: 50.0
+ * /4/MAX_VEL: 20.0
+ * /4/PPNode/u_d: 4.115552
+ * /4/PPNode/waypoints: [[0.0, 0.0], [1.8...
+ * /4/RADIUS: 10.0
+ * /4/asv/Fx_current: 0.0
+ * /4/asv/Fx_max: 2310.0
+ * /4/asv/Fx_min: -800.0
+ * /4/asv/Fy_current: 0.0
+ * /4/asv/Fy_max: 28.8
+ * /4/asv/Fy_min: -28.8
+ * /4/asv/Kd_psi: 1.0
+ * /4/asv/Kp_psi: 5.0
+ * /4/asv/Kp_r: 8.0
+ * /4/asv/Kp_u: 0.1
+ * /4/asv/N_r: -330.0
+ * /4/asv/N_rdot: 0.0
+ * /4/asv/N_rr: 0.0
+ * /4/asv/N_rrr: 0.0
+ * /4/asv/N_v: 0.0
+ * /4/asv/N_vdot: 0.0
+ * /4/asv/X_u: 0.0
+ * /4/asv/X_udot: 0.0
+ * /4/asv/X_uu: 0
+ * /4/asv/X_uuu: 0.0
+ * /4/asv/Y_r: 0.0
+ * /4/asv/Y_rdot: 0.0
+ * /4/asv/Y_v: -9900.0
+ * /4/asv/Y_vdot: 0.0
+ * /4/asv/Y_vv: 330.0
+ * /4/asv/Y_vvv: 0.0
+ * /4/asv/dt: 0.05
+ * /4/asv/inertia: 1320.0
+ * /4/asv/initial_state: [0.0, 0.0, 1.5707...
+ * /4/asv/mass: 3300.0
+ * /4/asv/radius: 8.0
+ * /4/asv/rudder_length: 4.0
+ * /4/obstacles_node/d_detection: [500]
+ * /4/obstacles_node/dcpa: [-50]
+ * /4/obstacles_node/heading: [0]
+ * /4/obstacles_node/initial_state_asv: [0.0, 0.0, 1.5707...
+ * /4/obstacles_node/nOb: 1
+ * /4/obstacles_node/prior: ['None']
+ * /4/obstacles_node/size: [8.0]
+ * /4/obstacles_node/t_collision: [15]
+ * /4/obstacles_node/u_d: [1.543332]
+ * /4/obstacles_node/update_rate: 0.1
+ * /4/opus: 4
+ * /4/referee_node/opus: 4
+ * /4/referee_node/output_file: /home/adrien/catk...
+ * /4/referee_node/shutdown: 0
+ * /4/referee_node/tMaxSim: 200
+ * /5/D_CPA_MIN: 50.0
+ * /5/MAX_VEL: 20.0
+ * /5/PPNode/u_d: 4.115552
+ * /5/PPNode/waypoints: [[0.0, 0.0], [1.8...
+ * /5/RADIUS: 10.0
+ * /5/asv/Fx_current: 0.0
+ * /5/asv/Fx_max: 2310.0
+ * /5/asv/Fx_min: -800.0
+ * /5/asv/Fy_current: 0.0
+ * /5/asv/Fy_max: 28.8
+ * /5/asv/Fy_min: -28.8
+ * /5/asv/Kd_psi: 1.0
+ * /5/asv/Kp_psi: 5.0
+ * /5/asv/Kp_r: 8.0
+ * /5/asv/Kp_u: 0.1
+ * /5/asv/N_r: -330.0
+ * /5/asv/N_rdot: 0.0
+ * /5/asv/N_rr: 0.0
+ * /5/asv/N_rrr: 0.0
+ * /5/asv/N_v: 0.0
+ * /5/asv/N_vdot: 0.0
+ * /5/asv/X_u: 0.0
+ * /5/asv/X_udot: 0.0
+ * /5/asv/X_uu: 0
+ * /5/asv/X_uuu: 0.0
+ * /5/asv/Y_r: 0.0
+ * /5/asv/Y_rdot: 0.0
+ * /5/asv/Y_v: -9900.0
+ * /5/asv/Y_vdot: 0.0
+ * /5/asv/Y_vv: 330.0
+ * /5/asv/Y_vvv: 0.0
+ * /5/asv/dt: 0.05
+ * /5/asv/inertia: 1320.0
+ * /5/asv/initial_state: [0.0, 0.0, 1.5707...
+ * /5/asv/mass: 3300.0
+ * /5/asv/radius: 8.0
+ * /5/asv/rudder_length: 4.0
+ * /5/obstacles_node/d_detection: [200]
+ * /5/obstacles_node/dcpa: [-20]
+ * /5/obstacles_node/heading: [0]
+ * /5/obstacles_node/initial_state_asv: [0.0, 0.0, 1.5707...
+ * /5/obstacles_node/nOb: 1
+ * /5/obstacles_node/prior: ['None']
+ * /5/obstacles_node/size: [8.0]
+ * /5/obstacles_node/t_collision: [15]
+ * /5/obstacles_node/u_d: [1.543332]
+ * /5/obstacles_node/update_rate: 0.1
+ * /5/opus: 5
+ * /5/referee_node/opus: 5
+ * /5/referee_node/output_file: /home/adrien/catk...
+ * /5/referee_node/shutdown: 0
+ * /5/referee_node/tMaxSim: 200
+ * /6/D_CPA_MIN: 50.0
+ * /6/MAX_VEL: 20.0
+ * /6/PPNode/u_d: 4.115552
+ * /6/PPNode/waypoints: [[0.0, 0.0], [1.8...
+ * /6/RADIUS: 10.0
+ * /6/asv/Fx_current: 0.0
+ * /6/asv/Fx_max: 2310.0
+ * /6/asv/Fx_min: -800.0
+ * /6/asv/Fy_current: 0.0
+ * /6/asv/Fy_max: 28.8
+ * /6/asv/Fy_min: -28.8
+ * /6/asv/Kd_psi: 1.0
+ * /6/asv/Kp_psi: 5.0
+ * /6/asv/Kp_r: 8.0
+ * /6/asv/Kp_u: 0.1
+ * /6/asv/N_r: -330.0
+ * /6/asv/N_rdot: 0.0
+ * /6/asv/N_rr: 0.0
+ * /6/asv/N_rrr: 0.0
+ * /6/asv/N_v: 0.0
+ * /6/asv/N_vdot: 0.0
+ * /6/asv/X_u: 0.0
+ * /6/asv/X_udot: 0.0
+ * /6/asv/X_uu: 0
+ * /6/asv/X_uuu: 0.0
+ * /6/asv/Y_r: 0.0
+ * /6/asv/Y_rdot: 0.0
+ * /6/asv/Y_v: -9900.0
+ * /6/asv/Y_vdot: 0.0
+ * /6/asv/Y_vv: 330.0
+ * /6/asv/Y_vvv: 0.0
+ * /6/asv/dt: 0.05
+ * /6/asv/inertia: 1320.0
+ * /6/asv/initial_state: [0.0, 0.0, 1.5707...
+ * /6/asv/mass: 3300.0
+ * /6/asv/radius: 8.0
+ * /6/asv/rudder_length: 4.0
+ * /6/obstacles_node/d_detection: [500]
+ * /6/obstacles_node/dcpa: [-20]
+ * /6/obstacles_node/heading: [0]
+ * /6/obstacles_node/initial_state_asv: [0.0, 0.0, 1.5707...
+ * /6/obstacles_node/nOb: 1
+ * /6/obstacles_node/prior: ['None']
+ * /6/obstacles_node/size: [8.0]
+ * /6/obstacles_node/t_collision: [15]
+ * /6/obstacles_node/u_d: [1.543332]
+ * /6/obstacles_node/update_rate: 0.1
+ * /6/opus: 6
+ * /6/referee_node/opus: 6
+ * /6/referee_node/output_file: /home/adrien/catk...
+ * /6/referee_node/shutdown: 0
+ * /6/referee_node/tMaxSim: 200
+ * /nb_processes: 6
+ * /opus: 1
+ * /rosdistro: noetic
+ * /rosversion: 1.15.11
+ * /use_sim_time: False
+
+NODES
+  /
+    reaper_node (asv_referee/asv_reaper_node.py)
+  /1/
+    PPNode (asv_path_trackers/asv_ctrl_pp_node.py)
+    asv (asv_simulator/asv_simulator_node)
+    obstacles_node (asv_obstacle_tracker/openSeasObstNode.py)
+    referee_node (asv_referee/asv_referee_node.py)
+    vo_node (asv_ctrl_vo/asv_ctrl_vo_node)
+  /2/
+    PPNode (asv_path_trackers/asv_ctrl_pp_node.py)
+    asv (asv_simulator/asv_simulator_node)
+    obstacles_node (asv_obstacle_tracker/openSeasObstNode.py)
+    referee_node (asv_referee/asv_referee_node.py)
+    vo_node (asv_ctrl_vo/asv_ctrl_vo_node)
+  /3/
+    PPNode (asv_path_trackers/asv_ctrl_pp_node.py)
+    asv (asv_simulator/asv_simulator_node)
+    obstacles_node (asv_obstacle_tracker/openSeasObstNode.py)
+    referee_node (asv_referee/asv_referee_node.py)
+    vo_node (asv_ctrl_vo/asv_ctrl_vo_node)
+  /4/
+    PPNode (asv_path_trackers/asv_ctrl_pp_node.py)
+    asv (asv_simulator/asv_simulator_node)
+    obstacles_node (asv_obstacle_tracker/openSeasObstNode.py)
+    referee_node (asv_referee/asv_referee_node.py)
+    vo_node (asv_ctrl_vo/asv_ctrl_vo_node)
+  /5/
+    PPNode (asv_path_trackers/asv_ctrl_pp_node.py)
+    asv (asv_simulator/asv_simulator_node)
+    obstacles_node (asv_obstacle_tracker/openSeasObstNode.py)
+    referee_node (asv_referee/asv_referee_node.py)
+    vo_node (asv_ctrl_vo/asv_ctrl_vo_node)
+  /6/
+    PPNode (asv_path_trackers/asv_ctrl_pp_node.py)
+    asv (asv_simulator/asv_simulator_node)
+    obstacles_node (asv_obstacle_tracker/openSeasObstNode.py)
+    referee_node (asv_referee/asv_referee_node.py)
+    vo_node (asv_ctrl_vo/asv_ctrl_vo_node)

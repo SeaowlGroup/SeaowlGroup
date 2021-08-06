@@ -346,7 +346,7 @@ if __name__ == "__main__":
                            switch_criterion='progress')
 
     if (gp == "None") :
-        waypoints = rospy.get_param("~waypoints")
+        waypoints = rospy.get_param("~waypoints",[[0.0, -100.], [0.0, 100.]])
         wps = np.array(waypoints)
         guide.set_waypoints(wps)
 

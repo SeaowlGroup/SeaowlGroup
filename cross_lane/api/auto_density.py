@@ -17,7 +17,7 @@ def run(serial, params, uuid) :
     rospack = rospkg.RosPack()
     first_opus = params[0][0]
 
-    cli_args0 = ['asv_system', 'reaper.launch',
+    cli_args0 = ['asv_referee', 'reaper.launch',
                  f'nb_processes:={NB_PROCESS}',
                  f'opus:={first_opus}']
     roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]

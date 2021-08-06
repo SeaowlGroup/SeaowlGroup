@@ -263,7 +263,7 @@ class PurePursuit(Controller):
 if __name__ == "__main__":
     rospy.init_node("PurePursuit_guidance_controller")
 
-    waypoints = rospy.get_param("~waypoints")
+    waypoints = rospy.get_param("~waypoints",[[0.0, -100.], [0.0, 100.]])
     u_d = rospy.get_param("~u_d")
     dt = rospy.get_param("~update_rate", .2)
     gp = rospy.get_param("~global_planner", "None")
@@ -275,7 +275,7 @@ if __name__ == "__main__":
     guide.set_waypoints(wps)
 
     if (gp == "None") :
-        waypoints = rospy.get_param("~waypoints")
+        waypoints = rospy.get_param("~waypoints",[[0.0, -100.], [0.0, 100.]])
         wps = np.array(waypoints)
         guide.set_waypoints(wps)
 

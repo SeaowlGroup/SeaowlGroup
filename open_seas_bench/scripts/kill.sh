@@ -1,5 +1,7 @@
 #!/bin/sh
 
-killall rosmaster
-killall .shell_exec10.sh
-killall python3
+killall -SIGKILL rosmaster
+killall -SIGKILL autoSim.sh
+killall -SIGKILL python3
+killall -SIGKILL rosout
+pkill asv*

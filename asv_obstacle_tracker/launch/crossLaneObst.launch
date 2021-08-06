@@ -1,0 +1,43 @@
+<!-- Template -->
+
+<launch>
+  <arg name="opus" default="1" />
+
+  <arg name="rlnOb" default="5" />
+  <arg name="llnOb" default="5" />
+  <arg name="rlw" default="400" />
+  <arg name="llw" default="400" />
+  <arg name="ld" default="200" />
+  <arg name="ll" default="1000" />
+  <arg name="update_rate" default=".1" />
+
+  <arg name="rviz" default="true" />
+
+
+  <group ns="$(arg opus)">
+    <param name="opus" value="$(arg opus)" />
+
+    <node pkg="asv_obstacle_tracker"
+          name="obstacles_node"
+          type="crossLaneObstNode.py"
+          respawn="false"
+          output="screen">
+      <rosparam param="rlnOb" subst_value="True">$(arg rlnOb)</rosparam>
+      <rosparam param="llnOb" subst_value="True">$(arg llnOb)</rosparam>
+      <rosparam param="rlw" subst_value="True">$(arg rlw)</rosparam>
+      <rosparam param="llw" subst_value="True">$(arg llw)</rosparam>
+      <rosparam param="ld" subst_value="True">$(arg ld)</rosparam>
+      <rosparam param="ll" subst_value="True">$(arg ll)</rosparam>
+      <rosparam param="update_rate" subst_value="True">$(arg update_rate)</rosparam>
+    </node>
+
+    <group if="$(arg rviz)">
+      <node pkg="rviz"
+            type="rviz"
+            name="rviz"
+            args="-d $(find asv_system)/config/rviz/obTrackerLane.rviz" />
+    </group>
+
+  </group>
+
+</launch>

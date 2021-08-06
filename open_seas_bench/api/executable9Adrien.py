@@ -10,7 +10,7 @@ import sys
 import os, signal
 from subprocess import check_output
 
-NB_PROCESS = 4
+NB_PROCESS = 6
 OPUS_START = 11545
 SERIAL_TO_UPDATE = ''
 

@@ -4,11 +4,13 @@ import roslaunch
 import numpy as np
 import datetime
 import rospkg
-import yaml
 
-NB_PROCESS = 4
+NB_PROCESS = 5
 OPUS_START = 1
-SERIAL_TO_UPDATE = ''
+NOBMIN = 4
+NOBMAX = 8
+NB_REP = 15
+SERIAL_TO_UPDATE = 'density6'
 
 def run(serial, params, uuid) :
 
@@ -23,20 +25,22 @@ def run(serial, params, uuid) :
     launch_files = [(roslaunch_file0, roslaunch_args0)]
 
     lp = True
-    size = 8.0
-    type = None
 
     for scenar in params:
 
         opus = scenar[0]
-        angle = scenar[1]/180*np.pi #degrees ro radians
-        u_d = scenar[2]*0.514444    #knots to m/s
-        rld = scenar[3]             #right lane obstacle density in 1/m²
-        lld = scenar[4]             #left lane obstacle density in 1/m²
-        rlw = scenar[5]       #m
-        llw = scenar[6]       #m
-        ld = scenar[7]        #m
+        angle = np.pi/2      #degrees to radians
+        u_d = 0.514444*15    #knots to m/s
+        llnOb = scenar[1]
+        rlnOb = scenar[1]
+        rlw = 400.       #m
+        llw = 400.       #m
+        ld = 200         #m
         gp = 0
+        ll = rlw+llw+ld
+
+        rld = rlnOb/rlw/ll            #right lane obstacle density in 1/m²
+        lld = llnOb/llw/ll            #left lane obstacle density in 1/m²
 
         # ASV parameters
         dAsv = 100. #initial and final distance to lanes
@@ -47,21 +51,36 @@ def run(serial, params, uuid) :
 
         input = f"{rospack.get_path('cross_lane')}/input/{serial}.txt"
         f = open(input,'a')
-        f.write(f'{opus}    {angle}    {u_d}    {rld}    {lld}    {rlw}    {llw}    {ld}   {gp}\n')
+        par = [opus,
+                 angle,
+                 u_d,
+                 rlnOb,
+                 llnOb,
+                 rlw,
+                 llw,
+                 ld,
+                 ll,
+                 rld,
+                 lld,
+                 0]
+        for p in par:
+            f.write(f'{p}    ')
+        f.write(f'\n')
         f.close()
 
         # Creation of the launch files
         cli_args1 = ['cross_lane', 'crossLane.launch',
-                     f'rld:={rld}',
-                     f'lld:={lld}',
+                     f'rlnOb:={rlnOb}',
+                     f'llnOb:={llnOb}',
                      f'rlw:={rlw}',
                      f'llw:={llw}',
                      f'ld:={ld}',
+                     f'll:={ll}',
                      f'trigger_shutdown:=0',
                      f'initial_state:={initial_state_asv}',
                      f'waypoints:={waypoints_asv}',
                      f'u_d:={u_d}',
-                     f'use_vo:={True}',
+                     f'use_vo:={lp}',
                      f'rviz:=False',
                      f'opus:={opus}',
                      f'output_file:=$(find cross_lane)/output/{serial}.txt',
@@ -78,9 +97,6 @@ def run(serial, params, uuid) :
 if __name__ == "__main__":
     rospack = rospkg.RosPack()
 
-    yaml_file = open(f"{rospack.get_path('cross_lane')}/config/param/crossLaneD.yaml", 'r')
-    yaml_content = yaml.safe_load(yaml_file)
-
     # UUID
     uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
     roslaunch.configure_logging(uuid)
@@ -94,30 +110,27 @@ if __name__ == "__main__":
     # Write Input
     input = f"{rospack.get_path('cross_lane')}/input/{serial}.txt"
     f = open(input,'a')
-    f.write(f'OPUS    ANGLE    U_D    RLD    LLD    RLW    LLW    LD   GROUP\n')
+    f.write(f'OPUS    ANGLE    U_D    RLNOB    LLNOB    RLW    LLW    LD    LL     RLD    LLD    GP\n')
     f.close()
 
     opus = 1
+    count = 0
+    params = []
+
     try:
-        for angle in yaml_content['angle']:
-            for u_d in yaml_content['u_d']:
-                for rld in yaml_content['rld']:
-                    for lld in yaml_content['rld']:
-                        for rlw in yaml_content['rlw']:
-                            for llw in yaml_content['llw']:
-                                for ld in yaml_content['ld']:
-                                    if rld == lld:
-                                        params = []
-                                        for k in range(NB_PROCESS):
-                                            params.append([opus, angle, u_d, rld, lld, rlw, llw, ld])
-                                            opus += 1
-                                        run(serial, params, uuid)
-                                        # except:
-                                        #     print("Unexpected error:", sys.exc_info()[0])
-                                        #     output = f"{rospack.get_path('cross_lane')}/output/{serial}.txt"
-                                        #     g = open(input,'a')
-                                        #     g.write(f'{opus+1} nan nan nan nan nan nan nan nan nan nan nan nan nan\n')
-                                        #     g.close()
-                                        #     params = []
+        for lnOb in range(NOBMIN,NOBMAX):
+            for rep in range(NB_REP):
+                params.append([opus, lnOb])
+                if len(params) == NB_PROCESS:
+                    run(serial, params, uuid)
+                    params = [] 
+                opus += 1
+            # except:
+            #     print("Unexpected error:", sys.exc_info()[0])
+            #     output = f"{rospack.get_path('cross_lane')}/output/{serial}.txt"
+            #     g = open(input,'a')
+            #     g.write(f'{opus+1} nan nan nan nan nan nan nan nan nan nan nan nan nan\n')
+            #     g.close()
+            #     params = []
     except KeyboardInterrupt:
         pass

@@ -16,6 +16,6 @@ information about the states (and possibly metadata) that a collision avoidance
 system can subscribe to. _It does not actually track obstacles._ It is also
 possible to simulate the addition of sensor noise using this package.
 + `asv_simulator`: simulates a nonlinear 3DOF surface vessel.
-+ `asv_system`: metapackage with launch files and more!
++ `asv_common`: metapackage with launch files and more!
 + `state_estimator`: unfinished package for estimating the ASV pose given GPS
 and IMU data.

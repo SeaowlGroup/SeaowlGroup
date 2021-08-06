@@ -35,7 +35,7 @@
       <node pkg="rviz"
             type="rviz"
             name="rviz"
-            args="-d $(find asv_system)/config/rviz/obTrackerLane.rviz" />
+            args="-d $(find asv_common)/config/rviz/obTrackerLane.rviz" />
     </group>
 
   </group>

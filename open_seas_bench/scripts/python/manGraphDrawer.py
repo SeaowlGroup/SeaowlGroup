@@ -7,8 +7,8 @@ import rospkg
 
 def plot_graph(i, j, serial, fig) :
     rospack = rospkg.RosPack()
-    input = f"{rospack.get_path('asv_system')}/input/{serial}.txt"
-    output = f"{rospack.get_path('asv_system')}/output/{serial}.txt"
+    input = f"{rospack.get_path('asv_common')}/input/{serial}.txt"
+    output = f"{rospack.get_path('asv_common')}/output/{serial}.txt"
     x = []
     y = []
     f1 = open(input,'r')

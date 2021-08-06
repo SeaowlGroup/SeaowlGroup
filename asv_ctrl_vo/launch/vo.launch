@@ -1,29 +1,26 @@
 <!-- Template -->
 <launch>
 
-  <arg name="use_vo" default="True" />
   <arg name="RADIUS" default="100." />
   <arg name="MAX_VEL" default="15." />
   <arg name="D_CPA_MIN" default="150." />
 
   <arg name="rviz" default="true" />
 
-  <group if="$(arg use_vo)">
-    <node pkg="asv_ctrl_vo"
-          name="vo_node"
-          type="asv_ctrl_vo_node"
-          respawn="false"
-          output="screen" />
-    <rosparam param="MAX_VEL" subst_value="True">$(arg MAX_VEL)</rosparam>
-    <rosparam param="RADIUS" subst_value="True">$(arg RADIUS)</rosparam>
-    <rosparam param="D_CPA_MIN" subst_value="True">$(arg D_CPA_MIN)</rosparam>
-  </group>
+  <node pkg="asv_ctrl_vo"
+        name="vo_node"
+        type="asv_ctrl_vo_node"
+        respawn="false"
+        output="screen" />
+  <rosparam param="MAX_VEL" subst_value="True">$(arg MAX_VEL)</rosparam>
+  <rosparam param="RADIUS" subst_value="True">$(arg RADIUS)</rosparam>
+  <rosparam param="D_CPA_MIN" subst_value="True">$(arg D_CPA_MIN)</rosparam>
 
   <group if="$(arg rviz)">
       <node pkg="rviz"
             type="rviz"
             name="rviz"
-            args="-d $(find asv_system)/config/rviz/obTracker.rviz" />
+            args="-d $(find asv_common)/config/rviz/obTracker.rviz" />
     </group>
 
 </launch>

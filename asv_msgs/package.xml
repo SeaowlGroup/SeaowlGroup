@@ -9,7 +9,7 @@
 
   <license>MIT</license>
 
-  <url type="website">http://github.com/thomsten/ros_asv_system</url>
+  <url type="website">http://github.com/thomsten/ros_asv_common</url>
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>message_generation</build_depend>

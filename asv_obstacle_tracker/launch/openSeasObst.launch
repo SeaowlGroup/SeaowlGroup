@@ -40,7 +40,7 @@
       <node pkg="rviz"
             type="rviz"
             name="rviz"
-            args="-d $(find asv_system)/config/rviz/obTracker.rviz" />
+            args="-d $(find asv_common)/config/rviz/obTracker.rviz" />
     </group>
   </group>
 </launch>

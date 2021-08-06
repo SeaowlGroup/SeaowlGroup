@@ -1,5 +1,5 @@
 <launch>
-  <!-- <include file="$(find asv_system)/launch/play_bagfile.launch" /> -->
+  <!-- <include file="$(find asv_common)/launch/play_bagfile.launch" /> -->
   <!-- <node pkg="asv_state_estimator" -->
   <!--       type="asv_state_estimator.py" -->
   <!--       name="state_estimator" -->
@@ -26,8 +26,8 @@
   </group>
 
 
-  <include file="$(find asv_system)/launch/mapserver.launch">
-    <arg name="mapfile" value="$(find asv_system)/config/maps/hovik.yaml" />
+  <include file="$(find asv_common)/launch/mapserver.launch">
+    <arg name="mapfile" value="$(find asv_common)/config/maps/hovik.yaml" />
   </include>
 
   <node pkg="asv_simulator"

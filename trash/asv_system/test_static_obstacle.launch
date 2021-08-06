@@ -4,8 +4,8 @@
     <arg name="u_d" value="5.0" />
   </include>
 
-  <include file="$(find asv_system)/launch/mapserver.launch">
-    <arg name="mapfile" value="$(find asv_system)/config/maps/center_dot.yaml" />
+  <include file="$(find asv_common)/launch/mapserver.launch">
+    <arg name="mapfile" value="$(find asv_common)/config/maps/center_dot.yaml" />
   </include>
   
   <!-- Obstacle ship -->

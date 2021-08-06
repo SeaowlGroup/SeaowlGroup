@@ -23,7 +23,7 @@
   <arg name="rviz" default="True" />
   <!-- Output -->
   <arg name="opus" default="0" />
-  <arg name="output_file" default="$(find asv_system)/output/test.txt" />
+  <arg name="output_file" default="$(find asv_common)/output/test.txt" />
   <arg name="t_sim" default="75" />
   <arg name="tMaxSim" default="200" />
   <arg name="pos_end_waypoint" default="[0.,0.]" />

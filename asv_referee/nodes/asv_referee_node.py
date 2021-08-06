@@ -15,7 +15,7 @@ import sys
 class Referee(object) :
 
     def __init__(self, dt=0.2, finished=0,
-                 output='/home/adrien/catkin/src/seaowl/asv_system/output',
+                 output='/home/adrien/catkin/src/seaowl/asv_common/output',
                  op='0') :
 
         self.debugBool = False   #if True prints the trajectory (t,x,y) of asv in debug.txt
@@ -48,7 +48,7 @@ class Referee(object) :
         self.finished = finished  #0,2 : no shutdown at the end; 1,3 : no shutdown at the end; 0,1 : program running; 2,3 : prgrm ended
         self.side = []
         if self.debugBool:
-            self.debug = open(f'/home/adrien/catkin_ws/src/seaowl/asv_system/debug.txt','w')
+            self.debug = open(f'/home/adrien/catkin_ws/src/seaowl/asv_common/debug.txt','w')
         self.traj = []
         self.nend = True
 
@@ -436,7 +436,7 @@ if __name__ == "__main__" :
 
     dt = rospy.get_param("~update_rate", .2)
     finished = rospy.get_param("~shutdown", 0)
-    output = rospy.get_param("~output_file", f'{rospack.get_path("asv_system")}/output/test.txt')
+    output = rospy.get_param("~output_file", f'{rospack.get_path("asv_common")}/output/test.txt')
     op = rospy.get_param("~opus", '0')
 
     print(f'Output : {output}')

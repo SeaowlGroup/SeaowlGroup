@@ -51,14 +51,10 @@ class Fig(object):
 
         f1.close()
         self.groups = np.array(self.groups)
-        self.proportions = np.bincount(self.groups)[1:]
-        tot = np.sum(self.proportions)
-        self.time_cutoff = 80.
 
-        print("Total number : ", tot)
-        print(f"Safe : {100*self.proportions[0]/tot}%")
-        print(f"Insecure : {100*self.proportions[1]/tot}%")
-        print(f"Dangerous : {100*self.proportions[2]/tot}%")
+        self.time_cutoff = 80.
+        self.security_and_performances_classes = np.zeros((3,2))
+        self.set_security_and_performances_classes()
 
         self.n_groups = np.max(self.groups)
         self.cutoff = 1000000
@@ -67,6 +63,35 @@ class Fig(object):
         self.annotate = False
         self.disp_witness = False
         self.validation_color = True
+
+    def set_security_and_performances_classes(self):
+        f = open(self.output, 'r')
+        f.readline()
+        for line in f:
+            content = line.split()
+            if float(content[4]) > 0.: # dangerous security indicator
+                i=2
+            elif float(content[4]) >= -0.2: # insecure
+                i=1
+            else : # safe
+                i=0
+
+            if float(content[1]) > self.time_cutoff: # too slow
+                j=1
+            else : # performant
+                j=0
+            self.security_and_performances_classes[i,j] += 1
+        f.close
+
+        # proportions = np.bincount(np.sum(self.security_and_performances_classes, axis=0, dtype=int))[1:]
+        prop = self.security_and_performances_classes
+        tot = np.sum(prop)
+
+        print("Total number : ", tot)
+        print(f"SEC\PERF   _Performant_Insufficient_")
+        print(f"Safe      |   {round(100*prop[0, 0]/tot, 1)}%    | {round(100*prop[0, 1]/tot, 1)}%      |")
+        print(f"Insecure  |   {round(100*prop[1, 0]/tot, 1)}%    | {round(100*prop[1, 1]/tot, 1)}%      |")
+        print(f"Dangerous |   {round(100*prop[2, 0]/tot, 1)}%    | {round(100*prop[2, 1]/tot, 1)}%      |")
 
     def plot_graph(self) :
         x = []
@@ -124,12 +149,12 @@ class Fig(object):
 
         return figure
 
-def gui(name, input, output):
+def gui(name):
     title = name.split('.')[0]
     aux_frame.title(title)
 
-    # input = f"{rospack.get_path('open_seas_bench')}/input/{name}"
-    # output = f"{rospack.get_path('open_seas_bench')}/output/{name}"
+    input = f"{rospack.get_path('open_seas_bench')}/input/{name}"
+    output = f"{rospack.get_path('open_seas_bench')}/output/{name}"
     graph_fig = Fig(input=input, output=output)
 
     graph_frame = tk.Frame(aux_frame, bg='white')
@@ -225,25 +250,6 @@ if __name__ == "__main__":
 
     if filepath:
         name = filepath.split('/')[-1]
-
-        old_input = f"{rospack.get_path('open_seas_bench')}/input/{name}"
-        new_input = f"{rospack.get_path('open_seas_bench')}/scripts/data_viz/data_viz_input/{name}"
-        output = f"{rospack.get_path('open_seas_bench')}/output/{name}"
-        # f1 = open(old_input, 'r')
-        # f2 = open(output, 'r')
-        # f3 = open(new_input, 'a')
-        # f3.write(f1.readline())
-        # f2.readline()
-        # for line in f2:
-        #     content = line.split()
-        #     if content[4] > 0.: # dangerous security indicator
-        #         group = 3
-        #     elif content[4] >= -0.2: # insecure
-        #         group = 2
-        #     else : # safe
-        #         group = 1
-        #     f3.write(f1.readline()[:-1]+f'{group}')
-
-        gui(name, new_input, output)
+        gui(name)
     else:
         print("No file chosen")

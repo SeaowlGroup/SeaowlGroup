@@ -28,7 +28,25 @@ Il fallait créer un package capable de lancer une banque de scénarios succesiv
 - Annexe: scriptes / programmes avec commentaires
 
 
+Tutorials : How to add a global Planner and integrate
+How to add a local Planner -> détailler les types de LP à ajouter et si il faut ajouter retirer le path_tracker
+2 types de local : ceux qui ont besoin de path_trackers et ceux qui n'en ont pas besoin et qui peuvent être insérés en sortie du gp direct
+-> préciser les inputs et les outputs
+***
+### Maps
+The use of a static map is optionnal. To integrate a map, you need to launch a `map_sever` node, isssued from the eponym ROS default package. This node convert a YAML file linked to a PNG image into a black and white Occupancy Grid(_see the notes at the end of the document for more details_). The occupancy grid is published on the global topic `/map`. Then the `map_processing_node` needs to be launched, and will subscribe to `/map` and process the occupancy grid to inflate the static obstacles, before publishing it to `/processed_map`. The `asv_global_planner_node` by default subscribes to `/processed_map` and the `asv_ctrl_vo_node` by default subscribes to `/map`. This can be changed by using the **remap** option in the launch file. This option can also be used to make the global planner and the local planner computes on two different maps (in channeling situations, the map of the global planner has the channel drawn on it, that of the local planner is the same but without the channel).
 
+### Naming Conventions
+The source files are either located in a `/src` subdirectory of each package when written in C++, or in a `/nodes` subdirectory when written in Python. If the name of a file contains 'node', then it creates a node.
+
+### Utilisations des obstacle trackers
+
+Détailler le layout (captures d'écran ou tree) -> on fait ça top-down
+
+### Inputs and Outputs
+Each time a simulation is run, the inputs and outputs of each opus are written in the `input/` and `output/` directories of the concerned package. These are .txt files representing the table of all the parameters and indicators of all the opuses launched by a specific simulation. The naming convention is _YYYYMMDDhhmmss_.txt (Year, Month, Day, hour, minute, second of launch of the simulation).
+
+commit vers seaowlgroup/asv_planner_tester
 
 
 
@@ -169,6 +187,7 @@ and IMU data
 + `clock_node`: meant to accerate the simulation thus shortening its duration. Caused a degradation of the behavior of the algorithms and was then left out
 + `state_simulator_node`: incomplete implementation of the estimation of the ASV pose via GPS
 + `obstacle_tracker_nema_node`: can simulate and track the obstacles simulated by the emission of AIS signals via an UDP port. Was meant to be used with the software _Nema Studio_ but this possibility was left out
++ The whole file `asv_simulator/nodes` : these are utility nodes implemented in the original package that we never used
 
 ### Main Topics
 _The **Architecture** part describes where each node publish and subscribe._
@@ -380,6 +399,8 @@ The .launch files are launched by the _roslaunch_ package, which has very limite
 For now only `executable9.py` uses multiprocessing to launch several simulations simultaneously. It has several parameters set as global variables : `NB_PROCESS`, `OPUS_START` and `SERIAL_TO_UPDATE`. The first one is the number of simulations that will be simultaneously launched. It depends on the capacities of the processor of the computer executing the program, and on the computing power needed by the simulations (especially the local planner). The script `watch_cpu.sh` can help to determine the best number of processes by testing with several values (launch the script before the simulation and end it afterwards). `OPUS_START` and `SERIAL_TO_UPDATE` need to be changed if the executable needs to start but from a specific opus and needs to append the output to a previous file.
 
 ## Issues and Improvements to be Made
+
+- The gestion of maps has been since now quite laborious, consisting in screenshots from google maps arranged on Paint so that the constrast between the sea and the land would be strong enough to be detected by the `map_server` node, and the channels have been drawn by hand. There is surely a more convenient way to do the image processing.
 
 ## Notes and Remarks
 

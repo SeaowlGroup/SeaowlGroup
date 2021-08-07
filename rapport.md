@@ -1,3 +1,19 @@
+***
+Contexte du stage
+- Problème ?
+-  Etat de l'art du sujet
+- Description détaillée de la problématique fonctionnelle
+- Approche solution
+- Implémentation:
+	- Choix technologique
+	- Plateforme technique
+	- Installation / configuration / run
+- Restitution des résultats / Phase Analytics
+- Quels sont les objectifs atteints ? ceux qui ne sont pas atteints 
+- Annexe: scriptes / programmes avec commentaires
+
+***
+
 - Contexte du stage
 Stage de 5 mois
 S'inscrit dans le contexte du drone inspear

@@ -18,7 +18,7 @@ else
     # res=`python3 -c 'import executable10_aux2; import io; import sys; sys.stdout = io.BytesIO(); end = executable10_aux2.go('${start_opus}', '${end_opus}', '${serial}'); end'`
     # res=$(python3 executable10_aux2.py ${start_opus} ${end_opus} ${serial} | rev | cut -f 1 -d ' ' | rev)
 
-    python3 ../api/autoSim.py $1 ${start_opus} ${end_opus} ${serial}
+    python3 ../python/autoSim.py $1 ${start_opus} ${end_opus} ${serial}
     # ps xao pgid,comm | grep python3 | cut -f 3 -d ' ' | xargs kill -9
     # for _pid in $(ps xao pid,comm | grep python3 | cut -f 3 -d ' ')
     # do

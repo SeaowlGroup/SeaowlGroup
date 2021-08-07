@@ -116,8 +116,8 @@ def gui(name):
     title = name.split('.')[0]
     aux_frame.title(title)
 
-    input = f"{rospack.get_path('asv_system')}/input/{name}"
-    output = f"{rospack.get_path('asv_system')}/output/{name}"
+    input = f"{rospack.get_path('asv_common')}/input/{name}"
+    output = f"{rospack.get_path('asv_common')}/output/{name}"
     graph_fig = Fig(input=input, output=output)
 
     graph_frame = tk.Frame(aux_frame, bg='white')
@@ -209,7 +209,7 @@ if __name__ == "__main__":
 
     rospack = rospkg.RosPack()
     filepath = tk.filedialog.askopenfilename(title="Load a file :",filetypes=[('txt files','.txt'),('all files','.*')],
-                                             initialdir=f"{rospack.get_path('asv_system')}/output/")
+                                             initialdir=f"{rospack.get_path('asv_common')}/output/")
     if filepath:
         name = filepath.split('/')[-1]
         gui(name)

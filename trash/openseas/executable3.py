@@ -98,7 +98,7 @@ for size in ship['size'] :
                                      f'Fy_current:={Fy_current}',
                                      f'there_are_waves:={there_are_waves}',
                                      f'opus:={opus}',
-                                     f'output_file:=/home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/open_seas/output/{serial}.txt']
+                                     f'output_file:=/home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_common/open_seas/output/{serial}.txt']
                         roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
                         roslaunch_args0 = cli_args0[2:]
 

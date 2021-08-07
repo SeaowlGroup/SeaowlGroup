@@ -21,7 +21,7 @@ def run(serial, input_file, params, uuid) :
     waypoints_asv = [[0.,0.],
                      [t_sim*u_d_asv*np.cos(calc_heading_asv), t_sim*u_d_asv*np.sin(calc_heading_asv)]]
 
-    cli_args0 = ['asv_system', 'reaper.launch',
+    cli_args0 = ['asv_common', 'reaper.launch',
                  f'nb_processes:={NB_PROCESS}']
     roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
     roslaunch_args0 = cli_args0[2:]

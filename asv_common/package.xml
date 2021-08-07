@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package>
-  <name>asv_system</name>
+  <name>asv_common</name>
   <version>1.1.0</version>
-  <description>The asv_system package</description>
+  <description>The asv_common package</description>
 
   <maintainer email="stenersen.thomas@gmail.com">Thomas Stenersen</maintainer>
   <license>MIT</license>
 
-  <url type="website">http://github.com/thomsten/ros_asv_system</url>
+  <url type="website">http://github.com/thomsten/ros_asv_common</url>
   <author email="stenersen.thomas@gmail.com">Thomas Stenersen</author>
 
   <buildtool_depend>catkin</buildtool_depend>

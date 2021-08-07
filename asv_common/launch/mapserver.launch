@@ -1,5 +1,5 @@
 <launch>
-  <arg name="mapfile" default="$(find asv_system)/config/maps/map1.yaml"/>
+  <arg name="mapfile" default="$(find asv_common)/config/maps/openSea.yaml"/>
 
   <node pkg="map_server"
         type="map_server"

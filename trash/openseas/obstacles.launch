@@ -9,7 +9,7 @@
   <!-- Waves -->
 
   <!-- Obstacle ship -->
-  <include file="$(find asv_simulator)/launch/test_obst.launch">
+  <include file="$(find asv_simulator)/launch/obstSimulator.launch">
         <!-- <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/test2.yaml" /> -->
         <arg name="global_planner" value="None" />
         <arg name="use_vo" value="False" />

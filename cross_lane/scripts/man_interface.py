@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
+#work in progress
+
 import roslaunch
-import yaml
 import numpy as np
-import time
 import datetime
 from tkinter import *
 import rospkg
@@ -19,30 +19,27 @@ class Scenario(object):
     def __init__(self, serial='000000', opus=0, uuid='0'):
         self.uuid = uuid
         # ASV related attributes
-        self.u_d_asv = None
-        self.lp = None
-        self.true_heading_asv = 0.0
-        self.t_sim = 75
-        #self.max_vel = 0.
-        #self.d_cpa_min = 0.
-        #self.radius = 0.
-        # Obstacle related attributes
-        self.heading = None
+        self.angle = None
         self.u_d = None
-        self.dcpa = None
-        self.size = None
-        self.prior = None
-        self.d_detec = None
-        self.t_collision = 15
+        self.lp = None
+        # Lane related attributes
+        self.rlnOb = None
+        self.llnOb = None
+        self.rlw = None
+        self.llw = None
+        self.ld = None
+        self.rld = None
+        self.lld = None
+        self.ll = None
+        self.dAsv = None #initial and final distance to lanes
         # Output
-        rospack = rospkg.RosPack()
-        self.input = f"{rospack.get_path('open_seas_bench')}/input/{serial}.txt"
-        self.output = f"{rospack.get_path('open_seas_bench')}/output/{serial}.txt"
+        self.rospack = rospkg.RosPack()
+        self.input = f"{self.rospack.get_path('cross_lane')}/input/{serial}.txt"
+        self.output = f"{self.rospack.get_path('cross_lane')}/output/{serial}.txt"
         self.opus = opus
 
     def graphic_interface(self):
-        
-        rospack = rospkg.RosPack()
+
         fenetre = Tk()
         screen_width = fenetre.winfo_screenwidth()
         screen_height = fenetre.winfo_screenheight()
@@ -53,7 +50,7 @@ class Scenario(object):
         h_unit = int(screen_height/3)
         fenetre.geometry(f"{screen_width}x{screen_height}")
         fenetre.title("Bench Test")
-        fenetre.iconphoto(False, PhotoImage(file=f'{rospack.get_path("asv_system")}/images/icon.png'))
+        fenetre.iconphoto(False, PhotoImage(file=f"{self.rospack.get_path('asv_common')}/images/icon.png"))
         fenetre.configure(bg='gainsboro')
 
         ###################
@@ -74,8 +71,7 @@ class Scenario(object):
 
         ###################
         ###################
-
-        seagull = PhotoImage(file=f'{rospack.get_path("asv_system")}/images/Seagull-USV.png')
+        seagull = PhotoImage(file=f"{self.rospack.get_path('asv_common')}/images/Seagull-USV.png")
 
         canvas = Canvas(first_frame, width=w_big, height=2*h_unit)
         canvas.create_image(w_big/2, 2*h_unit/3, anchor=CENTER, image=seagull)
@@ -85,94 +81,108 @@ class Scenario(object):
 
         l0 = LabelFrame(first_frame, text="ASV", padx=80, pady=40, bg='white')
         l0.grid(row=0, column=1)
+        
+        angle = DoubleVar()
+        angle.set(90.0)
+        Label(l0, text="angle (°): ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
+        Entry(l0, textvariable=angle, width=5, bg='whitesmoke').grid(row=0, column=1)
 
-        u_d_asv = DoubleVar()
-        u_d_asv.set(5.0)
-        Label(l0, text="Speed : ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
-        Entry(l0, textvariable=u_d_asv, width=5, bg='whitesmoke').grid(row=0, column=1)
+        u_d = DoubleVar()
+        u_d.set(15.0)
+        Label(l0, text="speed (kn): ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
+        Entry(l0, textvariable=u_d, width=5, bg='whitesmoke').grid(row=1, column=1)
 
         lp = IntVar()
         lp.set(1)
-        Label(l0, text="Local Planner : ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
-        l01 = Frame(l0, bg='white')
-        l01.grid(row=1, column=1)
-        Radiobutton(l01, variable=lp, text="None", value=0, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
-        Radiobutton(l01, variable=lp, text="Velocity Obstacles", value=1, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
+        Label(l0, text="Local Planner : ", bg='white', anchor=E).grid(row=2, column=0, sticky="nsew")
+        l00 = Frame(l0, bg='white')
+        l00.grid(row=2, column=1)
+        Radiobutton(l00, variable=lp, text="None", value=0, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
+        Radiobutton(l00, variable=lp, text="Velocity Obstacles", value=1, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
 
         ########################
 
         l1 = LabelFrame(first_frame, text='Obstacle ship', padx=80, pady=30, bg='white')
         l1.grid(row=1, column=1)
-
-        heading = DoubleVar()
-        heading.set(180.0)
-        Label(l1, text="Heading : ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
-        Entry(l1, textvariable=heading, width=5, bg='whitesmoke').grid(row=0, column=1)
-
-        u_d = DoubleVar()
-        u_d.set(5.0)
-        Label(l1, text="Speed : ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
-        Entry(l1, textvariable=u_d, width=5, bg='whitesmoke').grid(row=1, column=1)
-
-        dcpa = DoubleVar()
-        dcpa.set(0.0)
-        Label(l1, text="dCPA : ", bg='white', anchor=E).grid(row=2, column=0, sticky="nsew")
-        Entry(l1, textvariable=dcpa, width=5, bg='whitesmoke').grid(row=2, column=1)
-
-        size = DoubleVar()
-        size.set(8.0)
-        Label(l1, text="Size : ", bg='white', anchor=E).grid(row=3, column=0, sticky="nsew")
-        Entry(l1, textvariable=size, width=5, bg='whitesmoke').grid(row=3, column=1)
-
-        prior = StringVar()
-        prior.set("none")
-        Label(l1, text="Priority status : ", bg='white', anchor=E).grid(row=4, column=0, sticky="nsew")
+        
+        ld = DoubleVar()
+        ld.set(200.)
+        Label(l1, text="distance between lane (m): ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
+        Entry(l1, textvariable=ld, width=5, bg='whitesmoke').grid(row=0, column=1)
+        
+        dORn = IntVar()
+        dORn.set(1)
+        Label(l1, text="density or number: ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
         l11 = Frame(l1, bg='white')
-        l11.grid(row=4, column=1)
-        Radiobutton(l11, variable=prior, text="None", value="none", bg='white', anchor=W, highlightthickness=0).pack(fill='both')
-        Radiobutton(l11, variable=prior, text="Stand On", value="stand_on", bg='white', anchor=W, highlightthickness=0).pack(fill='both')
-        Radiobutton(l11, variable=prior, text="Give Way", value="give_way", bg='white', anchor=W, highlightthickness=0).pack(fill='both')
+        l11.grid(row=1, column=1)
+        Radiobutton(l11, variable=dORn, text="density", value=0, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
+        Radiobutton(l11, variable=dORn, text="number", value=1, bg='white', anchor=W, highlightthickness=0).pack(fill='both')
 
-        d_detec = DoubleVar()
-        d_detec.set(500.0)
-        Label(l1, text="Distance of detection : ", bg='white', anchor=E).grid(row=5, column=0, sticky="nsew")
-        Entry(l1, textvariable=d_detec, width=5, bg='whitesmoke').grid(row=5, column=1)
+        Label(l1, text="width (m): ", bg='white', anchor=E).grid(row=2, column=0, sticky="nsew")
+        l10 = Frame(l1, bg='white')
+        l10.grid(row=2, column=1)
 
-#        radius = DoubleVar()
-#        radius.set(10.0)
-#        Label(l1, text="radius : ", bg='white', anchor=E).grid(row=6, column=0, sticky="nsew")
-#        Entry(l1, textvariable=radius, width=5, bg='whitesmoke').grid(row=6, column=1)
-#
-#        d_cpa_min = DoubleVar()
-#        d_cpa_min.set(50.0)
-#        Label(l1, text="d cpa min : ", bg='white', anchor=E).grid(row=7, column=0, sticky="nsew")
-#        Entry(l1, textvariable=d_cpa_min, width=5, bg='whitesmoke').grid(row=7, column=1)
-#
-#        max_vel = DoubleVar()
-#        max_vel.set(20.0)
-#        Label(l1, text="max vel : ", bg='white', anchor=E).grid(row=8, column=0, sticky="nsew")
-#        Entry(l1, textvariable=max_vel, width=5, bg='whitesmoke').grid(row=8, column=1)
+        rlw = DoubleVar()
+        rlw.set(400.)
+        Label(l10, text="right lane: ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
+        Entry(l10, textvariable=rlw, width=5, bg='whitesmoke').grid(row=0, column=1)
+
+        llw = DoubleVar()
+        llw.set(400.)
+        Label(l10, text="left lane: ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
+        Entry(l10, textvariable=llw, width=5, bg='whitesmoke').grid(row=1, column=1)
+        
+        Label(l1, text="density (1/hm²): ", bg='white', anchor=E).grid(row=3, column=0, sticky="nsew")
+        l12 = Frame(l1, bg='white')
+        l12.grid(row=3, column=1)
+        rld = DoubleVar()
+        rld.set(.5)
+        Label(l12, text="right lane : ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
+        Entry(l12, textvariable=rld, width=5, bg='whitesmoke').grid(row=0, column=1)
+
+        lld = DoubleVar()
+        lld.set(.5)
+        Label(l12, text="left lane : ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
+        Entry(l12, textvariable=lld, width=5, bg='whitesmoke').grid(row=1, column=1)
+
+        Label(l1, text="number of obstacles : ", bg='white', anchor=E).grid(row=4, column=0, sticky="nsew")
+        l13 = Frame(l1, bg='white')
+        l13.grid(row=4, column=1)
+
+        rlnOb = DoubleVar()
+        rlnOb.set(5)
+        Label(l13, text="right lane : ", bg='white', anchor=E).grid(row=0, column=0, sticky="nsew")
+        Entry(l13, textvariable=rlnOb, width=5, bg='whitesmoke').grid(row=0, column=1)
+
+        llnOb = DoubleVar()
+        llnOb.set(5)
+        Label(l13, text="left lane : ", bg='white', anchor=E).grid(row=1, column=0, sticky="nsew")
+        Entry(l13, textvariable=llnOb, width=5, bg='whitesmoke').grid(row=1, column=1)
 
         ########################
 
         def register():
 
-            self.u_d_asv = u_d_asv.get()
             self.lp = (lp.get() == 1)
-            self.heading = heading.get()
-            self.u_d = u_d.get()
-            self.dcpa = dcpa.get()
-            self.size = size.get()
-            self.prior = prior.get()
-            self.d_detec = d_detec.get()
-            #self.radius = radius.get()
-            #self.max_vel = max_vel.get()
-            #self.d_cpa_min = d_cpa_min.get()
+            self.angle = angle.get()*np.pi/180 #degrees to angles
+            self.u_d = 0.514444*u_d.get()
+            self.rlw = rlw.get()
+            self.llw = llw.get()
+            self.ld = ld.get()
+            self.dAsv = 10.
+            self.ll = max(self.rlw+self.llw+self.ld,
+                          200+(self.ld+self.llw+self.llw+self.dAsv)/np.tan(self.angle))
 
-            if (np.abs(self.heading)<=20):
-                self.t_collision = 15
+            if dORn.get() == 0:
+                self.rld = rld.get()/10000
+                self.lld = lld.get()/10000
+                self.rlnOb = int(self.rld*self.rlw*self.ll)
+                self.llnOb = int(self.lld*self.llw*self.ll)
             else:
-                self.t_collision = 45
+                self.rlnOb = int(rlnOb.get())
+                self.llnOb = int(llnOb.get())
+                self.rld = self.rlnOb/self.rlw/self.ll
+                self.lld = self.llnOb/self.llw/self.ll
 
             #fenetre.destroy()
             self.opus += 1
@@ -253,75 +263,63 @@ class Scenario(object):
 
     def write_input(self):
 
-        param = [self.u_d_asv,
-                 self.lp,
-                 self.heading,
+        param = [self.opus,
+                 self.angle,
                  self.u_d,
-                 self.dcpa,
-                 self.size,
-                 self.prior,
-                 self.d_detec]
+                 self.rlnOb,
+                 self.llnOb,
+                 self.rlw,
+                 self.llw,
+                 self.ld,
+                 self.ll,
+                 self.rld,
+                 self.lld,
+                 0]
 
         f = open(self.input,'a')
 
         if self.opus == 1:
-            f.write(f'OPUS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR    D_DETEC\n')
-        f.write(f'{self.opus}')
+            f.write(f'OPUS    ANGLE    U_D    RLNOB    LLNOB    RLW    LLW    LD    LL     RLD    LLD    GP\n')
         for p in param:
-            f.write(f'    {p}')
+            f.write(f'{p}    ')
         f.write('\n')
         f.close()
 
         print('=====================================')
         print('local planner : ', self.lp)
-        print('size : ', self.size)
-        print('heading : ', self.heading)
+        print('angle : ', self.angle)
         print('u_d : ', self.u_d)
-        print('dcpa : ', self.dcpa)
-        print('prior : ', self.prior)
-        print('d_detec : ', self.d_detec)
+        print('right lane density : ', self.rld)
+        print('left lane density : ', self.lld)
         print('=====================================')
 
     def run(self):
         # ASV parameters
-        calc_heading_asv = (90-self.true_heading_asv)*np.pi/180
-        initial_state_asv = [0.,0.,calc_heading_asv, self.u_d_asv,0.,0.]
+        initial_state_asv = [-(self.ld/2+self.llw+self.dAsv)/np.tan(self.angle),-(self.ld/2+self.llw+self.dAsv),self.angle, self.u_d,0.,0.]
         #Trajectory
-        waypoints_asv = [[0.,0.],
-                         [self.t_sim*self.u_d_asv*np.cos(calc_heading_asv),
-                          self.t_sim*self.u_d_asv*np.sin(calc_heading_asv)]]
+        waypoints_asv = [[-(self.ld/2+self.llw+self.dAsv)/np.tan(self.angle),-(self.ld/2+self.llw+self.dAsv)],
+                         [(self.ld/2+self.rlw+self.dAsv)/np.tan(self.angle),self.ld/2+self.rlw+self.dAsv]]
 
         # Creation of the launch files
-        cli_args0 = ['open_seas_bench', 'openSeasBench.launch',
+        cli_args0 = ['cross_lane', 'crossLane.launch',
+                     f'rlnOb:={self.rlnOb}',
+                     f'llnOb:={self.llnOb}',
+                     f'rlw:={self.rlw}',
+                     f'llw:={self.llw}',
+                     f'ld:={self.ld}',
+                     f'll:={self.ll}',
+                     f'trigger_shutdown:=0',
                      f'initial_state:={initial_state_asv}',
-        #             f'use_sim_time:=True',
                      f'waypoints:={waypoints_asv}',
-                     f'u_d:={self.u_d_asv}',
+                     f'u_d:={self.u_d}',
                      f'use_vo:={self.lp}',
-                     f'output_file:={self.output}',
-                     f'opus:={self.opus}']
-                     #f'MAX_VEL:={self.max_vel}',
-                     #f'D_CPA_MIN:={self.d_cpa_min}',
-                     #f'RADIUS:={self.radius}']
-
+                     f'rviz:=true',
+                     f'opus:={self.opus}',
+                     f'output_file:=$(find cross_lane)/output/{serial}.txt',
+                     f'pos_end_waypoint:={waypoints_asv[-1]}']
         roslaunch_file0 = roslaunch.rlutil.resolve_launch_arguments(cli_args0)[0]
         roslaunch_args0 = cli_args0[2:]
-
-        cli_args1 = ['asv_obstacle_tracker', 'openSeasObst.launch',
-                     f'nOb:=1',
-                     f'prior:=[{self.prior}]',
-                     f'size:=[{self.size}]',
-                     f'heading:=[{self.heading}]',
-                     f'u_d:=[{self.u_d}]',
-                     f't_collision:=[{self.t_collision}]',
-                     f'd_detection:=[{self.d_detec}]',
-                     f'dcpa:=[{self.dcpa}]',
-                     f'initial_state_asv:={initial_state_asv}',
-                     f'opus:={self.opus}',
-                     'rviz:=false']
-        roslaunch_file1 = roslaunch.rlutil.resolve_launch_arguments(cli_args1)[0]
-        roslaunch_args1 = cli_args1[2:]
-        launch_files = [(roslaunch_file0, roslaunch_args0), (roslaunch_file1, roslaunch_args1)]
+        launch_files = [(roslaunch_file0, roslaunch_args0)]
 
         launch = roslaunch.parent.ROSLaunchParent(uuid, launch_files)
         launch.start()
@@ -331,7 +329,7 @@ class Scenario(object):
 
         x = []
         y = []
-        xlab = ['OPUS', 'U_D_ASV', 'LOC_PLAN', 'HEADING', 'U_D', 'DCPA', 'SIZE', 'PRIOR', 'D_DETEC']
+        xlab = ['OPUS', 'ANGLE', 'U_D', 'RLD', 'LLD', 'RLW', 'LLW', 'LD', 'GP']
         ylab = ['LOG_COL', 'NAT_COL', 'OFFSET_LOG', 'ANTICIPATION']
         labels = []
         colors = []

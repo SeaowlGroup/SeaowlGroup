@@ -24,14 +24,14 @@
   </node>
 
 
-  <include file="$(find asv_simulator)/launch/test.launch">
+  <include file="$(find asv_simulator)/launch/asvGp.launch">
     <arg name="u_d" value="5.0" />
     <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/mozambique.yaml" />
     <arg name="initial_state" value="[600.0, 0.0, 1.56, 0.,0.,0.]" />
   </include>
 
-  <include file="$(find asv_system)/launch/mapserver.launch">
-    <arg name="mapfile" value="$(find asv_system)/config/maps/mozambique.yaml" />
+  <include file="$(find asv_common)/launch/mapserver.launch">
+    <arg name="mapfile" value="$(find asv_common)/config/maps/mozambique.yaml" />
   </include>
 
   <node pkg="asv_map_processing"
@@ -45,7 +45,7 @@
   <include file="$(find asv_obstacle_tracker)/launch/default.launch"/>
 
   <!-- Obstacle ship -->
-  <include file="$(find asv_simulator)/launch/test_obst.launch">
+  <include file="$(find asv_simulator)/launch/obstSimulator.launch">
         <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/test.yaml" />
         <arg name="global_planner" value="None" />
         <arg name="use_vo" value="False" />
@@ -56,7 +56,7 @@
       </include>
 
   <!-- Obstacle ship -->
-  <include file="$(find asv_simulator)/launch/test_obst.launch">
+  <include file="$(find asv_simulator)/launch/obstSimulator.launch">
         <arg name="waypoint_file" value="$(find asv_simulator)/config/waypoints/test2.yaml" />
         <arg name="global_planner" value="None" />
         <arg name="use_vo" value="False" />
@@ -74,7 +74,7 @@
   <!-- <node pkg="rosbag"
         type="record"
         name="rosbag_record"
-        args="-O /home/soubi/Documents/SEAOWL//home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/bagfiles/mozambique.bag /asv/state /obstacles/ship1/state /obstacles/ship2/state /obstacle_states"
+        args="-O /home/soubi/Documents/SEAOWL//home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_common/asv_common/bagfiles/mozambique.bag /asv/state /obstacles/ship1/state /obstacles/ship2/state /obstacle_states"
         /> -->
 
 </launch>

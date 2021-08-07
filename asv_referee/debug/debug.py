@@ -14,7 +14,7 @@ def att(x,option) :
     if option == 3:
         return np.exp(-x)
 
-data = np.loadtxt('/home/adrien/catkin_ws/src/seaowl/asv_system/debug.txt',skiprows=0)
+data = np.loadtxt('/home/adrien/catkin_ws/src/seaowl/asv_common/debug.txt',skiprows=0)
 t = data[:,0]
 tcpa = t[-1]
 t1 = 10

@@ -19,7 +19,7 @@ N = len(traj)
 uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
 roslaunch.configure_logging(uuid)
 
-cli_args0 = ['asv_system', 'mozambique_simplified.launch',
+cli_args0 = ['asv_common', 'mozambique_simplified.launch',
              f'use_sim_time:={u}',
              f'trigger_shutdown:={t}',
              f'coast_margin:={c}',
@@ -36,7 +36,7 @@ else :
 
 for i in range(N) :
     # Start another node
-    cli_args = ['asv_system', 'obstacles.launch',
+    cli_args = ['asv_common', 'obstacles.launch',
                 f'initial_state:={traj[i][0]}',
                 f'waypoints:=[{traj[i][0][:2]}, {traj[i][1]}]',
                 f'shipname:=ship{i+1}']

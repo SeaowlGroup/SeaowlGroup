@@ -20,7 +20,7 @@
   <arg name="rviz" default="True" />
   <!-- Output -->
   <arg name="opus" default="0" />
-  <arg name="output_file" default="$(find asv_system)/output/test.txt" />
+  <arg name="output_file" default="$(find asv_common)/output/test.txt" />
   <arg name="t_sim" default="75" />
   <arg name="pos_end_waypoint" default="[0.,0.]" />
   <!-- Obstacle parameter -->
@@ -112,7 +112,7 @@
     <!-- <node pkg="rosbag"
           type="record"
           name="rosbag_record"
-          args="-O /home/soubi/Documents/SEAOWL//home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_system/asv_system/bagfiles/mozambique.bag /asv/state /obstacles/ship1/state /obstacles/ship2/state /obstacle_states"
+          args="-O /home/soubi/Documents/SEAOWL//home/soubi/Documents/SEAOWL/nonor_ws/src/ros_asv_common/asv_common/bagfiles/mozambique.bag /asv/state /obstacles/ship1/state /obstacles/ship2/state /obstacle_states"
           /> -->
   </group>
 </launch>

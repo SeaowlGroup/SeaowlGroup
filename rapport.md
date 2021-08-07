@@ -110,26 +110,26 @@ source devel/setup.bash
 ### Get Started
 To launch a graphic user interface allowing to set easily the parameters, type in the terminal :
 ```
-roscd asv_system
+roscd asv_common
 python3 executable5.py
 ```
 ### Launch Simulations
 There are two ways of properly using the package : with launchfiles or with python APIs.
 
-- Launchfiles are located in `asv_system/launch` and can be launched with
+- Launchfiles are located in `asv_common/launch` and can be launched with
 ```
-roslaunch asv_system name_of_the_launchfile.launch
+roslaunch asv_common name_of_the_launchfile.launch
 ```
-- APIs are the python files located in `asv_system` and need to be executed by Python 3
+- APIs are the python files located in `asv_common` and need to be executed by Python 3
 ```
-roscd asv_system
+roscd asv_common
 python3 executable_file.py
 ```
 
-The parameters can either be set manually in the launch files if the simulation is launched that way, either be entered in a graphic interface for `executable5.py`, or be set in an Excel or YAML file put in `asv_system/param/` and executed respectively with `executable6.py` or `executable9.py`.
+The parameters can either be set manually in the launch files if the simulation is launched that way, either be entered in a graphic interface for `executable5.py`, or be set in an Excel or YAML file put in `asv_common/param/` and executed respectively with `executable6.py` or `executable9.py`.
 
 ### Output
-When a simulation is over, an input file and an output file (both plain text files) are respectively created in `asv_system/input/` and `asv_system/output/`, named after a serial number concatenating the year, month, day, hour, minute and second the simulation was launched. These informations can be plotted using `asv_system/graph_drawer.py`
+When a simulation is over, an input file and an output file (both plain text files) are respectively created in `asv_common/input/` and `asv_common/output/`, named after a serial number concatenating the year, month, day, hour, minute and second the simulation was launched. These informations can be plotted using `asv_common/graph_drawer.py`
 
 
 ## Content
@@ -156,7 +156,7 @@ a simple pure pursuit scheme for path following
 + `asv_simulator`: simulates a nonlinear 3DOF surface vessel
 + `state_estimator`: unfinished package for estimating the ASV pose given GPS
 and IMU data
-+ `asv_system`: metapackage with launch files and more
++ `asv_common`: metapackage with launch files and more
 
 ### Nodes
 
@@ -222,10 +222,10 @@ All the message types specific to this package are detailed in the sub-package`/
 ### Nodes and Topics
 
 Here is the node graph of a case where there is a local planner but no global planner and `obstacle_simplified_node` is used :
-![Graph 1](asv_system/rosgraph.png)
+![Graph 1](asv_common/rosgraph.png)
 ***
 Here is another where there is a map, a local planner, a global planner and an obstacle ship simulated with `asv_simulator_node` :
-![Graph 2](asv_system/rosgraph2.png)
+![Graph 2](asv_common/rosgraph2.png)
 ***
 ### File architecture
 ```
@@ -293,8 +293,8 @@ Here is another where there is a map, a local planner, a global planner and an o
 │   ├── launch
 │   │   ├── default.launch
 │   │   ├── test2.launch
-│   │   ├── test.launch
-│   │   └── test_obst.launch
+│   │   ├── asvGp.launch
+│   │   └── obstSimulator.launch
 │   ├── nodes
 │   │   ├── data_publisher.py
 │   │   ├── fake_asv.py
@@ -311,7 +311,7 @@ Here is another where there is a map, a local planner, a global planner and an o
 │   ├── nodes
 │   │   ├── asv_state_estimator.py
 │   │   └── convert_stuff.py
-├── asv_system
+├── asv_common
 │   ├── config
 │   │   ├── maps
 │   │   │   ├── big_block.png
@@ -393,7 +393,7 @@ This distance increases with the relative speed between the two ships, thus resu
 
 
 ### APIs and .launch files
-The .launch files are launched by the _roslaunch_ package, which has very limited features. In particular, it is meant to launch a single simulation, and allows very little automation. That is why we worked mostly with pythons APIs, which are python scripts that can call roslaunch to execute .launch files, with different parameters and allowing the automation of a whole list of scenarios. These parameters can either be entered by hand (`executable5.py`), be entered in an Excel file in `asv_system/config/param` (`executable6.py`), or for larger sets, be entered as lists in a YAML file (same path) and then be executed by `executable9.py`.
+The .launch files are launched by the _roslaunch_ package, which has very limited features. In particular, it is meant to launch a single simulation, and allows very little automation. That is why we worked mostly with pythons APIs, which are python scripts that can call roslaunch to execute .launch files, with different parameters and allowing the automation of a whole list of scenarios. These parameters can either be entered by hand (`executable5.py`), be entered in an Excel file in `asv_common/config/param` (`executable6.py`), or for larger sets, be entered as lists in a YAML file (same path) and then be executed by `executable9.py`.
 
 #### Multiprocessing
 For now only `executable9.py` uses multiprocessing to launch several simulations simultaneously. It has several parameters set as global variables : `NB_PROCESS`, `OPUS_START` and `SERIAL_TO_UPDATE`. The first one is the number of simulations that will be simultaneously launched. It depends on the capacities of the processor of the computer executing the program, and on the computing power needed by the simulations (especially the local planner). The script `watch_cpu.sh` can help to determine the best number of processes by testing with several values (launch the script before the simulation and end it afterwards). `OPUS_START` and `SERIAL_TO_UPDATE` need to be changed if the executable needs to start but from a specific opus and needs to append the output to a previous file.

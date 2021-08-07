@@ -22,8 +22,8 @@
   <include file="$(find asv_obstacle_tracker)/launch/default.launch"/>
 
 
-  <include file="$(find asv_system)/launch/mapserver.launch">
-    <arg name="mapfile" value="$(find asv_system)/config/maps/hovik.yaml" />
+  <include file="$(find asv_common)/launch/mapserver.launch">
+    <arg name="mapfile" value="$(find asv_common)/config/maps/hovik.yaml" />
   </include>
 
   <node pkg="asv_simulator"

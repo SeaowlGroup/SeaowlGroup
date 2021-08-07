@@ -35,9 +35,9 @@
           name="tf_broadcaster" />
   </group>
 
-  <remap from="/map" to="/pasdechenal/map" if="$(arg use_vo)"/>
-  <include file="$(find asv_system)/launch/mapserver.launch">
-    <arg name="mapfile" value="$(find asv_system)/config/maps/rade_toulon.yaml" />
+  <remap from="/map" to="/nochannel/map" if="$(arg use_vo)"/>
+  <include file="$(find asv_common)/launch/mapserver.launch">
+    <arg name="mapfile" value="$(find asv_common)/config/maps/harbor_toulon.yaml" />
   </include>
 
   <group if="$(arg use_vo)">

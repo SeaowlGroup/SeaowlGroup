@@ -55,12 +55,12 @@
           name="tf_broadcaster" />
 
     <remap from="obstacle_states" to="/obstacle_states" />
-    <remap from="/map" to="/pasdechenal/map"/>
+    <remap from="/map" to="/nochannel/map"/>
     <group if="$(arg use_vo)">
 
-      <include file="$(find asv_system)/launch/mapserver.launch">
-        <arg name="mapfile" value="$(find asv_system)/config/maps/rade_toulon.yaml" />
-        <remap from="/map" to="/pasdechenal/map" if="$(arg use_vo)"/>
+      <include file="$(find asv_common)/launch/mapserver.launch">
+        <arg name="mapfile" value="$(find asv_common)/config/maps/harbor_toulon.yaml" />
+        <remap from="/map" to="/nochannel/map" if="$(arg use_vo)"/>
       </include>
 
       <node pkg="asv_ctrl_vo"

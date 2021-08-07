@@ -6,7 +6,7 @@ import rospy
 N = 100
 
 def run(op,uuid):
-    cli_args = ['test','test.launch',f'opus:={op}']
+    cli_args = ['test','asvGp.launch',f'opus:={op}']
     roslaunch_file = roslaunch.rlutil.resolve_launch_arguments(cli_args)[0]
     print(roslaunch_file)
     roslaunch_args = cli_args[2:]

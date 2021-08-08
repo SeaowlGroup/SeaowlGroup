@@ -4,7 +4,7 @@
 # nohup python3 executable9.py > log/nohup.out 2> log/nohup.err &
 
 if [ $# -le 1 ]; then
-  echo "Usage : $0 <bench> <start_opus> <n_process> [serial]"
+  echo "Usage : $0 <bench> <start_opus> <n_process> <serial>"
 else
   start_opus=$2
   n_process=$3

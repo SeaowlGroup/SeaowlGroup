@@ -1,5 +1,5 @@
 ***
-Contexte du stage
+- Contexte du stage
 - Problème ?
 -  Etat de l'art du sujet
 - Description détaillée de la problématique fonctionnelle
@@ -9,26 +9,24 @@ Contexte du stage
 	- Plateforme technique
 	- Installation / configuration / run
 - Restitution des résultats / Phase Analytics
-- Quels sont les objectifs atteints ? ceux qui ne sont pas atteints 
+- Quels sont les objectifs atteints ? ceux qui ne sont pas atteints
 - Annexe: scriptes / programmes avec commentaires
 
 ***
 
+Schémas de nodes accent dessus  --> décliner cas par cas
+
+***
+
+
 - Contexte du stage
-Stage de 5 mois
-S'inscrit dans le contexte du drone inspear
-Problématique générale : l'algorithme de path planning du drone
-Problématique du stage : créer un banc de test permettant d'évaluer les compétences d'un algorithme de path planning en fonction des situations
+- L'objet de ce rapport est le projet de path planning commencé en avril 2021. Ce travail s'inscrit dans le cadre du projet inspear [**détailler le projet inspear ?**], plus précisément dans l'élaboration des algorithmes de path planning du drone. L'objectif de ces algorithmes est de permettre au drone de pouvoir se mouvoir accordément à la mision qui lui est confiée (généralement de l'escorte ou de la surveillance de zone) tout en évitant toute collision sur le chemin, et en respectant la réglementation sur les règles de navigation (COLREGs) en vigueur vis-à-vis des autres bateaux.
+
+- Seulement, pour pouvoir sélectionner un algorithme de path planning suffisament performant pour répondre aux attentes, il faut être capable d'évaluer son comportement dans des situations plus ou moins à risque. Cela implique d'une part de définir ces situations dans lesquels l'algorithme va être testé afin qu'elles soient fidèles aux situations réelles auxquelles le drone pourrait être confronté, d'autre part de définir objectivement des critères de sécurités et de performance chiffrés afin de pouvoir comparer les algorithmes de path planning entre eux, et enfin d'implémenter la plate-forme de test qui permettra de simuler le comportement d'un algorithme selon ces situations et d'automatiser le processus.
+
 - Etat de l'art :
- - [Thomas Stenersen's thesis](https://ntnuopen.ntnu.no/ntnu-xmlui/bitstream/handle/11250/2352498/12747_FULLTEXT.pdf?sequence=1&isAllowed=y)
- - [Path Planning and collision avoidance for autonomous surface vehicles II: a comparative study of algorithms](https://link.springer.com/article/10.1007/s00773-020-00790-x)
- - [A Robust Reactive Static Obstacle Avoidance System for Surface Marine Vehicles](https://www.mdpi.com/1424-8220/20/21/6262/pdf)
- - [Advances in Autonomous Obstacle Avoidance for Unmanned Surface Vehicles](https://www.hsdl.org/?view&did=12804)
- - [Taming an autonomous surface vehicle for path following and collision avoidance suing deep reinforcement learning](https://arxiv.org/pdf/1912.08578.pdf)
- - [Collision avoidance planning for unmanned surface vehicle based on eccentric expansion](https://journals.sagepub.com/doi/pdf/10.1177/1729881419851945)
- - [Optimal path planning for unmanned surface vehicles](http://nopr.niscair.res.in/bitstream/123456789/44622/1/IJMS%2047(7)%201325-1334.pdf)
- - [A comparison of Local Path Planning Techniques of Autonomous Surface Vehicles](https://www.mdpi.com/1424-8220/20/5/1488/pdf)
- - [Design and performance analysis of global path planning techniques for autonomous mobile robots in grid environments](https://journals.sagepub.com/doi/pdf/10.1177/1729881416663663)
+
+
 - Description détaillée de la problématique fonctionnelle
 L'entreprise étant en recherche d'un algorithme de path planning performant pour le projet du drone inspear, ce faisant au vu de la multitude des algorithmes déjà existant, du contexte de l'approche choisie par chacun d'entre eux et des critères utilisés pour caractériser leurs performances, il faut être capable de pouvoir simuler sur un grand nombre de situations plus ou moins spécifiques mais réelles le comportement de chacun de ces algorithmes et les évaluer selon des critères de performance et de sécurité afin de pouvoir rechercher un algorithme satisfaisant aux mieux ces critères.
 - Approche solution
@@ -43,24 +41,22 @@ Il fallait créer un package capable de lancer une banque de scénarios succesiv
 - Quels sont les objectifs atteints ? ceux qui ne sont pas atteints
 - Annexe: scriptes / programmes avec commentaires
 
+- Biblio
+ - [Thomas Stenersen's thesis](https://ntnuopen.ntnu.no/ntnu-xmlui/bitstream/handle/11250/2352498/12747_FULLTEXT.pdf?sequence=1&isAllowed=y)
+ - [Path Planning and collision avoidance for autonomous surface vehicles II: a comparative study of algorithms](https://link.springer.com/article/10.1007/s00773-020-00790-x)
+ - [A Robust Reactive Static Obstacle Avoidance System for Surface Marine Vehicles](https://www.mdpi.com/1424-8220/20/21/6262/pdf)
+ - [Advances in Autonomous Obstacle Avoidance for Unmanned Surface Vehicles](https://www.hsdl.org/?view&did=12804)
+ - [Taming an autonomous surface vehicle for path following and collision avoidance suing deep reinforcement learning](https://arxiv.org/pdf/1912.08578.pdf)
+ - [Collision avoidance planning for unmanned surface vehicle based on eccentric expansion](https://journals.sagepub.com/doi/pdf/10.1177/1729881419851945)
+ - [Optimal path planning for unmanned surface vehicles](http://nopr.niscair.res.in/bitstream/123456789/44622/1/IJMS%2047(7)%201325-1334.pdf)
+ - [A comparison of Local Path Planning Techniques of Autonomous Surface Vehicles](https://www.mdpi.com/1424-8220/20/5/1488/pdf)
+ - [Design and performance analysis of global path planning techniques for autonomous mobile robots in grid environments](https://journals.sagepub.com/doi/pdf/10.1177/1729881416663663)
 
-Tutorials : How to add a global Planner and integrate
-How to add a local Planner -> détailler les types de LP à ajouter et si il faut ajouter retirer le path_tracker
-2 types de local : ceux qui ont besoin de path_trackers et ceux qui n'en ont pas besoin et qui peuvent être insérés en sortie du gp direct
--> préciser les inputs et les outputs
-***
-### Maps
-The use of a static map is optionnal. To integrate a map, you need to launch a `map_sever` node, isssued from the eponym ROS default package. This node convert a YAML file linked to a PNG image into a black and white Occupancy Grid(_see the notes at the end of the document for more details_). The occupancy grid is published on the global topic `/map`. Then the `map_processing_node` needs to be launched, and will subscribe to `/map` and process the occupancy grid to inflate the static obstacles, before publishing it to `/processed_map`. The `asv_global_planner_node` by default subscribes to `/processed_map` and the `asv_ctrl_vo_node` by default subscribes to `/map`. This can be changed by using the **remap** option in the launch file. This option can also be used to make the global planner and the local planner computes on two different maps (in channeling situations, the map of the global planner has the channel drawn on it, that of the local planner is the same but without the channel).
 
-### Naming Conventions
-The source files are either located in a `/src` subdirectory of each package when written in C++, or in a `/nodes` subdirectory when written in Python. If the name of a file contains 'node', then it creates a node.
 
 ### Utilisations des obstacle trackers
 
 Détailler le layout (captures d'écran ou tree) -> on fait ça top-down
-
-### Inputs and Outputs
-Each time a simulation is run, the inputs and outputs of each opus are written in the `input/` and `output/` directories of the concerned package. These are .txt files representing the table of all the parameters and indicators of all the opuses launched by a specific simulation. The naming convention is _YYYYMMDDhhmmss_.txt (Year, Month, Day, hour, minute, second of launch of the simulation).
 
 commit vers seaowlgroup/asv_planner_tester
 
@@ -144,11 +140,17 @@ python3 executable_file.py
 
 The parameters can either be set manually in the launch files if the simulation is launched that way, either be entered in a graphic interface for `executable5.py`, or be set in an Excel or YAML file put in `asv_common/param/` and executed respectively with `executable6.py` or `executable9.py`.
 
-### Output
-When a simulation is over, an input file and an output file (both plain text files) are respectively created in `asv_common/input/` and `asv_common/output/`, named after a serial number concatenating the year, month, day, hour, minute and second the simulation was launched. These informations can be plotted using `asv_common/graph_drawer.py`
+### Inputs and Outputs
+When a simulation is over, an input file and an output file (both plain text files) are respectively created in `asv_common/input/` and `asv_common/output/`. These are .txt files representing the table of all the parameters and indicators of all the opuses launched by a specific simulation. The naming convention is _YYYYMMDDhhmmss_.txt (Year, Month, Day, hour, minute, second of launch of the simulation). These informations can be plotted using `asv_common/graph_drawer.py`.
+
+### Maps
+The use of a static map is optionnal. To integrate a map, you need to launch a `map_sever` node, isssued from the eponym ROS default package. This node convert a YAML file linked to a PNG image into a black and white Occupancy Grid(_see the notes at the end of the document for more details_). The occupancy grid is published on the global topic `/map`. Then the `map_processing_node` needs to be launched, and will subscribe to `/map` and process the occupancy grid to inflate the static obstacles, before publishing it to `/processed_map`. The `asv_global_planner_node` by default subscribes to `/processed_map` and the `asv_ctrl_vo_node` by default subscribes to `/map`. This can be changed by using the **remap** option in the launch file. This option can also be used to make the global planner and the local planner computes on two different maps (in channeling situations, the map of the global planner has the channel drawn on it, that of the local planner is the same but without the channel).
 
 
 ## Content
+
+### Naming Conventions
+The source files are either located in a `/src` subdirectory of each package when written in C++, or in a `/nodes` subdirectory when written in Python. If the name of a file contains 'node', then it creates a node.
 
 ### Launch Files and Executables
 
@@ -232,6 +234,28 @@ All the message types specific to this package are detailed in the sub-package`/
 - `config.sh`: configures a new machine to be able to use the package (**not meant to be executed as a whole script but line by line**)      
 - `is_running.sh`: indicates if the process is still running (**not very trustworthy**)    
 - `rename.sh`: renames the input and output of a specific simulation (by default the latest)
+
+### How to Add a GLobal Planner or a Local Planner
+#### Global Planner
+To integrate a new global planner and use it, here are the steps to follow :
+- First add a new .cpp file in `asv_global_planner/src` implementing the class with methods and attributes of the new GP. Also add in `as_global_planner/include` the corresponding .h header.
+- Then go to `asv_global_planner_node.cpp`, line 27 and change it to :
+```
+NewPlanner *gp = new NewPlanner(**args);
+```
+where `NewPlanner` is the name of the class you created and `**args` are the arguments of yout constructor, if required.
+- Finally, go back to the root of the workspace and launch `catkin_make`
+
+NB: this method doesn't allow to change easily between different global planners because it needs to modify the source code at each change of GP. A better way would be to use the parameter `global_planner` in the launch files and use it to parametrize the name of the class of the planner that needs to be used.
+
+#### Local Planner
+The steps to follow are basically the same but with the file `asv_ctrl_vo/src/asv_ctrl_vo_node.cpp` line 24. The structures of the files are however not as adapted as for th GP node, there might be some other changes to do to the file. The same remark as for the GP also applies.
+*******
+
+Tutorials : How to add a global Planner and integrate
+How to add a local Planner -> détailler les types de LP à ajouter et si il faut ajouter retirer le path_tracker
+2 types de local : ceux qui ont besoin de path_trackers et ceux qui n'en ont pas besoin et qui peuvent être insérés en sortie du gp direct
+-> préciser les inputs et les outputs
 
 
 ## Architecture

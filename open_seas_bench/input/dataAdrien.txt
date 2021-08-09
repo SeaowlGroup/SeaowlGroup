@@ -2014,7 +2014,7 @@ OPUS    CLASS    U_D_ASV    LOC_PLAN    HEADING    U_D    DCPA    SIZE    PRIOR 
 2013    CROSSING_LEFT   30    True    40    3    50    8.0    None    200    3
 2014    CROSSING_LEFT   30    True    40    3    50    8.0    None    500    3
 2015    CROSSING_LEFT   30    True    40    3    80    8.0    None    200    3
-2016    CROSSING_LEFT   30    True    40    3    80    8.0    None    500    32017    CROSSING_LEFT   1.543332    True    40    2.57222    -80    8.0    None    200    3
+2016    CROSSING_LEFT   30    True    40    3    80    8.0    None    500    3
 2018    CROSSING_LEFT   1.543332    True    40    2.57222    -80    8.0    None    500    3
 2019    CROSSING_LEFT   1.543332    True    40    2.57222    -50    8.0    None    200    3
 2020    CROSSING_LEFT   1.543332    True    40    2.57222    -50    8.0    None    500    3

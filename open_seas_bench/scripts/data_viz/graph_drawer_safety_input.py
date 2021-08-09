@@ -6,7 +6,6 @@ import rospkg
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.patches import Rectangle
-import time
 
 COLOR = ['b', 'orange', 'crimson', 'purple', 'cyan', 'magenta', 'gold']
 
@@ -19,6 +18,8 @@ class Fig(object):
     def __init__(self, input, output):
         self.input = input
         self.output = output
+        self.dcpamin = -80.
+        self.dcpamax = 80.
 
         self.i = 0
         self.j = 1
@@ -108,7 +109,7 @@ class Fig(object):
         tot = np.sum(prop)
 
         print("Total number : ", tot)
-        print(f"SEC\PERF    Performant  Insufficient")
+        print(f"SEC\PERF             |   Performant                         | Insufficient")
         print(f"Safe                 |   {round(100*prop[0, 0]/tot, 1)}%    | {round(100*prop[0, 1]/tot, 1)}%      |")
         print(f"Not quite safe       |   {round(100*prop[1, 0]/tot, 1)}%    | {round(100*prop[1, 1]/tot, 1)}%      |")
         print(f"Not quite dangerous  |   {round(100*prop[2, 0]/tot, 1)}%    | {round(100*prop[2, 1]/tot, 1)}%      |")
@@ -138,20 +139,14 @@ class Fig(object):
 
         n = min(len(x), len(y))
         self.count = 0
+        r = np.random.rand(n,2)-.5
         for p in range(n):
             if self.disp_groups[self.groups[p]] and self.disp_lp[self.lps[p]] and self.disp_sit[self.sits[p]]:
                 self.count += 1 
-                ax.plot(x[p], y[p], marker=self.markers[p], color=self.colors[p], label=self.labels[p])
+                ax.plot(x[p]+r[p,0], y[p]+r[p,1], marker=self.markers[p], color=self.colors[p], label=self.labels[p])
                 if self.annotate:
                     ax.annotate(p, xy=(x[p],y[p]), xytext=(6,6), textcoords='offset pixels')
         print("Count : ", self.count, " / ", self.total)
-        if self.validation_color and self.j in {2,4}:
-            x0, y0, width, height = ax.viewLim.bounds
-            lim = 0.0
-            rect_g = Rectangle((x0,y0), width, np.maximum(lim-y0, 0.0), edgecolor='green', facecolor='lightgreen', alpha=0.5)
-            rect_r = Rectangle((x0,y0), width, height, edgecolor='red', facecolor='tomato', alpha=0.3)
-            ax.add_patch(rect_r)
-            ax.add_patch(rect_g)
 
         handles, labels = ax.get_legend_handles_labels()
         by_label = dict(zip(labels, handles))
@@ -184,8 +179,14 @@ def gui(name):
     y = tk.IntVar()
     x.set(0)
     y.set(0)
-    cutoff = tk.DoubleVar()
-    cutoff.set(1000000)
+    dcpamin = tk.DoubleVar()
+    dcpamin.set(-80)
+    dcpamax = tk.DoubleVar()
+    dcpamax.set(80)
+    ddetectmin = tk.DoubleVar()
+    ddetectmin.set(100)
+    ddetectmax = tk.DoubleVar()
+    ddetectmax.set(500)
     anno = tk.IntVar()
     anno.set(0)
     wit = tk.IntVar()
@@ -213,7 +214,8 @@ def gui(name):
 
         graph_fig.i = x.get()
         graph_fig.j = y.get()
-        graph_fig.cutoff = cutoff.get()
+        graph_fig.dcpamin = dcpamin.get()
+        graph_fig.dcpamax = dcpamax.get()
         graph_fig.disp_lp = [bool(lp.get()), bool(vo.get())]
         graph_fig.disp_sit = [bool(ov1.get()), bool(ov2.get()), bool(cr.get()),bool(cl.get()),bool(ho.get())]
         for g in range(graph_fig.n_groups):
@@ -225,31 +227,36 @@ def gui(name):
         fig = graph_fig.plot_graph()
         chart_type = FigureCanvasTkAgg(fig, graph_frame)
         chart_type.get_tk_widget().pack()
-        cutoff.set(1000000)
 
-    x_list = [["Opus",0], ["Speed of the ASV",2], ["Obstacle Heading",4], ["Theoretical dCPA",6], ["Detection Distance",9]]
-    y_list = [["Opus",0], ["Speed of the ASV",2], ["Obstacle Heading",4], ["Theoretical dCPA",6], ["Detection Distance",9]]
+    x_list = [["Opus",0], ["Speed of the ASV",2], ["Obstacle Heading",4], ["Obstacle speed",5], ["Theoretical dCPA",6], ["Detection Distance",9]]
+    y_list = [["Opus",0], ["Speed of the ASV",2], ["Obstacle Heading",4], ["Obstacle speed",5], ["Theoretical dCPA",6], ["Detection Distance",9]]
 
 
     for w in x_list:
-        tk.Radiobutton(frame1, variable=x, text=w[0], value=w[1], highlightthickness=0, command=update_plot).pack(fill='both')
+        tk.Radiobutton(frame1, variable=x, text=w[0], value=w[1], highlightthickness=0).pack(fill='both')
     for w in y_list:
-        tk.Radiobutton(frame2, variable=y, text=w[0], value=w[1], highlightthickness=0, command=update_plot).pack(fill='both')
+        tk.Radiobutton(frame2, variable=y, text=w[0], value=w[1], highlightthickness=0).pack(fill='both')
 
 
     frame3_1 = tk.Frame(frame3)
+    tk.Button(frame3, text='Update', command=update_plot).pack()
     frame3_1.pack()
-    tk.Label(frame3_1, text='Cutoff:').pack(side='left')
-    tk.Entry(frame3_1, textvariable=cutoff, width=5).pack()
-    tk.Button(frame3, text='Set Cutoff', command=update_plot).pack()
-    tk.Checkbutton(frame3, text="Annotate", variable=anno, command=update_plot).pack()
-    tk.Checkbutton(frame3, text="Display Non-LP", variable=lp, command=update_plot).pack()
-    tk.Checkbutton(frame3, text="Display VO", variable=vo, command=update_plot).pack()
-    tk.Checkbutton(frame3, text="Display Overtaking", variable=ov1, command=update_plot).pack()
-    tk.Checkbutton(frame3, text="Display Overtaken", variable=ov2, command=update_plot).pack()
-    tk.Checkbutton(frame3, text="Display Crossing right", variable=cr, command=update_plot).pack()
-    tk.Checkbutton(frame3, text="Display Crossing left", variable=cl, command=update_plot).pack()
-    tk.Checkbutton(frame3, text="Display Head on", variable=ho, command=update_plot).pack()
+    tk.Label(frame3_1, text='DCPA_MIN:').pack(side='left')
+    tk.Entry(frame3_1, textvariable=dcpamin, width=5).pack()
+    tk.Label(frame3_1, text='DCPA_MAX:').pack(side='left')
+    tk.Entry(frame3_1, textvariable=dcpamax, width=5).pack()
+    tk.Label(frame3_1, text='D_DETECT_MIN:').pack(side='left')
+    tk.Entry(frame3_1, textvariable=ddetectmin, width=5).pack()
+    tk.Label(frame3_1, text='D_DETECT_MAX:').pack(side='left')
+    tk.Entry(frame3_1, textvariable=ddetectmax, width=5).pack()
+    tk.Checkbutton(frame3, text="Annotate", variable=anno).pack()
+    tk.Checkbutton(frame3, text="Display Non-LP", variable=lp).pack()
+    tk.Checkbutton(frame3, text="Display VO", variable=vo).pack()
+    tk.Checkbutton(frame3, text="Display Overtaking", variable=ov1).pack()
+    tk.Checkbutton(frame3, text="Display Overtaken", variable=ov2).pack()
+    tk.Checkbutton(frame3, text="Display Crossing right", variable=cr).pack()
+    tk.Checkbutton(frame3, text="Display Crossing left", variable=cl).pack()
+    tk.Checkbutton(frame3, text="Display Head on", variable=ho).pack()
 
 
     # for g in range(graph_fig.n_groups):
@@ -262,11 +269,7 @@ def gui(name):
         for j in range(2):
             g = i + 4*j
             groups[g].set(1)
-            # tk.Checkbutton(frame3, text=f"Display Group {g+1}", variable=groups[g], command=update_plot).pack()
-            tk.Checkbutton(frame3, text=f"Display {l1[i]}/{l2[j]}", variable=groups[g], command=update_plot).pack()
-
-
-    update_plot()
+            tk.Checkbutton(frame3, text=f"Display {l1[i]}/{l2[j]}", variable=groups[g]).pack()
 
     aux_frame.mainloop()
 

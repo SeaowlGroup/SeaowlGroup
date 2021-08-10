@@ -26,7 +26,7 @@ class Fig(object):
         self.i = 0
         self.j = 1
 
-        self.lab = ['OPUS', 'ASV SPEED', 'HEADING', 'OBSTACLE SPEED', 'DCPA', 'DETECTION DISTANCE']
+        self.lab = ['OPUS', 'ASV SPEED (kn)', 'HEADING (°)', 'OBSTACLE SPEED (kn)', 'DCPA (m)', 'DETECTION DISTANCE (m)']
 
         self.labels = []
         self.colors = []
@@ -124,7 +124,7 @@ class Fig(object):
         figure = plt.Figure(figsize=(8,8), dpi=100)
 
         ax = figure.add_subplot(111)
-        ax.set_title("Results of the Simulation")
+        ax.set_title("Results of the Simulation from the Open Seas Bench")
         ax.set_xlabel(self.lab[self.i])
         ax.set_ylabel(self.lab[self.j])
 

@@ -32,8 +32,8 @@ def run(serial, params, uuid) :
     for scenar in params:
 
         h = scenar[0]
-        u_d = scenar[1]*0.514444 #knots to m/s
-        u_d_asv = scenar[2]*0.514444 #knots to m/s
+        u_d = scenar[1]
+        u_d_asv = scenar[2]
         dcpa = scenar[3]
         d_detec = scenar[4]
         opus = scenar[5]
@@ -63,17 +63,20 @@ def run(serial, params, uuid) :
             class_scen = 'CROSSING_RIGHT'
             group = 5
 
+        input = f"{rospack.get_path('open_seas_bench')}/input/{serial}.txt"
+        f = open(input,'a')
+        f.write(f'{opus}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}    {group}\n')
+        f.close()
+
+        u_d = u_d*0.514444 #knots to m/s
+        u_d_asv = u_d_asv*0.514444 #knots to m/s
+
         # ASV parameters
         calc_heading_asv = np.pi/2
         initial_state_asv = [0.,0.,calc_heading_asv, u_d_asv,0.,0.]
         #Trajectory
         waypoints_asv = [[0.,0.],
                          [t_sim*u_d_asv*np.cos(calc_heading_asv), t_sim*u_d_asv*np.sin(calc_heading_asv)]]
-
-        input = f"{rospack.get_path('open_seas_bench')}/input/{serial}.txt"
-        f = open(input,'a')
-        f.write(f'{opus}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}    {group}\n')
-        f.close()
 
         # Creation of the launch files
         cli_args1 = ['open_seas_bench', 'openSeasBench.launch',

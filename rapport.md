@@ -1,84 +1,20 @@
-***
-- Contexte du stage
-- Problème ?
--  Etat de l'art du sujet
-- Description détaillée de la problématique fonctionnelle
-- Approche solution
-- Implémentation:
-	- Choix technologique
-	- Plateforme technique
-	- Installation / configuration / run
-- Restitution des résultats / Phase Analytics
-- Quels sont les objectifs atteints ? ceux qui ne sont pas atteints
-- Annexe: scriptes / programmes avec commentaires
+# Internship Report
 
-***
+## Presentation of the Subject
+The subject of this report is the path planning project started in April 2021. This work is part of the inspear project, more precisely in the development of path planning algorithms for the UAV. The objective of these algorithms is to allow the drone to be able to move according to the mission that is entrusted to it (generally escort or surveillance of area) while avoiding any collision on the path, and respecting the regulations on the rules of navigation (COLREGs) in force with respect to other vessels.
 
-asv_simulator/nodes
-
-détailler paramètres chanelling et crosslane
-
-détailler layout (launch files) --> conv nommage
-
-images et captures d'écran
-
-mise en forme
-
-Output indicators
-
-***
+However, in order to select a path planning algorithm that is sufficiently efficient to meet expectations, it is necessary to be able to evaluate its behavior in more or less risky situations. This implies on the one hand to define these situations in which the algorithm will be tested so that they are faithful to the real situations the drone could be confronted with, on the other hand to objectively define safety and performance criteria in order to be able to compare the path planning algorithms between them, and finally to implement the test platform that will allow to simulate the behavior of an algorithm according to these situations and to automate the process.
 
 
-- Contexte du stage
-- L'objet de ce rapport est le projet de path planning commencé en avril 2021. Ce travail s'inscrit dans le cadre du projet inspear [**détailler le projet inspear ?**], plus précisément dans l'élaboration des algorithmes de path planning du drone. L'objectif de ces algorithmes est de permettre au drone de pouvoir se mouvoir accordément à la mision qui lui est confiée (généralement de l'escorte ou de la surveillance de zone) tout en évitant toute collision sur le chemin, et en respectant la réglementation sur les règles de navigation (COLREGs) en vigueur vis-à-vis des autres bateaux.
-
-- Seulement, pour pouvoir sélectionner un algorithme de path planning suffisament performant pour répondre aux attentes, il faut être capable d'évaluer son comportement dans des situations plus ou moins à risque. Cela implique d'une part de définir ces situations dans lesquels l'algorithme va être testé afin qu'elles soient fidèles aux situations réelles auxquelles le drone pourrait être confronté, d'autre part de définir objectivement des critères de sécurités et de performance chiffrés afin de pouvoir comparer les algorithmes de path planning entre eux, et enfin d'implémenter la plate-forme de test qui permettra de simuler le comportement d'un algorithme selon ces situations et d'automatiser le processus.
-
-- Etat de l'art :
+The company is in search of an efficient path planning algorithm for the Inspector UAV project. In view of the multitude of existing algorithms, the context of the approach chosen by each of them and the criteria used to characterize their performance, it is necessary to be able to simulate the behavior of each of these algorithms on a large number of more or less specific but real situations and to evaluate them according to performance and safety criteria in order to be able to search for an algorithm that best satisfies these criteria.
 
 
-- Description détaillée de la problématique fonctionnelle
-L'entreprise étant en recherche d'un algorithme de path planning performant pour le projet du drone inspear, ce faisant au vu de la multitude des algorithmes déjà existant, du contexte de l'approche choisie par chacun d'entre eux et des critères utilisés pour caractériser leurs performances, il faut être capable de pouvoir simuler sur un grand nombre de situations plus ou moins spécifiques mais réelles le comportement de chacun de ces algorithmes et les évaluer selon des critères de performance et de sécurité afin de pouvoir rechercher un algorithme satisfaisant aux mieux ces critères.
-- Approche solution
-Il fallait créer un package capable de lancer une banque de scénarios succesivement et d'évaluer leurs indicateurs de performance et de sécurité après les avoir définis.
-- Implémentation:
-	- Choix technologique
-	En se basant sur les travaux préliminaires effectués par Thomas Stenersen.
-	- Plateforme technique
-	Ubuntu 20.04 LTS ROS noetic
-	- Installation / configuration / run
-- Restitution des résultats / Phase Analytics
-- Quels sont les objectifs atteints ? ceux qui ne sont pas atteints
-- Annexe: scriptes / programmes avec commentaires
-
-- Biblio
- - [Thomas Stenersen's thesis](https://ntnuopen.ntnu.no/ntnu-xmlui/bitstream/handle/11250/2352498/12747_FULLTEXT.pdf?sequence=1&isAllowed=y)
- - [Path Planning and collision avoidance for autonomous surface vehicles II: a comparative study of algorithms](https://link.springer.com/article/10.1007/s00773-020-00790-x)
- - [A Robust Reactive Static Obstacle Avoidance System for Surface Marine Vehicles](https://www.mdpi.com/1424-8220/20/21/6262/pdf)
- - [Advances in Autonomous Obstacle Avoidance for Unmanned Surface Vehicles](https://www.hsdl.org/?view&did=12804)
- - [Taming an autonomous surface vehicle for path following and collision avoidance suing deep reinforcement learning](https://arxiv.org/pdf/1912.08578.pdf)
- - [Collision avoidance planning for unmanned surface vehicle based on eccentric expansion](https://journals.sagepub.com/doi/pdf/10.1177/1729881419851945)
- - [Optimal path planning for unmanned surface vehicles](http://nopr.niscair.res.in/bitstream/123456789/44622/1/IJMS%2047(7)%201325-1334.pdf)
- - [A comparison of Local Path Planning Techniques of Autonomous Surface Vehicles](https://www.mdpi.com/1424-8220/20/5/1488/pdf)
- - [Design and performance analysis of global path planning techniques for autonomous mobile robots in grid environments](https://journals.sagepub.com/doi/pdf/10.1177/1729881416663663)
-
-
-
-### Utilisations des obstacle trackers
-
-Détailler le layout (captures d'écran ou tree) -> on fait ça top-down
-
-commit vers seaowlgroup
-
-
-
-
-# The Planner Tester Package
-## Installation
+## Implementation
+### Installation
 This package was coded on Ubuntu 20.04 LTS with ROS Noetic. It wouldn't work on previous versions of ROS because it uses Python 3.
 Here are the steps to take to install it from scratch, starting from a plain Ubuntu 20.04 distribution.
 
-### ROS Installation
+#### ROS Installation
 The first step is to enable access to the repositories universe, multiverse and restricted if it not already. This needs to be typed in the terminal :
 ```
 sudo add-apt-repository universe
@@ -102,7 +38,7 @@ Before continuing, don't forget to source the ROS setup (**this needs to be done
 ```
 source /opt/ros/noetic/setup.bash
 ```
-### Package Installation
+#### Package Installation
 Before installing the main package, we need to install the additional depedencies (some more may be necessary depending on your configuration) :
 ```
 sudo apt install ros-noetic-tf2
@@ -127,12 +63,13 @@ You will need to source the package before starting to use it and **everytime yo
 ```
 source devel/setup.bash
 ```
+
 ## Run
 
 ### Get Started
 To launch a graphic user interface allowing to set easily the parameters, type in the terminal :
 ```
-roscd asv_common
+roscd open_seas_bench
 python3 executable5.py
 ```
 ### Launch Simulations
@@ -148,14 +85,25 @@ roscd asv_common
 python3 executable_file.py
 ```
 
-The parameters can either be set manually in the launch files if the simulation is launched that way, either be entered in a graphic interface for `executable5.py`, or be set in an Excel or YAML file put in `asv_common/param/` and executed respectively with `executable6.py` or `executable9.py`.
+The parameters can either be set manually in the launch files if the simulation is launched that way, either be entered in a graphic interface for `manInterface.py`, or be set in an Excel or YAML file put in `asv_common/param/` and executed respectively with `executable6.py` or `executable9.py`.
 
 ### Inputs and Outputs
 When a simulation is over, an input file and an output file (both plain text files) are respectively created in `asv_common/input/` and `asv_common/output/`. These are .txt files representing the table of all the parameters and indicators of all the opuses launched by a specific simulation. The naming convention is _YYYYMMDDhhmmss_.txt (Year, Month, Day, hour, minute, second of launch of the simulation). These informations can be plotted using `asv_common/graph_drawer.py`.
 
+### Output indicators
+
+The output consists of diverse performance indicators relative to each opus :
+- The duration of the opus  
+- Three indicators of security : natural, logarithmic and logarithmic with offset
+- Four indicators of anticipation : acc, omega, r and time  
+- Four indicators of agglutination : acc, omega, r and time
+- The real dCPA of the ASV with the ships (not with static obstacles)
+- The minimum distance at which the ASV crossed in front of a ship (-1 if the ASV didn't cross by the front side of the obstacle)
+- The number of times the ship crossed in front of the ASV (if the ship moves in a straight line, it reveals how much the ASV hesitated before choosing to cross by port or starboard)
+
+**Include the pdf file written by Adrien**
 
 ## Content
-
 ### Naming Conventions
 - The source files are either located in a `/src` subdirectory of each package when written in C++, or in a `/nodes` subdirectory when written in Python. If the name of a file contains '_node_', then it is a file that creates a node.
 - The scripts used to launch a test bench are in a `scripts/` directory in the concerned packages. The main scripts are in `scripts/python`. If their name contains '_man_', it is meant for launching a single simulation with user defined parameters, if it contains '_auto_' it is meant for launching a bench using the parameters from a file in the `/config/param/` directory of the package.
@@ -226,24 +174,41 @@ The topics are often included in diverse namespaces indicating the opus and/or v
 - `/end_simulation`, `/start_simulation` (type _Empty_): when a message is published, signal respectively the end or the beginning of the simulation (used to synchronize the nodes and automate the execution of the successive opuses)
 - `/map`, `/processed_map`, `/localmap` (optionnal, type _Occupancy Grid_): if a static map is set in the parameters, `/map` is its conversion into an occupancy grid, `/processed_map` is the implementation of the inflated static obstacles and `/local_map` is a short-ranged non-static version of the map used by the local planner  
 
-### Utility Scripts
+
+### Scripts
+The packages `open_seas_bench` and `cross_lane` contain several script written in python or shell.
+
+#### Executable Scripts
+
+- `manInterface.py` : launches a GUI allowing the user to manually set the parameters of the simulation and then launch the simulation
+- `autoSim.py` : launches an automated series of simulations from a parmaeter file. Only allows single processing
+- `autoSim.sh` : executes the precedent file, but allowing it to use multi processing
+- `graph_drawer.py` : data visualization from the input and output files of a simulation. The variant `graph_drawer_safety_groups.py` classifies the opuses into different groups in function of their indicators of security, time and anticipation
+
+#### Utility Scripts
 
 - `clear.sh`: removes the input and output or either a specific simulation or all the scripts
 - `current_opus.sh`: indicates the maximum opus of the latest simulation  
 - `kill.sh`: kills all processes related to the package (to use when a simulation or several are running in the background)               
 - `concatenate.sh`: (**NOT YET WRITTEN**) concatenates two output and remove all the duplicate opuses  
 - `graph_drawer.py`: opens a graphical interface allowing to plot data from the results of a specific simulation
-- `launch_background.sh`: launches `executable9.py` / `executable9Adrien.py` in the backgound and write the output and errors in the directory `log/` (**the parameters are in executable9**)
 - `watch_cpu.py`: gives information about the CPUs and memory activity over a certain periiod of time (meant to determine how many processes can be launched simultaneously)
 - `config.sh`: configures a new machine to be able to use the package (**not meant to be executed as a whole script but line by line**)      
 - `is_running.sh`: indicates if the process is still running (**not very trustworthy**)    
 - `rename.sh`: renames the input and output of a specific simulation (by default the latest)
 
-### Launch Files and Executables
 
-***
+### Other Directories
 
-### Other Files
+There are a few other directories that serve different purposes :
+- `rviz` : each of these directories contains the configuration files for launching rviz (.rviz)
+- `maps` : each of these directories contains the .png image and the related YAML file for set a specific map as a parameter
+- `asv_common/images` : contains a few images to decorate the interfaces
+- `asv_simulator/parameters` : contains the cinematic parameters of the ASV (model Viknes), not to be confused with the `config/param` directories on other packages that contains the benches of parameters
+- `asv_simulator/meshes` : contains the meshes of the ASV for visual representation on rviz
+- `log` : these directories keep track of the output and errors of a simulation launched in the background, it is useful for debugging or spotting an anomaly
+
+
 ### Additional Message Types
 
 All the message types specific to this package are generated and detailed in the sub-package`/asv_msgs`.
@@ -464,6 +429,11 @@ The use of a static map is optionnal. To integrate a map, you need to launch a `
 
 ```
 
+![Tree first part](asv_common/images/tree1.png)
+![Tree second part](asv_common/images/tree2.png)
+![Tree third part](asv_common/images/tree3.png)
+
+
 ### Nodes and Topics
 
 To be simulated, an ASV needs at the bare minimum an `asv_simulator_node` and a path tracker node (PP or LOS). If a global planner is added, it will be placed upstream of the path tracker, if a local planner is added it will be placed downstream of the path tracker.
@@ -483,7 +453,7 @@ Here is the node graph of a simulation launched by `channeling` with 5 ships :
 ### Test Benches
 #### 1-to-1 Opens seas
 Located in the package `open_seas_bench`.
-This bench aims at evaluating the behavior of the ASV when encountering another ship in open seas, with a local planner and no global planner. In this case, the set of scenarios is meant to be as exhaustive as possible, in the purpose of detecting any weakness of the local planner that could happen in a precise maritime situation. The parameters (for now) are the following :
+This bench aims at evaluating the behavior of the ASV when encountering another ship in open seas, with a local planner and no global planner. In this case, the set of scenarios is meant to be as exhaustive as possible, in the purpose of detecting any weakness of the local planner that could happen in a precise maritime situation. The parameters of the tested bench are the following :
 
 - **Heading** : every 20°
 - **Theoretical dCPA** : -80m, -50m, -20m, -10m, 0m, 10m, 20m, 50m, 80m
@@ -493,13 +463,48 @@ This bench aims at evaluating the behavior of the ASV when encountering another 
 
 The total number of scenarios is a bit less than 41 472.
 
+It is also possible by launching a manual interface to change :
+ - the size of the obstacle ship
+ - the priority status of the obstacle ship (none, stand on or give way, this only concerns the status independantly of the current situation)
+
 #### Cross Lane
-This bench aims at evaluating the behavior of the ASV when crossing a lane, with a local planner and no global planner. The ASV encounters different ships coming from both the left and the right. We use a certain amount of randomness and some deterministic variables.
+Located in the package `cross_lane`.
+
+This bench aims at evaluating the behavior of the ASV in a Traffic Separation Schemes (TSS). The original inspiration was the Dover Straits TSS, but the scheme's scale has been reduced for simulation time.
+
+The situation has been simplified to crossing two parallel sea lanes with boats going from right to left (left lane) and left to right (called right lane) respectively. The obstacle boats have a uniform rectilinear motion along the direction of their respective lanes, but with different speeds. Their trajectories are distributed uniformly in the lateral direction (in order to prevent collisions between obstacles). In order to keep the density of boats constant without having to spawn a large number, the lanes are periodised, i.e. they are of finite length but when a boat arrives at one extremity it reappears at the other end (similar to Pac-Man).
+
+The modifiable parameters for the obstacles are:
+
+* the lanes respective widths (rlw, llw)
+* the distance between the lanes (ld)
+* the density of obstacles either by specifying
+  * the number of boats per lane, having a finite length (rln, lln)
+  * the density of boats (rld,lld)
+* the size of the obstacles (size)
+* the priority status of the obstacles (prior)
+* the detection distance of the obstacles (d_detection)
+
+For the mission of the ASV there is:
+
+* the angle of the straight line joining the waypoints and the direction of the lanes (angle)
+* the target speed of the ASV (u_d)
+
+The length of the lanes is automatically fixed but can also be parametrised.
+
+The speed distribution of the boats is fixed in `crossLaneObstNode.py`:
+
+* 5 knots (20%)
+* 10 knots (20%)
+* 15 knots (20%)
+* 20 knots (20%)
+* 25 knots (20%)
+
+For the moment, our main interest lies in the influence of the density on perforamance and security.
 
 #### Channeling
 This aims at evaluating the behavior of the ASV when leaving a harbor by a channel, with a local planner and a global planner. The ASV can encounter ships using the channel in the other way as well as ships crossing the channel. For the moment it only consists in a specific scenario, `toulon.launch`, where the ASV is going out of Toulon's harbor by its channel and encounters many ships in the channel. The functionnal parameters and indicators that can lead to the formulation of a test bench are still to be precised.
 
-#### Output indicators
 
 ### Planners
 #### Global Planner (A Star)
@@ -543,9 +548,6 @@ The .launch files are launched by the _roslaunch_ package, which has very limite
 #### Multiprocessing
 For now only `executable9.py` uses multiprocessing to launch several simulations simultaneously. It has several parameters set as global variables : `NB_PROCESS`, `OPUS_START` and `SERIAL_TO_UPDATE`. The first one is the number of simulations that will be simultaneously launched. It depends on the capacities of the processor of the computer executing the program, and on the computing power needed by the simulations (especially the local planner). The script `watch_cpu.sh` can help to determine the best number of processes by testing with several values (launch the script before the simulation and end it afterwards). `OPUS_START` and `SERIAL_TO_UPDATE` need to be changed if the executable needs to start but from a specific opus and needs to append the output to a previous file.
 
-## Results
-
-***
 
 ## Issues and Improvements to be Made
 
@@ -560,3 +562,19 @@ For now only `executable9.py` uses multiprocessing to launch several simulations
 rosclean purge
 ```
 - The original package allowed to simulate waves and bad weather, we didn't use that but it can be made by changing mentions of the file `asv_simulator/config/parmeters/viknes2.yaml` with `asv_simulator/config/parmeters/viknes.yaml`
+- To allow multiprocessing, we couldn't use a single python executable because the script kept creating new child processes unused who were increasingly slowing down the machine. The solution we find was to place the main script in a bash file, which didn't create child processes.
+
+## Results
+
+***
+
+## Bibliography
+ - [Thomas Stenersen's thesis](https://ntnuopen.ntnu.no/ntnu-xmlui/bitstream/handle/11250/2352498/12747_FULLTEXT.pdf?sequence=1&isAllowed=y)
+ - [Path Planning and collision avoidance for autonomous surface vehicles II: a comparative study of algorithms](https://link.springer.com/article/10.1007/s00773-020-00790-x)
+ - [A Robust Reactive Static Obstacle Avoidance System for Surface Marine Vehicles](https://www.mdpi.com/1424-8220/20/21/6262/pdf)
+ - [Advances in Autonomous Obstacle Avoidance for Unmanned Surface Vehicles](https://www.hsdl.org/?view&did=12804)
+ - [Taming an autonomous surface vehicle for path following and collision avoidance suing deep reinforcement learning](https://arxiv.org/pdf/1912.08578.pdf)
+ - [Collision avoidance planning for unmanned surface vehicle based on eccentric expansion](https://journals.sagepub.com/doi/pdf/10.1177/1729881419851945)
+ - [Optimal path planning for unmanned surface vehicles](http://nopr.niscair.res.in/bitstream/123456789/44622/1/IJMS%2047(7)%201325-1334.pdf)
+ - [A comparison of Local Path Planning Techniques of Autonomous Surface Vehicles](https://www.mdpi.com/1424-8220/20/5/1488/pdf)
+ - [Design and performance analysis of global path planning techniques for autonomous mobile robots in grid environments](https://journals.sagepub.com/doi/pdf/10.1177/1729881416663663)

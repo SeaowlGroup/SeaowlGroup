@@ -15,6 +15,9 @@
         output="screen"
         required="true">
     <rosparam param="shutdown" subst_value="True">$(arg trigger_shutdown)</rosparam>
+    <param name="output_file" value="$(find channeling)/output/toulon.txt"/>
+    <remap from="/state" to="/asv/state" />
+    <remap from="/obStatesRef" to="/obstacle_states" />
   </node>
 
 

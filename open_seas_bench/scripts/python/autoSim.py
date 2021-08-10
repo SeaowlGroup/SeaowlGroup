@@ -117,7 +117,7 @@ if __name__ == "__main__":
 # def go(op_start, op_end, serial):
 
     if len(sys.argv) <= 3 :
-        print(f'Usage: {sys.argv[0]} <bench> <op_start> <op_end> [serial]')
+        print(f'Usage: {sys.argv[0]} <bench> <op_start> <op_end> <serial>')
         # return(0)
         sys.exit(1)
 

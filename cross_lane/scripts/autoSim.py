@@ -4,7 +4,7 @@ import roslaunch
 import numpy as np
 import datetime
 import rospkg
-import yaml
+import yaml,os,sys
 
 NB_PROCESS = 4
 OPUS_START = 1
@@ -76,6 +76,20 @@ def run(serial, params, uuid) :
 
 
 if __name__ == "__main__":
+
+    if len(sys.argv) <= 3 :
+        print(f'Usage: {sys.argv[0]} <bench> <op_start> <op_end> <serial>')
+        sys.exit(1)
+
+    op_start =  int(sys.argv[2])
+    op_end = int(sys.argv[3])
+
+    if len(sys.argv) <= 4 :
+        now = datetime.datetime.now()
+        serial = now.strftime("%Y%m%d%H%M%S")[2:]
+    else:
+        serial = sys.argv[4]
+
     rospack = rospkg.RosPack()
 
     yaml_file = open(f"{rospack.get_path('cross_lane')}/config/param/crossLane.yaml", 'r')
@@ -84,6 +98,7 @@ if __name__ == "__main__":
     # UUID
     uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
     roslaunch.configure_logging(uuid)
+    
     # Output parameters
     if len(SERIAL_TO_UPDATE) == 0: 
         now = datetime.datetime.now()
@@ -98,6 +113,7 @@ if __name__ == "__main__":
     f.close()
 
     opus = 1
+    params = []
     try:
         for angle in yaml_content['angle']:
             for u_d in yaml_content['u_d']:
@@ -106,18 +122,18 @@ if __name__ == "__main__":
                         for rlw in yaml_content['rlw']:
                             for llw in yaml_content['llw']:
                                 for ld in yaml_content['ld']:
-                                    if rld == lld:
-                                        params = []
-                                        for k in range(NB_PROCESS):
-                                            params.append([opus, angle, u_d, rld, lld, rlw, llw, ld])
-                                            opus += 1
+                                    if opus > op_end:
+                                        sys.exit(0)
+                                    if opus >= op_start:
+                                        params.append([opus, angle, u_d, rld, lld, rlw, llw, ld])
+                                    opus += 1
+
+                                    if len(params) == NB_PROCESS or  (len(params) > 0 and opus > op_end):
+                                        if os.path.exists('nohup.out'):
+                                            os.remove('nohup.out')
+                                        if os.path.exists('nohup.err'):
+                                            os.remove('nohup.err')
                                         run(serial, params, uuid)
-                                        # except:
-                                        #     print("Unexpected error:", sys.exc_info()[0])
-                                        #     output = f"{rospack.get_path('cross_lane')}/output/{serial}.txt"
-                                        #     g = open(input,'a')
-                                        #     g.write(f'{opus+1} nan nan nan nan nan nan nan nan nan nan nan nan nan\n')
-                                        #     g.close()
-                                        #     params = []
+                                        params = []
     except KeyboardInterrupt:
         pass

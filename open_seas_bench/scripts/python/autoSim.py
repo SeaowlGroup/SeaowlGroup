@@ -121,7 +121,6 @@ if __name__ == "__main__":
 
     if len(sys.argv) <= 3 :
         print(f'Usage: {sys.argv[0]} <bench> <op_start> <op_end> <serial>')
-        # return(0)
         sys.exit(1)
 
     op_start =  int(sys.argv[2])
@@ -150,25 +149,26 @@ if __name__ == "__main__":
 
     params = []
     opus = 1
-    for h in yaml_content['heading']:
-        for u_d in yaml_content['u_d']:
-            for u_d_asv in yaml_content['u_d_asv']:
-                for dcpa in yaml_content['dcpa']:
-                    for d_detec in yaml_content['d_detection']:
+    try:
+        for h in yaml_content['heading']:
+            for u_d in yaml_content['u_d']:
+                for u_d_asv in yaml_content['u_d_asv']:
+                    for dcpa in yaml_content['dcpa']:
+                        for d_detec in yaml_content['d_detection']:
 
-                        if opus > op_end:
-                            sys.exit(0)
-                            # return(opus)
+                            if opus > op_end:
+                                sys.exit(0)
 
-                        if (h<340 and h>20 or np.abs(u_d-u_d_asv)>2.57) and (d_detec > np.abs(dcpa)):
-                            if opus >= op_start:
-                                params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])
-                            opus += 1
-                            if len(params) == NB_PROCESS or  (len(params) > 0 and opus > op_end):
-                                if os.path.exists('nohup.out'):
-                                    os.remove('nohup.out')
-                                if os.path.exists('nohup.err'):
-                                    os.remove('nohup.err')
-                                run(serial, params, uuid)
-                                params = []
-    # return(-1)
+                            if (h<340 and h>20 or np.abs(u_d-u_d_asv)>2.57) and (d_detec > np.abs(dcpa)):
+                                if opus >= op_start:
+                                    params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])
+                                opus += 1
+                                if len(params) == NB_PROCESS or  (len(params) > 0 and opus > op_end):
+                                    if os.path.exists('nohup.out'):
+                                        os.remove('nohup.out')
+                                    if os.path.exists('nohup.err'):
+                                        os.remove('nohup.err')
+                                    run(serial, params, uuid)
+                                    params = []
+    except KeyboardInterrupt:
+        pass

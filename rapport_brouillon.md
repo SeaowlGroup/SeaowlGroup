@@ -13,8 +13,26 @@
 - Annexe: scriptes / programmes avec commentaires
 
 détailler le projet inspear ?
+
 ***
 
+***
+The topic of autonomous vehicles, in paricular autonomous surface vessels (ASV), is a major point of interest in nowaday's world of innovation; one just need to see how the Google car or Tesla gained attention and admiration from the general public to notice that. One of the main challenges to overcome in these projects is the path planning, or how will the vehicle compute his course and at the same time avoid the obstacles on his way. The project Inspear concerns one of those ASVs, and it is subject to the same problematics. However, in order to write a path planning algorithm that is efficient enough to meet expectations, it is necessary to be able to evaluate it. This is the issue that this report handles : how to evaluate the performance of a path planning algorithm ?
+
+Most path planning algorithms for ASVs are composed of two parts : a global planner and a local planner. The global planner sets the trajectory to follow based on a static map of the evironment and the mission that it has to do (escort of patrolling for example); the local planner is a collision avoidance algorithm meant to modify the trajectory if an unexpected obstacle comes close. Most of the time this obstacle would be a ship, and in that case, the planner must ensure that the ASV complies with the regulations on the rules of navigation (COLREGs). These two planners don't have the same importance whether the ASV is in open seas, in a coastal area or sailing out of a harbor.
+
+Indeed, an ASV is meant to bea able to encounter a lot of diverse situations at sea in more or less risky environments depending on a whole variety of parameters : speed, proximity of the land, visibility... To evaluate a path planning algorithm, it is thus essential to analyse its behavior in a set of situations that are representative of what an ASV might possibly encounter.
+
+Moreover, analysing the behavior of a path planner in a specific situation is not a trivial tasks : it relies on human decision  and sailor expertise. But these are subjective, unprecise and unadapted to a path planner evaluation platform. These analysises need to be put in number by the means of different KPIs (performance indicators). And to compute these KPIs, it is essential to be able to simulate the behavior of an ASV using a specific algorithm of path planner.
+
+Thus, we
+
+However, in order to select a path planning algorithm that is efficient enough to meet expectations, it is necessary to be able to evaluate its behavior in more or less risky situations. This implies on the one hand to define these situations in which the algorithm will be tested so that they are faithful to the real situations the drone could be confronted with, on the other hand to objectively define safety and performance criteria in order to be able to compare the path planning algorithms between them, and finally to implement the test platform that will allow to simulate the behavior of an algorithm according to these situations and to automate the process.
+
+The company is in search of an efficient path planning algorithm for the Inspector UAV project. In view of the multitude of existing algorithms, the context of the approach chosen by each of them and the criteria used to characterize their performance, it is necessary to be able to simulate the behavior of each of these algorithms on a large number of more or less specific but real situations and to evaluate them according to performance and safety criteria in order to be able to search for an algorithm that best satisfies these criteria.
+
+
+***
 
 L'objet de ce rapport est le projet de path planning commencé en avril 2021. Ce travail s'inscrit dans le cadre du projet inspear, plus précisément dans l'élaboration des algorithmes de path planning du drone. L'objectif de ces algorithmes est de permettre au drone de pouvoir se mouvoir accordement à la mission qui lui est confiée (généralement de l'escorte ou de la surveillance de zone) tout en évitant toute collision sur le chemin, et en respectant la réglementation sur les règles de navigation (COLREGs) en vigueur vis-à-vis des autres bateaux.
 
@@ -33,11 +51,11 @@ The company is in search of an efficient path planning algorithm for the Inspect
 
 
 ## Implementation
-#### Installation
+### Installation
 This package was coded on Ubuntu 20.04 LTS with ROS Noetic. It wouldn't work on previous versions of ROS because it uses Python 3.
 Here are the steps to take to install it from scratch, starting from a plain Ubuntu 20.04 distribution.
 
-###### ROS Installation
+#### ROS Installation
 The first step is to enable access to the repositories universe, multiverse and restricted if it not already. This needs to be typed in the terminal :
 ```
 sudo add-apt-repository universe
@@ -61,7 +79,7 @@ Before continuing, don't forget to source the ROS setup (**this needs to be done
 ```
 source /opt/ros/noetic/setup.bash
 ```
-###### Package Installation
+#### Package Installation
 Before installing the main package, we need to install the additional depedencies (some more may be necessary depending on your configuration) :
 ```
 sudo apt install ros-noetic-tf2
@@ -86,33 +104,47 @@ You will need to source the package before starting to use it and **everytime yo
 ```
 source devel/setup.bash
 ```
-#### Run
+### Run
 
-###### Get Started
-To launch a graphic user interface allowing to set easily the parameters, type in the terminal :
+#### Get Started
+##### Open Seas
+To launch a graphic user interface allowing to set easily the parameters of an _open seas_ situation, type in the terminal :
 ```
-roscd asv_common
-python3 executable5.py
+roscd open_seas_bench/scripts/python
+python3 manInterface.py
 ```
-###### Launch Simulations
+##### Cross Lane
+To launch a graphic user interface allowing to set easily the parameters of a _cross lane_ situation, type in the terminal :
+```
+roscd cross_lane/scripts
+python3 man_interface.py
+```
+##### Channeling
+To launch a simulation of a _channeling_ situation, type in the terminal :
+```
+roslaunch channeling toulon.launch
+```
+
+#### Launch Simulations
 There are two ways of properly using the package : with launchfiles or with python APIs.
 
-- Launchfiles are located in `asv_common/launch` and can be launched with
+- Launchfiles are located in the `launch/` directories of each package and can be launched with
 ```
-roslaunch asv_common name_of_the_launchfile.launch
+roslaunch name_of_the_package name_of_the_launchfile.launch
 ```
-- APIs are the python files located in `asv_common` and need to be executed by Python 3
+For some, launching them separately is pointless because they need to be called by other .launch files. The files that can be launched independently are located in `open_seas_bench`, `cross_lane` or `channeling` packages.
+- Python executables are the python files located in the `scripts/python/` directories of each package and need to be executed by Python 3
 ```
-roscd asv_common
-python3 executable_file.py
+roscd name_of_the_package/scripts
+python3 name_of_the_executable.py
 ```
 
-The parameters can either be set manually in the launch files if the simulation is launched that way, either be entered in a graphic interface for `executable5.py`, or be set in an Excel or YAML file put in `asv_common/param/` and executed respectively with `executable6.py` or `executable9.py`.
+The parameters can either be set manually in the launch files if the simulation is launched that way, either be entered in a graphic interface for files named `man_interface.py`, or be set in an Excel or YAML file put in the `config/param/` directory of the package and executed with one of the scripts whose name begin with '_auto_'.
 
-###### Inputs and Outputs
+#### Inputs and Outputs
 When a simulation is over, an input file and an output file (both plain text files) are respectively created in `asv_common/input/` and `asv_common/output/`. These are .txt files representing the table of all the parameters and indicators of all the opuses launched by a specific simulation. The naming convention is _YYYYMMDDhhmmss_.txt (Year, Month, Day, hour, minute, second of launch of the simulation). These informations can be plotted using `asv_common/graph_drawer.py`.
 
-###### Output indicators
+##### Output indicators
 
 The output consists of diverse performance indicators relative to each opus :
 - The duration of the opus  
@@ -125,13 +157,13 @@ The output consists of diverse performance indicators relative to each opus :
 
 **Include the pdf file written by Adrien**
 
-#### Content
-###### Naming Conventions
+### Content
+#### Naming Conventions
 - The source files are either located in a `/src` subdirectory of each package when written in C++, or in a `/nodes` subdirectory when written in Python. If the name of a file contains '_node_', then it is a file that creates a node.
 - The scripts used to launch a test bench are in a `scripts/` directory in the concerned packages. The main scripts are in `scripts/python`. If their name contains '_man_', it is meant for launching a single simulation with user defined parameters, if it contains '_auto_' it is meant for launching a bench using the parameters from a file in the `/config/param/` directory of the package.
 - In the structure of ROS, the nodes and topics are grouped in namespaces. For `open_seas_bench` and `cross_lane` packages, the namespaces are the number of the opus (this allows multiprocessing without naming conflicts). For `channeling`, the namespace is either `asv` or `obstacle/shipn` (n being the number of the ship), this allows to use several `asv_simulator_nodes`and path trackers.
 
-###### Packages
+#### Packages
 This package contains:
 + `asv_ctrl_vo`: an implementation of the "Velocity Obstacle" algorithm for
 collision avoidance
@@ -151,7 +183,7 @@ a simple pure pursuit scheme for path following
 and IMU data
 + `asv_common`: metapackage with launch files and more
 
-###### Nodes
+#### Nodes
 
 | Package | Node(s) |
 | --- | --- |
@@ -163,7 +195,7 @@ and IMU data
 | `asv_ctrl_vo` | `ctrl_vo_node` |
 | `asv_map_processing` | `map_processing_node` |
 
-######## Main Nodes (required)
+##### Main Nodes (required)
 + `simulator_node`: simulates the vessel
 + `LOS_node` / `PP_node`: implement a path tracker algorithm (either _Line Of Sight_ or _Pure Pursuit_) over an array of waypoints (the difference between the two algorithms can be found in  [Thomas Stenersen's thesis](https://ntnuopen.ntnu.no/ntnu-xmlui/bitstream/handle/11250/2352498/12747_FULLTEXT.pdf?sequence=1&isAllowed=y))
 + `obstacle_tracker_node / crossLaneObstNode / openSeasObstNode`: transmits the positions and velocities of the other ships to the ASV, and eventually simulates the obstacles.
@@ -171,7 +203,7 @@ and IMU data
  - `openSeasObstNode` simulates the obstacle for the `open_seas_bench` package and publish its data (one ship moving in a straight line)
  - `crossLaneObstNode`simulates the obstacle for the `cross_lane` package and publish its data
 
-######## Additional Important Nodes
+##### Additional Important Nodes
 + `referee_node`: calculates all the performance indicators and etablish the times of beginning and end of the simulation. Can be set to _required_ in the launch file to automatically close the program at the end of the simulation (only for single processing)
 + `reaper_node`: in case of multiprocessing, kills all the nodes once they are all finished. Requires _`referee_node`_
 + `global_planner_node`: implements the global_planner, the one included is an _A Star_ planner but an other one can be integrated easily
@@ -179,13 +211,13 @@ and IMU data
 + `map_processing_node`: if the simulation contains static obstacles (basically a map), creates a security margin with them by implementing obstacle inflation. Requires the _`map_server`_ node, which is included in the default ROS packages
 
 
-######## Deprecated Nodes (for information)
+##### Deprecated Nodes (for information)
 + `clock_node`: meant to accerate the simulation thus shortening its duration. Caused a degradation of the behavior of the algorithms and was then left out
 + `state_simulator_node`: incomplete implementation of the estimation of the ASV pose via GPS
 + `obstacle_tracker_nema_node`: can simulate and track the obstacles simulated by the emission of AIS signals via an UDP port. Was meant to be used with the software _Nema Studio_ but this possibility was left out
 + The whole file `asv_simulator/nodes` : these are utility nodes implemented in the original package that we never used
 
-###### Main Topics
+#### Main Topics
 _The **Architecture** part describes where each node publish and subscribe._
 
 The topics are often included in diverse namespaces indicating the opus and/or vessel related to the specific topic.
@@ -197,17 +229,17 @@ The topics are often included in diverse namespaces indicating the opus and/or v
 - `/map`, `/processed_map`, `/localmap` (optionnal, type _Occupancy Grid_): if a static map is set in the parameters, `/map` is its conversion into an occupancy grid, `/processed_map` is the implementation of the inflated static obstacles and `/local_map` is a short-ranged non-static version of the map used by the local planner  
 
 
-###### Scripts
+#### Scripts
 The packages `open_seas_bench` and `cross_lane` contain several script written in python or shell.
 
-###### Executable Scripts
+##### Executable Scripts
 
 - `manInterface.py` : launches a GUI allowing the user to manually set the parameters of the simulation and then launch the simulation
 - `autoSim.py` : launches an automated series of simulations from a parmaeter file. Only allows single processing
 - `autoSim.sh` : executes the precedent file, but allowing it to use multi processing
 - `graph_drawer.py` : data visualization from the input and output files of a simulation. The variant `graph_drawer_safety_groups.py` classifies the opuses into different groups in function of their indicators of security, time and anticipation
 
-###### Utility Scripts
+##### Utility Scripts
 
 - `clear.sh`: removes the input and output or either a specific simulation or all the scripts
 - `current_opus.sh`: indicates the maximum opus of the latest simulation  
@@ -220,7 +252,7 @@ The packages `open_seas_bench` and `cross_lane` contain several script written i
 - `rename.sh`: renames the input and output of a specific simulation (by default the latest)
 
 
-###### Other Directories
+#### Other Directories
 
 There are a few other directories that serve different purposes :
 - `rviz` : each of these directories contains the configuration files for launching rviz (.rviz)
@@ -231,11 +263,11 @@ There are a few other directories that serve different purposes :
 - `log` : these directories keep track of the output and errors of a simulation launched in the background, it is useful for debugging or spotting an anomaly
 
 
-###### Additional Message Types
+#### Additional Message Types
 
 All the message types specific to this package are generated and detailed in the sub-package`/asv_msgs`.
 
-######## Maps
+#### Maps
 The use of a static map is optionnal. To integrate a map, you need to launch a `map_sever` node, isssued from the eponym ROS default package. This node convert a YAML file linked to a PNG image into a black and white Occupancy Grid(_see the notes at the end of the document for more details_). The occupancy grid is published on the global topic `/map`. Then the `map_processing_node` needs to be launched, and will subscribe to `/map` and process the occupancy grid to inflate the static obstacles, before publishing it to `/processed_map`. The `asv_global_planner_node` by default subscribes to `/processed_map` and the `asv_ctrl_vo_node` by default subscribes to `/map`. This can be changed by using the **remap** option in the launch file. This option can also be used to make the global planner and the local planner computes on two different maps (in channeling situations, the map of the global planner has the channel drawn on it, that of the local planner is the same but without the channel).
 
 #### Architecture
@@ -323,8 +355,6 @@ The use of a static map is optionnal. To integrate a map, you need to launch a `
 │   │   ├── asv_ctrl_los_node_obstacles.py
 │   │   ├── asv_ctrl_los_node.py
 │   │   ├── asv_ctrl_pp_node.py
-│   │   ├── __pycache__
-│   │   │   └── utils.cpython-38.pyc
 │   │   ├── utils.py
 │   │   └── utils.pyc
 │   └── package.xml
@@ -352,12 +382,7 @@ The use of a static map is optionnal. To integrate a map, you need to launch a `
 │   │   │   └── viknes.yaml
 │   │   ├── rosdoc.yaml
 │   │   └── rviz
-│   │       ├── config.rviz
-│   │       ├── exec9.rviz
-│   │       ├── map_and_proc_map.rviz
-│   │       ├── one_vessel_with_map.rviz
-│   │       ├── three_vessels.rviz
-│   │       └── two_vessels.rviz
+│   │       └── ...
 │   ├── include
 │   │   ├── asv_simulator.h
 │   │   ├── asv_simulator_node.h
@@ -456,7 +481,7 @@ The use of a static map is optionnal. To integrate a map, you need to launch a `
 ![Tree third part](asv_common/images/tree3.png)
 
 
-###### Nodes and Topics
+#### Nodes and Topics
 
 To be simulated, an ASV needs at the bare minimum an `asv_simulator_node` and a path tracker node (PP or LOS). If a global planner is added, it will be placed upstream of the path tracker, if a local planner is added it will be placed downstream of the path tracker.
 
@@ -471,9 +496,9 @@ Here is the node graph of a simulation launched by `channeling` with 5 ships :
 
 (For clarity of reading some secondary topics like `/start_simulation` have been hidden)
 
-#### Functional Description
-###### Test Benches
-######## 1-to-1 Opens seas
+### Functional Description
+#### Test Benches
+##### 1-to-1 Opens seas
 Located in the package `open_seas_bench`.
 This bench aims at evaluating the behavior of the ASV when encountering another ship in open seas, with a local planner and no global planner. In this case, the set of scenarios is meant to be as exhaustive as possible, in the purpose of detecting any weakness of the local planner that could happen in a precise maritime situation. The parameters of the tested bench are the following :
 
@@ -489,7 +514,7 @@ It is also possible by launching a manual interface to change :
  - the size of the obstacle ship
  - the priority status of the obstacle ship (none, stand on or give way, this only concerns the status independantly of the current situation)
 
-######## Cross Lane
+##### Cross Lane
 Located in the package `cross_lane`.
 
 This bench aims at evaluating the behavior of the ASV in a Traffic Separation Schemes (TSS). The original inspiration was the Dover Straits TSS, but the scheme's scale has been reduced for simulation time.
@@ -524,32 +549,42 @@ The speed distribution of the boats is fixed in `crossLaneObstNode.py`:
 
 For the moment, our main interest lies in the influence of the density on perforamance and security.
 
-######## Channeling
+##### Channeling
 This aims at evaluating the behavior of the ASV when leaving a harbor by a channel, with a local planner and a global planner. The ASV can encounter ships using the channel in the other way as well as ships crossing the channel. For the moment it only consists in a specific scenario, `toulon.launch`, where the ASV is going out of Toulon's harbor by its channel and encounters many ships in the channel. The functionnal parameters and indicators that can lead to the formulation of a test bench are still to be precised.
 
 
-###### Planners
-######## Global Planner (A Star)
-The implemented global planner is a basic A Star algorithm, with just a post processing algorithm to reduce the number of waypoints. If the waypoints are not calculated by the planner they must be set as parameters in the launch file. It is meant to be used on the processed map with inflated obstacles to guarantee a security margin. To add another global planner, one just needs to put the source file and the header in the package, update the `CMakeLists.txt` and change `asv_global_planner_node.cpp` at line **19** :
-```
-GlobalPlanner *gp = new GlobalPlanner;
-```
-by changing `GlobalPlanner` with a class inheriting from the former and corresponding to the planner implemented.
+#### Planners
+##### Global Planner (A Star)
+The global planner (GP) is located in the `asv_global_planner` package.
+The implemented global planner is a basic A Star algorithm, with just a post processing algorithm to reduce the number of waypoints. If the waypoints are not calculated by the planner they must be set as parameters in the launch file. It is meant to be used on the processed map with inflated obstacles to guarantee a security margin.
 
-########## How to add one ?
+###### How to add one ?
 To integrate a new global planner and use it, here are the steps to follow :
-- First add a new .cpp file in `asv_global_planner/src` implementing the class with methods and attributes of the new GP (use the common functions described in `global_planner.cpp`). Also add in `as_global_planner/include` the corresponding .h header.
-- Then go to `asv_global_planner_node.cpp`, line 27 and change it to :
+- First add a new .cpp file in `asv_global_planner/src` implementing the class with methods and attributes of the new GP (use the common functions described in `global_planner.cpp`). the new class will need to inherit from the class GlobalPlanner, in particular the methods
+ - `void initialize()`
+ - `asv_msgs::Path calculate_waypoints()`
+
+ will need to be implemented. Add in `asv_global_planner/include/asv_global_planner` the corresponding .h header.
+- Find in the `CMakeLists.txt` the line 61 :
+```
+add_executable(asv_global_planner_node src/asv_global_planner_node.cpp src/asv_global_planner.cpp src/asv_a_star.cpp)
+```
+and add as an argument `src/name_of_your_file.cpp` to the function.
+- Then go to `asv_global_planner_node.cpp`, line **27** and change it to add the constructor of the class of the planner that is wnated :
 ```
 NewPlanner *gp = new NewPlanner(**args);
 ```
 where `NewPlanner` is the name of the class you created and `**args` are the arguments of yout constructor, if required.
-- Finally, go back to the root of the workspace and launch `catkin_make`
+- Finally, go back to the root of the workspace and launch
+```
+catkin_make
+```
 
 NB: this method doesn't allow to change easily between different global planners because it needs to modify the source code at each change of GP. A better way would be to use the parameter `global_planner` in the launch files and use it to parametrize the name of the class of the planner that needs to be used.
 
-######## Local Planner (Velocity Obstacle)
-The local planner already implemented is a Velocity Obstacle (VO) taking account of the COLREGS. The algorithm is detailled in Stenersen's thesis. It considers the static obstacles but hardly, and without any security margin. It can be more convenient to feed two different maps to the local and the global planner (when in a channel for example). When it comes to the obstacle ships, the VO considers a security distance defined in `asv_ctrl_vo/asv_ctrl_vo_node.cpp` line **149** :
+##### Local Planner (Velocity Obstacle)
+The local planner (LP) is located in the `asv_ctrl_vo` package.
+The local planner already implemented is a Velocity Obstacle (VO) taking account of the COLREGS. The algorithm is detailled in Stenersen's thesis. It considers the static obstacles but hardly, and without any security margin. It can be more convenient to feed two different maps to the local and the global planner (when in a channel for example). When it comes to the obstacle ships, the VO considers a security distance defined in `asv_ctrl_vo/src/asv_ctrl_vo_node.cpp` line **149** :
 ```
 double combined_radius = RADIUS_ + it->header.radius;
 ```
@@ -559,24 +594,68 @@ double combined_radius = RADIUS_*std::max((v_ret+0.5),1.0) + it->header.radius;
 ```
 This distance increases with the relative speed between the two ships, thus resulting in safer and more reasonable security margins. However, it was meant for open seas and this version of the planner might encounter hardships in restricted spaces. It is possible to integrate another local planner, but it would need to modify more in depth the package.
 
-########## How to add one ?
-The steps to follow are basically the same but with the file `asv_ctrl_vo/src/asv_ctrl_vo_node.cpp` line 24. The structures of the files are however not as adapted as for th GP node, there might be some other changes to do to the file. Most local planners need a path trackers to work, but some just need an array of waypoints, for the latter, a subscriber to `asv/waypoints` needs to be added and the path tracker node doesn't need to be run.
-The same remark as for the GP also applies.
+###### How to add one ?
+To integrate a new local planner and use it, here are the steps to follow :
+- First add a new .cpp file in `asv_ctrl_vo/src` implementing the class with methods and attributes of the new GP. The functions
+ - `void initialize()`
+ - `void update()`
+ - `void updateAsvState()`
+ - `void initializeMarker()`
+
+ will need to be implemented, even if they have to be empty. Add in `asv_ctrl_vo/include/asv_ctrl_vo` the corresponding .h header.
+- Find in the `CMakeLists.txt` the line **87** :
+```
+add_executable(asv_ctrl_vo_node src/asv_ctrl_vo_node.cpp src/asv_ctrl_vo.cpp)
+```
+and add as an argument `src/name_of_your_file.cpp` to the function.
+- Then go to `asv_ctrl_vo/include/asv_ctrl_vo/asv_ctrl_vo_node.h`, line **59**
+```
+VelocityObstacle *vo_;
+```
+and change it to add a pointer towards an instance of the class you implemented instead of a Velocity Obstacle (named `vo_` too) :
+```
+NewLocalPlanner *vo_;
+```
+- Finally, go back to the root of the workspace and launch
+```
+catkin_make
+```
+
+NB: Most local planners need a path trackers to work, but some just need an array of waypoints, for the latter, a subscriber to `asv/waypoints` needs to be added to `asv_ctrl_vo_node.cpp` at line **25**:
+```
+ros::Subscriber og_sub = n.subscribe("asv/waypoints",
+																		 1,
+																		 &VelocityObstacleNode::wpCallback,
+																		 &vo_node);
+```
+and add a function
+```
+void VelocityObstacleNode::wpCallback(const nav_msgs::Path::ConstPtr &msg)
+{
+	// ...
+}
+```
+at the end of the file `asv_ctrl_vo_node.cpp`. Add it also in the corresponding header. By doing that way, the path tracker node doesn't need to be run.
+
+NB2: this method doesn't allow to change easily between different local planners because it needs to modify the source code at each change of GP. A better way would be to set parameter `local_planner` in the launch files and use it to parametrize the name of the class of the planner that needs to be used. It could then be useful to create a class `LocalPlanner` from which all the classes of the local planners would inherit.
+
+#### APIs and .launch files
+The .launch files are launched by the _roslaunch_ package, which has very limited features. In particular, it is meant to launch a single simulation, and allows very little automation. That is why we worked mostly with pythons APIs, which are python scripts that can call roslaunch to execute .launch files, with different parameters and allowing the automation of a whole list of scenarios. These parameters can either be set manually in the launch files if the simulation is launched that way, either be entered in a graphic interface for files named `man_interface.py`, or be set in an Excel or YAML file put in the `config/param/` directory of the package and executed with one of the scripts whose name begin with '_auto_'.
 
 
-###### APIs and .launch files
-The .launch files are launched by the _roslaunch_ package, which has very limited features. In particular, it is meant to launch a single simulation, and allows very little automation. That is why we worked mostly with pythons APIs, which are python scripts that can call roslaunch to execute .launch files, with different parameters and allowing the automation of a whole list of scenarios. These parameters can either be entered by hand (`executable5.py`), be entered in an Excel file in `asv_common/config/param` (`executable6.py`), or for larger sets, be entered as lists in a YAML file (same path) and then be executed by `executable9.py`.
-
-######## Multiprocessing
-For now only `executable9.py` uses multiprocessing to launch several simulations simultaneously. It has several parameters set as global variables : `NB_PROCESS`, `OPUS_START` and `SERIAL_TO_UPDATE`. The first one is the number of simulations that will be simultaneously launched. It depends on the capacities of the processor of the computer executing the program, and on the computing power needed by the simulations (especially the local planner). The script `watch_cpu.sh` can help to determine the best number of processes by testing with several values (launch the script before the simulation and end it afterwards). `OPUS_START` and `SERIAL_TO_UPDATE` need to be changed if the executable needs to start but from a specific opus and needs to append the output to a previous file.
+##### Multiprocessing
+Only some of the executables allow multiprocessing to launch several simulations simultaneously. They has several parameters set as global variables : `NB_PROCESS`, `OPUS_START` and `SERIAL_TO_UPDATE`. The first one is the number of simulations that will be simultaneously launched. It depends on the capacities of the processor of the computer executing the program, and on the computing power needed by the simulations (especially the local planner). The script `watch_cpu.sh` can help to determine the best number of processes by testing with several values (launch the script before the simulation and end it afterwards). `OPUS_START` and `SERIAL_TO_UPDATE` need to be changed if the executable needs to start but from a specific opus and needs to append the output to a previous file.
 
 
-#### Issues and Improvements to be Made
+### Issues and Improvements to be Made
 
 - The gestion of maps has been since now quite laborious, consisting in screenshots from google maps arranged on Paint so that the constrast between the sea and the land would be strong enough to be detected by the `map_server` node, and the channels have been drawn by hand. There is surely a more convenient way to do the image processing.
 - The integration of global and local planners can be made easier if the manipulation of multiples planners is needed
 
-#### Notes and Remarks
+
+- u_d and MAX_VEL_
+
+### Notes and Remarks
 
 - The integration model of the simulator node described in the thesis has been upgraded to use Runge Kuta 4 instead of the method of Euler.
 - Each time an opus is launched, some information is written in ROS log files. Little by little, this can lead to huge amount of useless data using space on the machine, that's why it might be interesting when launching long benches to purge the log files that way :

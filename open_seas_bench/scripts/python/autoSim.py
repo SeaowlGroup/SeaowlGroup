@@ -32,8 +32,8 @@ def run(serial, params, uuid) :
     for scenar in params:
 
         h = scenar[0]
-        u_d = scenar[1]*0.514444 #knots to m/s
-        u_d_asv = scenar[2]*0.514444 #knots to m/s
+        u_d = scenar[1]
+        u_d_asv = scenar[2]
         dcpa = scenar[3]
         d_detec = scenar[4]
         opus = scenar[5]
@@ -63,17 +63,20 @@ def run(serial, params, uuid) :
             class_scen = 'CROSSING_RIGHT'
             group = 5
 
+        input = f"{rospack.get_path('open_seas_bench')}/input/{serial}.txt"
+        f = open(input,'a')
+        f.write(f'{opus}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}    {group}\n')
+        f.close()
+
+        u_d = u_d*0.514444 #knots to m/s
+        u_d_asv = u_d_asv*0.514444 #knots to m/s
+
         # ASV parameters
         calc_heading_asv = np.pi/2
         initial_state_asv = [0.,0.,calc_heading_asv, u_d_asv,0.,0.]
         #Trajectory
         waypoints_asv = [[0.,0.],
                          [t_sim*u_d_asv*np.cos(calc_heading_asv), t_sim*u_d_asv*np.sin(calc_heading_asv)]]
-
-        input = f"{rospack.get_path('open_seas_bench')}/input/{serial}.txt"
-        f = open(input,'a')
-        f.write(f'{opus}    {class_scen}   {u_d_asv}    {lp}    {h}    {u_d}    {dcpa}    {size}    {type}    {d_detec}    {group}\n')
-        f.close()
 
         # Creation of the launch files
         cli_args1 = ['open_seas_bench', 'openSeasBench.launch',
@@ -118,7 +121,6 @@ if __name__ == "__main__":
 
     if len(sys.argv) <= 3 :
         print(f'Usage: {sys.argv[0]} <bench> <op_start> <op_end> <serial>')
-        # return(0)
         sys.exit(1)
 
     op_start =  int(sys.argv[2])
@@ -147,25 +149,26 @@ if __name__ == "__main__":
 
     params = []
     opus = 1
-    for h in yaml_content['heading']:
-        for u_d in yaml_content['u_d']:
-            for u_d_asv in yaml_content['u_d_asv']:
-                for dcpa in yaml_content['dcpa']:
-                    for d_detec in yaml_content['d_detection']:
+    try:
+        for h in yaml_content['heading']:
+            for u_d in yaml_content['u_d']:
+                for u_d_asv in yaml_content['u_d_asv']:
+                    for dcpa in yaml_content['dcpa']:
+                        for d_detec in yaml_content['d_detection']:
 
-                        if opus > op_end:
-                            sys.exit(0)
-                            # return(opus)
+                            if opus > op_end:
+                                sys.exit(0)
 
-                        if (h<340 and h>20 or np.abs(u_d-u_d_asv)>2.57) and (d_detec > np.abs(dcpa)):
-                            if opus >= op_start:
-                                params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])
-                            opus += 1
-                            if len(params) == NB_PROCESS or  (len(params) > 0 and opus > op_end):
-                                if os.path.exists('nohup.out'):
-                                    os.remove('nohup.out')
-                                if os.path.exists('nohup.err'):
-                                    os.remove('nohup.err')
-                                run(serial, params, uuid)
-                                params = []
-    # return(-1)
+                            if (h<340 and h>20 or np.abs(u_d-u_d_asv)>2.57) and (d_detec > np.abs(dcpa)):
+                                if opus >= op_start:
+                                    params.append([h, u_d, u_d_asv, dcpa, d_detec, opus])
+                                opus += 1
+                                if len(params) == NB_PROCESS or  (len(params) > 0 and opus > op_end):
+                                    if os.path.exists('nohup.out'):
+                                        os.remove('nohup.out')
+                                    if os.path.exists('nohup.err'):
+                                        os.remove('nohup.err')
+                                    run(serial, params, uuid)
+                                    params = []
+    except KeyboardInterrupt:
+        pass

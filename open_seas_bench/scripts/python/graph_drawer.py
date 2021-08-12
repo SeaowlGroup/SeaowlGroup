@@ -19,8 +19,8 @@ class Fig(object):
         self.input = input
         self.output = output
 
-        self.i = 0
-        self.j = 1
+        self.x = 0
+        self.y = 1
 
         self.xlab = ['OPUS', 'ANGLE', 'U_D', 'RLD', 'LLD', 'RLW', 'LLW', 'LD', 'GROUP']
         self.ylab = ['TIME', 'LOG_COL', 'NAT_COL', 'OFFSET_LOG', 'ANTICIPATION_ACC', 'ANTICIPATION_OMEGA',
@@ -35,9 +35,7 @@ class Fig(object):
 
         for line in f1:
             content = line.split()
-            print(content)
             self.groups.append(int(content[8]))
-            print(int(content[8]))
             self.colors.append(COLOR[int(content[8])])
             #if content[3] == "True":
             self.labels.append('Velocity Obstacles')
@@ -64,16 +62,16 @@ class Fig(object):
 
         f1 = open(self.input,'r')
         f2 = open(self.output,'r')
+    
         f1.readline()
         f2.readline()
 
         for line in f1:
             content = line.split()
-            #if (float(content[2]) > 1.5):
-            x.append(float(content[self.i]))
+            x.append(float(content[self.x]))
         for line in f2:
             content = line.split()
-            y.append(float(content[self.j]))
+            y.append(float(content[self.y]))
 
         f1.close()
         f2.close()
@@ -82,8 +80,8 @@ class Fig(object):
 
         ax = figure.add_subplot(111)
         ax.set_title("Results of the Simulation")
-        ax.set_xlabel(self.xlab[self.i])
-        ax.set_ylabel(self.ylab[self.j-1])
+        ax.set_xlabel(self.xlab[self.x])
+        ax.set_ylabel(self.ylab[self.y-1])
 
         n = min(len(x), len(y))
 
@@ -156,8 +154,8 @@ def gui(name):
     def update_plot():
         clear_frame(graph_frame)
 
-        graph_fig.i = x.get()
-        graph_fig.j = y.get()
+        graph_fig.x = x.get()
+        graph_fig.y = y.get()
         graph_fig.cutoff = cutoff.get()
         graph_fig.disp_lp = [bool(lp.get()), bool(vo.get())]
         for g in range(graph_fig.n_groups):

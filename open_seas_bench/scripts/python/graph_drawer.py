@@ -33,6 +33,8 @@ class Fig(object):
         f1 = open(self.input,'r')
         f1.readline()
 
+        self.idata = []
+
         for line in f1:
             content = line.split()
             self.groups.append(int(content[8]))
@@ -116,8 +118,8 @@ def gui(name):
     title = name.split('.')[0]
     aux_frame.title(title)
 
-    input = f"{rospack.get_path('cross_lane')}/input/{name}"
-    output = f"{rospack.get_path('cross_lane')}/output/{name}"
+    input = f"{rospack.get_path('open_seas_bench')}/input/{name}"
+    output = f"{rospack.get_path('open_seas_bench')}/output/{name}"
     graph_fig = Fig(input=input, output=output)
 
     graph_frame = tk.Frame(aux_frame, bg='white')
@@ -209,7 +211,7 @@ if __name__ == "__main__":
 
     rospack = rospkg.RosPack()
     filepath = tk.filedialog.askopenfilename(title="Load a file :",filetypes=[('txt files','.txt'),('all files','.*')],
-                                             initialdir=f"{rospack.get_path('cross_lane')}/output/")
+                                             initialdir=f"{rospack.get_path('open_seas_bench')}/output/")
     if filepath:
         name = filepath.split('/')[-1]
         gui(name)

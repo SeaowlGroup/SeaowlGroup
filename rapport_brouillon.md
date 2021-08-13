@@ -12,8 +12,6 @@
 - Quels sont les objectifs atteints ? ceux qui ne sont pas atteints
 - Annexe: scriptes / programmes avec commentaires
 
-détailler le projet inspear ?
-
 ***
 
 ***

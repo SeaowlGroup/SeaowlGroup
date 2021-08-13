@@ -120,7 +120,7 @@ void ExerciseLocalPlanner::update_VelocityGrid()
     for (int t_it=0; t_it<ANG_SAMPLES_; ++t_it) {
       u = u0 + u_it*du;
       t = theta0 + t_it*dtheta;
-      // normalize_angle_diff(t, va_ref[1]);
+      // normalize_angle_diff2(t, va_ref[1]);
 
       vi[0] = u*cos(t) - vref[0];
       vi[1] = u*sin(t) - vref[1];
@@ -195,13 +195,13 @@ void ExerciseLocalPlanner::update_VelocityGrid()
 
     switch (state_list_[i])
       {
-      case NO_SITUATION:
+      case NO_SITUATION2:
         if (apply_colregs)
           state_list_[i] = colregs_situation;
         else
           state_list_[i] = NO_SITUATION2;
         break;
-      case HEAD_ON:
+      case HEAD_ON2:
         // Head on is resolved when the colregs_situation changes (relative
         // bearing larger than +/- 112.5 deg)
         if (apply_colregs)
@@ -216,7 +216,7 @@ void ExerciseLocalPlanner::update_VelocityGrid()
         else
           state_list_[i] = NO_SITUATION2;
         break;
-      case CROSSING_RIGHT:
+      case CROSSING_RIGHT2:
         // Pass behind the other vessel
         // 112.5*DEG2RAD <= alpha < 247.5*DEG2RAD
         if ( !(112.15*DEG2RAD <= bearing  && bearing < 247.5*DEG2RAD) ) {

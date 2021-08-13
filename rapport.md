@@ -450,6 +450,7 @@ Here is the node graph of a simulation launched by `cross_lane` (without multipr
 
 Here is the node graph of a simulation launched by `channeling` with 5 ships :
 ![Graph 3](asv_common/images/rosgraph_channeling.png)
+![Graph 4](asv_common/images/rosgraph_channeling2.png)
 
 (For clarity of reading some secondary topics like `/start_simulation` have been hidden)
 
